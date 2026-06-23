@@ -1,0 +1,86 @@
+@import '../ManageServerUsersDialog/ManageServerUsersDialog.css';
+
+/* ── MySQL-specific additions ── */
+
+.manage-users-dialog__mysql-flags {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.875rem 1rem;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.3rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.manage-users-dialog__privileges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.5rem 1rem;
+}
+
+.manage-users-dialog__db-privs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.manage-users-dialog__db-priv-entry {
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.3rem;
+  overflow: hidden;
+}
+
+.manage-users-dialog__db-priv-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  background: var(--color-surface);
+  user-select: none;
+  transition: background-color 100ms ease;
+}
+
+.manage-users-dialog__db-priv-header:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.manage-users-dialog__db-priv-name {
+  flex: 1;
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--color-on-surface);
+}
+
+.manage-users-dialog__db-priv-count {
+  font-size: var(--font-xs);
+  color: var(--color-muted);
+}
+
+.manage-users-dialog__db-priv-remove {
+  border: none;
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 0.2rem;
+  transition: color 100ms ease;
+}
+
+.manage-users-dialog__db-priv-remove:hover {
+  color: var(--color-danger, #ff6b6b);
+}
+
+.manage-users-dialog__db-priv-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.4rem 1rem;
+  padding: 0.75rem;
+  border-top: 0.0625rem solid var(--color-border);
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.manage-users-dialog__db-priv-add-row {
+  padding-top: 0.25rem;
+}

@@ -1,0 +1,43 @@
+.profiler-dialog__subtitle {
+  font-size: var(--font-sm);
+  color: var(--color-muted);
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.profiler-dialog__section-label {
+  font-size: var(--font-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  margin: 0 0 0.55rem;
+}
+
+.profiler-dialog__events {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.profiler-dialog__event-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.profiler-dialog__checkbox {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.profiler-dialog__event-label {
+  font-size: var(--font-sm);
+  color: var(--color-on-surface);
+}
+

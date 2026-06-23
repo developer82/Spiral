@@ -1,0 +1,267 @@
+/* ============================================================
+   ExecutionPlanCanvas — Execution Plan graph styles
+   ============================================================ */
+
+.ep-canvas {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+/* -----------------------------------------------------------------------
+   Statement Selector
+----------------------------------------------------------------------- */
+
+.ep-stmt-selector {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  flex-shrink: 0;
+}
+
+.ep-stmt-selector__btn {
+  padding: 4px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ep-stmt-selector__btn:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-on-surface);
+}
+
+.ep-stmt-selector__btn--active {
+  background: rgba(161, 250, 255, 0.08);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* -----------------------------------------------------------------------
+   React Flow wrapper
+----------------------------------------------------------------------- */
+
+.ep-canvas .react-flow {
+  flex: 1;
+  height: 100%;
+}
+
+/* -----------------------------------------------------------------------
+   Execution Plan Node
+----------------------------------------------------------------------- */
+
+.ep-node {
+  position: relative;
+  width: 168px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  overflow: visible;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  cursor: default;
+}
+
+.ep-node:hover {
+  border-color: var(--color-border-accent);
+  box-shadow: 0 0 0 1px var(--color-border-accent), 0 4px 16px rgba(0, 0, 0, 0.4);
+  z-index: 10;
+}
+
+/* Cost-band border accents */
+.ep-node--critical { border-top: 2px solid #ff4444; }
+.ep-node--high     { border-top: 2px solid #ff8c00; }
+.ep-node--medium   { border-top: 2px solid #e0c030; }
+.ep-node--low      { border-top: 2px solid #7cbf5a; }
+.ep-node--minimal  { border-top: 2px solid var(--color-border); }
+
+/* -----------------------------------------------------------------------
+   Cost bar at top of node
+----------------------------------------------------------------------- */
+
+.ep-node__cost-bar {
+  height: 3px;
+  background: var(--color-border);
+  border-radius: 0 0 2px 2px;
+  overflow: hidden;
+  margin: 0 4px 6px;
+}
+
+.ep-node__cost-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.ep-node__cost-fill--critical { background: #ff4444; }
+.ep-node__cost-fill--high     { background: #ff8c00; }
+.ep-node__cost-fill--medium   { background: #e0c030; }
+.ep-node__cost-fill--low      { background: #7cbf5a; }
+.ep-node__cost-fill--minimal  { background: var(--color-muted); }
+
+/* -----------------------------------------------------------------------
+   Node content layout
+----------------------------------------------------------------------- */
+
+.ep-node__content {
+  display: flex;
+  gap: 8px;
+  padding: 0 10px 8px;
+  align-items: flex-start;
+}
+
+.ep-node__icon-wrap {
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.ep-node__icon-wrap--critical { background: rgba(255, 68, 68, 0.15); color: #ff4444; }
+.ep-node__icon-wrap--high     { background: rgba(255, 140, 0, 0.15); color: #ff8c00; }
+.ep-node__icon-wrap--medium   { background: rgba(224, 192, 48, 0.15); color: #e0c030; }
+.ep-node__icon-wrap--low      { background: rgba(124, 191, 90, 0.15); color: #7cbf5a; }
+.ep-node__icon-wrap--minimal  { background: var(--color-surface-hover); color: var(--color-muted); }
+
+.ep-node__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ep-node__op {
+  margin: 0;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.ep-node__table {
+  margin: 1px 0 0;
+  font-size: 10.5px;
+  color: var(--color-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.ep-node__stats {
+  margin: 3px 0 0;
+  font-size: 10px;
+  color: var(--color-muted);
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+}
+
+.ep-node__separator {
+  color: var(--color-border);
+}
+
+.ep-node__cost-pct {
+  font-weight: 700;
+}
+
+.ep-node__cost-pct--critical { color: #ff4444; }
+.ep-node__cost-pct--high     { color: #ff8c00; }
+.ep-node__cost-pct--medium   { color: #e0c030; }
+.ep-node__cost-pct--low      { color: #7cbf5a; }
+.ep-node__cost-pct--minimal  { color: var(--color-muted); }
+
+/* -----------------------------------------------------------------------
+   React Flow handles
+----------------------------------------------------------------------- */
+
+.ep-node__handle {
+  width: 8px !important;
+  height: 8px !important;
+  background: var(--color-border-accent) !important;
+  border: 2px solid var(--color-surface) !important;
+  border-radius: 50% !important;
+}
+
+/* -----------------------------------------------------------------------
+   Hover tooltip / stats panel
+----------------------------------------------------------------------- */
+
+.ep-node__tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  width: 220px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-accent);
+  border-radius: 7px;
+  padding: 10px 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+.ep-node__tooltip-title {
+  margin: 0 0 2px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+.ep-node__tooltip-logical {
+  margin: 0 0 8px;
+  font-size: 10.5px;
+  color: var(--color-muted);
+}
+
+.ep-node__tooltip-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 8px;
+  font-size: 11px;
+}
+
+.ep-node__tooltip-grid > span:nth-child(odd) {
+  color: var(--color-muted);
+}
+
+.ep-node__tooltip-grid > span:nth-child(even) {
+  color: var(--color-on-surface);
+  font-weight: 500;
+  text-align: right;
+  word-break: break-all;
+}
+
+/* -----------------------------------------------------------------------
+   Error state
+----------------------------------------------------------------------- */
+
+.ep-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 100%;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.ep-error svg {
+  color: #ff4444;
+  flex-shrink: 0;
+}

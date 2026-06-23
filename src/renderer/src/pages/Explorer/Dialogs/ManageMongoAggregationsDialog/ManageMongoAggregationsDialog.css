@@ -1,0 +1,546 @@
+/* ── Body: split layout ── */
+
+.agg-dialog__body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Left panel: aggregation list ── */
+
+.agg-dialog__list-panel {
+  width: 220px;
+  min-width: 180px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 0.0625rem solid var(--color-border);
+}
+
+.agg-dialog__list-header {
+  padding: 0.75rem 1rem 0.5rem;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 0.0625rem solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.agg-dialog__list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.375rem 0;
+}
+
+.agg-dialog__list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: var(--font-sm);
+  color: var(--color-on-surface);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 100ms ease;
+  word-break: break-all;
+}
+
+.agg-dialog__list-item:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.agg-dialog__list-item--selected {
+  background-color: var(--color-accent-subtle, rgba(99, 179, 237, 0.12));
+  color: var(--color-accent, #63b3ed);
+}
+
+.agg-dialog__list-item--selected:hover {
+  background-color: var(--color-accent-subtle, rgba(99, 179, 237, 0.18));
+}
+
+.agg-dialog__list-add {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-top: 0.0625rem solid var(--color-border);
+  background: none;
+  color: var(--color-muted);
+  font-size: var(--font-sm);
+  cursor: pointer;
+  width: 100%;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
+}
+
+.agg-dialog__list-add:hover {
+  color: var(--color-on-surface);
+  background-color: var(--color-surface-hover);
+}
+
+/* ── Right panel: editor ── */
+
+.agg-dialog__editor-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.agg-dialog__editor-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.agg-dialog__empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--color-muted);
+  font-size: var(--font-sm);
+  text-align: center;
+  padding: 2rem;
+}
+
+/* ── Name field ── */
+
+.agg-dialog__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.agg-dialog__label {
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.agg-dialog__input {
+  height: 2.2rem;
+  padding: 0 0.75rem;
+  background: var(--color-input-bg, var(--color-surface));
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.3rem;
+  color: var(--color-on-surface);
+  font-size: var(--font-sm);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 150ms ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.agg-dialog__input:focus {
+  border-color: var(--color-accent, #63b3ed);
+}
+
+/* ── Document examples ── */
+
+.agg-dialog__examples-section {
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+
+.agg-dialog__examples-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-surface);
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: background-color 100ms ease;
+}
+
+.agg-dialog__examples-toggle:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.agg-dialog__examples-body {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  border-top: 0.0625rem solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.agg-dialog__example-doc {
+  flex: 1 1 calc(33.33% - 0.5rem);
+  min-width: 180px;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-code-bg, rgba(0,0,0,0.2));
+  border-radius: 0.25rem;
+  font-size: var(--font-xs);
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  color: var(--color-on-surface);
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 8rem;
+  overflow-y: auto;
+  margin: 0;
+}
+
+.json-hl-key    { color: var(--color-accent, #63b3ed); }
+.json-hl-string { color: #7ec8a0; }
+.json-hl-number { color: #f0b37e; }
+.json-hl-bool   { color: #c792ea; }
+.json-hl-null   { color: var(--color-muted); }
+
+/* ── Stages section ── */
+
+.agg-dialog__stages-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.agg-dialog__stages-title {
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.agg-dialog__add-stage-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.275rem;
+  padding: 0.3rem 0.6875rem;
+  border-radius: 0.275rem;
+  background: var(--color-primary);
+  color: var(--color-primary-on-solid);
+  border: none;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+}
+
+.agg-dialog__add-stage-btn:hover {
+  opacity: 0.85;
+}
+
+/* ── Stage card ── */
+
+.agg-dialog__stage-card {
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.375rem;
+  transition: border-color 150ms ease;
+}
+
+.agg-dialog__stage-card--dragging {
+  opacity: 0.4;
+}
+
+.agg-dialog__stage-card--dragover {
+  border-color: var(--color-accent, #63b3ed);
+}
+
+/* ── Stage card header ── */
+
+.agg-dialog__stage-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-surface);
+  border-bottom: 0.0625rem solid var(--color-border);
+  min-height: 2.5rem;
+  border-radius: 0.375rem 0.375rem 0 0;
+}
+
+.agg-dialog__stage-card--collapsed .agg-dialog__stage-header {
+  border-bottom: none;
+  border-radius: 0.375rem;
+}
+
+.agg-dialog__drag-handle {
+  cursor: grab;
+  color: var(--color-muted);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.agg-dialog__drag-handle:active {
+  cursor: grabbing;
+}
+
+.agg-dialog__stage-number {
+  font-size: var(--font-xs);
+  color: var(--color-muted);
+  flex-shrink: 0;
+  min-width: 1.5rem;
+}
+
+.agg-dialog__stage-type {
+  flex: 1;
+  min-width: 0;
+}
+
+.agg-dialog__stage-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.agg-dialog__stage-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.4rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: var(--font-xs);
+  color: var(--color-muted);
+  border-radius: 0.2rem;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
+}
+
+.agg-dialog__stage-toggle:hover {
+  background-color: var(--color-surface-hover);
+  color: var(--color-on-surface);
+}
+
+.agg-dialog__stage-toggle--enabled {
+  color: var(--color-accent, #63b3ed);
+}
+
+.agg-dialog__stage-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-muted);
+  border-radius: 0.2rem;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
+}
+
+.agg-dialog__stage-icon-btn:hover {
+  background-color: var(--color-surface-hover);
+  color: var(--color-on-surface);
+}
+
+.agg-dialog__stage-icon-btn--danger:hover {
+  color: var(--color-error, #e53e3e);
+}
+
+/* ── Stage card body ── */
+
+.agg-dialog__stage-body {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.agg-dialog__stage-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  min-height: 10rem;
+}
+
+.agg-dialog__stage-editor-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  overflow: hidden;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.25rem;
+}
+
+/* ── Stage preview pane ── */
+
+.agg-dialog__preview-pane {
+  display: flex;
+  flex-direction: column;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.25rem;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.agg-dialog__preview-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  background: var(--color-surface);
+  border-bottom: 0.0625rem solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.agg-dialog__preview-label {
+  font-size: var(--font-xs);
+  color: var(--color-muted);
+  flex: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.agg-dialog__preview-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: var(--font-xs);
+  color: var(--color-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.agg-dialog__preview-toggle input[type='checkbox'] {
+  accent-color: var(--color-accent, #63b3ed);
+  cursor: pointer;
+}
+
+.agg-dialog__preview-run-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.5rem;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.2rem;
+  background: none;
+  color: var(--color-muted);
+  font-size: var(--font-xs);
+  cursor: pointer;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
+}
+
+.agg-dialog__preview-run-btn:hover {
+  color: var(--color-accent, #63b3ed);
+  border-color: var(--color-accent, #63b3ed);
+}
+
+.agg-dialog__preview-run-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.agg-dialog__preview-body {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+}
+
+.agg-dialog__preview-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-muted);
+  font-size: var(--font-xs);
+  padding: 1rem;
+  text-align: center;
+}
+
+.agg-dialog__preview-error {
+  padding: 0.75rem;
+  color: var(--color-error, #e53e3e);
+  font-size: var(--font-xs);
+}
+
+.agg-dialog__preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-xs);
+}
+
+.agg-dialog__preview-table th {
+  position: sticky;
+  top: 0;
+  background: var(--color-surface);
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 0.0625rem solid var(--color-border);
+  white-space: nowrap;
+}
+
+.agg-dialog__preview-table td {
+  padding: 0.3rem 0.5rem;
+  border-bottom: 0.0625rem solid var(--color-border);
+  color: var(--color-on-surface);
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agg-dialog__preview-table tr:last-child td {
+  border-bottom: none;
+}
+
+.agg-dialog__preview-table tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* ── Stage disabled overlay ── */
+
+.agg-dialog__stage-card--disabled .agg-dialog__stage-body {
+  opacity: 0.5;
+}
+
+/* ── JSON error ── */
+
+.agg-dialog__stage-error {
+  font-size: var(--font-xs);
+  color: var(--color-error, #e53e3e);
+  padding: 0.25rem 0;
+}
+
+/* ── Stages empty ── */
+
+.agg-dialog__stages-empty {
+  color: var(--color-muted);
+  font-size: var(--font-sm);
+  text-align: center;
+  padding: 1.5rem;
+  border: 0.0625rem dashed var(--color-border);
+  border-radius: 0.375rem;
+}

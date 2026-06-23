@@ -1,0 +1,66 @@
+/* ── Toggle switch ── */
+
+.toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.toggle__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle__track {
+  width: 3.025rem;
+  height: 1.65rem;
+  background-color: var(--color-toggle-off);
+  border-radius: 0.825rem;
+  position: relative;
+  transition: background-color 200ms ease;
+  pointer-events: none;
+}
+
+.toggle__input:checked + .toggle__track {
+  background-color: var(--color-toggle-on);
+}
+
+.toggle__thumb {
+  position: absolute;
+  top: 0.1375rem;
+  left: 0.1375rem;
+  width: var(--icon-md);
+  height: var(--icon-md);
+  background-color: #fff;
+  border-radius: 50%;
+  transition: transform 200ms ease;
+  pointer-events: none;
+}
+
+.toggle__input:checked + .toggle__track .toggle__thumb {
+  transform: translateX(var(--icon-md));
+}
+
+/* ── Small size variant ── */
+
+.toggle--sm .toggle__track {
+  width: 2.475rem;
+  height: 1.375rem;
+  border-radius: 0.6875rem;
+}
+
+.toggle--sm .toggle__thumb {
+  top: 0.1875rem;
+  left: 0.1875rem;
+  width: 1rem;
+  height: 1rem;
+  box-shadow: 0 0.0625rem 0.25rem rgba(0, 0, 0, 0.3);
+}
+
+.toggle--sm .toggle__input:checked + .toggle__track .toggle__thumb {
+  transform: translateX(1.1rem);
+}

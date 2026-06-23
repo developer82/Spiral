@@ -1,0 +1,6 @@
+.confirm-dialog__message {
+  font-size: var(--font-sm);
+  line-height: 1.6;
+  color: var(--color-on-surface);
+  margin: 0;
+}

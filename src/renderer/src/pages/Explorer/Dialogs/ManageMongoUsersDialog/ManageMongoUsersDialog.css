@@ -1,0 +1,105 @@
+@import '../ManageServerUsersDialog/ManageServerUsersDialog.css';
+
+/* ── MongoDB-specific additions ── */
+
+.mongo-users__roles-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-sm);
+}
+
+.mongo-users__roles-table th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-muted);
+  padding: 0.3rem 0.5rem;
+  border-bottom: 0.0625rem solid var(--color-border);
+  font-size: var(--font-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mongo-users__roles-table td {
+  padding: 0.35rem 0.5rem;
+  border-bottom: 0.0625rem solid var(--color-border);
+  vertical-align: middle;
+}
+
+.mongo-users__roles-table tr:last-child td {
+  border-bottom: none;
+}
+
+.mongo-users__role-select {
+  width: 100%;
+  padding: 0.3rem 0.5rem;
+  font-size: var(--font-sm);
+  background: var(--color-input-bg, var(--color-surface));
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.3rem;
+  color: var(--color-on-surface);
+}
+
+.mongo-users__role-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.mongo-users__db-input {
+  width: 100%;
+  padding: 0.3rem 0.5rem;
+  font-size: var(--font-sm);
+  background: var(--color-input-bg, var(--color-surface));
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.3rem;
+  color: var(--color-on-surface);
+}
+
+.mongo-users__db-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.mongo-users__remove-btn {
+  border: none;
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: var(--font-sm);
+  transition: color 100ms ease, background-color 100ms ease;
+}
+
+.mongo-users__remove-btn:hover {
+  color: var(--color-danger, #ff6b6b);
+  background: var(--color-surface-hover);
+}
+
+.mongo-users__add-role-row {
+  margin-top: 0.75rem;
+}
+
+.mongo-users__add-role-btn {
+  padding: 0.35rem 0.75rem;
+  font-size: var(--font-sm);
+  background: var(--color-surface);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.3rem;
+  color: var(--color-on-surface);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background-color 100ms ease;
+}
+
+.mongo-users__add-role-btn:hover {
+  background: var(--color-surface-hover);
+}
+
+.mongo-users__empty-roles {
+  padding: 1rem 0;
+  color: var(--color-muted);
+  font-size: var(--font-sm);
+  text-align: center;
+}

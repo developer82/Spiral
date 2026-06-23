@@ -1,0 +1,96 @@
+/* ── About Dialog overlay ── */
+
+.about-dialog {
+  position: fixed;
+  inset: 0;
+  background: var(--dialog-overlay-bg);
+  backdrop-filter: var(--dialog-overlay-filter);
+  -webkit-backdrop-filter: var(--dialog-overlay-filter);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1.65rem;
+}
+
+/* ── Dialog panel ── */
+
+.about-dialog__panel {
+  background: var(--dialog-panel-bg);
+  backdrop-filter: var(--dialog-panel-filter);
+  -webkit-backdrop-filter: var(--dialog-panel-filter);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: var(--dialog-border-radius);
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 1.65rem 4.4rem rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+/* ── Video ── */
+
+.about-dialog__video-container {
+  width: 100%;
+  overflow: hidden;
+  background: #000;
+  line-height: 0;
+}
+
+.about-dialog__video {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* ── Body ── */
+
+.about-dialog__body {
+  padding: 1.5rem 1.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.about-dialog__app-name {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-on-surface);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.about-dialog__version {
+  font-size: var(--font-sm);
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.about-dialog__credit {
+  font-size: var(--font-sm);
+  color: var(--color-muted);
+  margin: 0.25rem 0 0;
+  line-height: 1.5;
+}
+
+.about-dialog__description {
+  font-size: var(--font-sm);
+  color: var(--color-on-surface);
+  margin: 0.25rem 0 0;
+  line-height: 1.6;
+}
+
+/* ── Footer ── */
+
+.about-dialog__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.875rem 1.25rem;
+  border-top: 0.0625rem solid var(--color-border);
+  flex-shrink: 0;
+}
+

@@ -1,0 +1,4 @@
+provider: github
+owner: developer82
+repo: Spiral
+updaterCacheDirName: spiral-updater

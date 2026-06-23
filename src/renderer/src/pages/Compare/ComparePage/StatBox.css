@@ -1,0 +1,33 @@
+.stat-box {
+  border: 0.0625rem solid var(--color-input-border);
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--stat-box-bg-color, transparent);
+}
+
+.stat-box__title {
+  font-size: var(--font-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+  color: var(--stat-box-main-color);
+}
+
+.stat-box__value {
+  font-size: var(--font-xl);;
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+.stat-box__strip {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-color: var(--stat-box-main-color);
+}

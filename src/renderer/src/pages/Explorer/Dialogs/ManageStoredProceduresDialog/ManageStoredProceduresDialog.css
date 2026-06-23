@@ -1,0 +1,342 @@
+/* ── Body: split ── */
+
+.sp-dialog__body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Left list panel ── */
+
+.sp-dialog__list-panel {
+  width: 220px;
+  min-width: 180px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 0.0625rem solid var(--color-border);
+}
+
+.sp-dialog__list-header {
+  padding: 0.75rem 1rem 0.5rem;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 0.0625rem solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.sp-dialog__list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.3rem 0;
+}
+
+.sp-dialog__list-loading,
+.sp-dialog__list-error,
+.sp-dialog__list-empty {
+  padding: 0.65rem 1rem;
+  font-size: var(--font-sm);
+  color: var(--color-muted);
+}
+
+.sp-dialog__list-error {
+  color: var(--color-error, #fc8181);
+}
+
+.sp-dialog__list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.45rem 1rem;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  color: var(--color-on-surface);
+  font-size: var(--font-sm);
+  transition: background-color 100ms ease;
+  overflow: hidden;
+}
+
+.sp-dialog__list-item:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.sp-dialog__list-item--active {
+  background-color: var(--color-active-item, rgba(99, 179, 237, 0.12));
+  color: var(--color-accent, #63b3ed);
+  font-weight: 600;
+}
+
+.sp-dialog__list-icon {
+  flex-shrink: 0;
+}
+
+.sp-dialog__list-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.sp-dialog__list-footer {
+  border-top: 0.0625rem solid var(--color-border);
+  padding: 0.5rem 0.65rem;
+  flex-shrink: 0;
+}
+
+.sp-dialog__new-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.45rem 0.75rem;
+  background: none;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.275rem;
+  color: var(--color-on-surface);
+  font-size: var(--font-sm);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.sp-dialog__new-btn:hover {
+  background-color: var(--color-surface-hover);
+}
+
+/* ── Right editor panel ── */
+
+.sp-dialog__editor-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sp-dialog__editor-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-muted);
+  font-size: var(--font-sm);
+}
+
+/* ── Section wrapper ── */
+
+.sp-dialog__section {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  border-bottom: 0.0625rem solid var(--color-border);
+}
+
+.sp-dialog__section--body {
+  flex: 1;
+  overflow: hidden;
+  border-bottom: none;
+}
+
+.sp-dialog__section-header {
+  padding: 0.5rem 1.1rem 0.4rem;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 0.0625rem solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.sp-dialog__section-header--with-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ── Properties ── */
+
+.sp-dialog__properties-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  padding: 0.65rem 1.1rem;
+  flex-wrap: wrap;
+}
+
+.sp-dialog__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 160px;
+  max-width: 340px;
+}
+
+.sp-dialog__field--schema {
+  flex: 0 0 130px;
+  min-width: 100px;
+}
+
+.sp-dialog__field--description {
+  flex: 2;
+  min-width: 200px;
+  max-width: none;
+}
+
+.sp-dialog__field-label {
+  font-size: var(--font-xs);
+  color: var(--color-muted);
+  font-weight: 600;
+}
+
+.sp-dialog__field-input,
+.sp-dialog__field-select {
+  background: var(--color-bg);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.275rem;
+  padding: 0.4rem 0.6rem;
+  font-size: var(--font-sm);
+  color: var(--color-on-surface);
+  outline: none;
+  transition: border-color 150ms ease;
+}
+
+.sp-dialog__field-input:focus,
+.sp-dialog__field-select:focus {
+  border-color: var(--color-accent, #63b3ed);
+}
+
+.sp-dialog__field-input::placeholder {
+  color: var(--color-muted);
+}
+
+/* ── Parameters ── */
+
+.sp-dialog__params-table-wrap {
+  overflow-y: auto;
+  max-height: 160px;
+  padding: 0.4rem 1.1rem 0.5rem;
+}
+
+.sp-dialog__params-empty {
+  padding: 0.4rem 0;
+  font-size: var(--font-sm);
+  color: var(--color-muted);
+}
+
+.sp-dialog__params-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-sm);
+}
+
+.sp-dialog__params-th {
+  text-align: left;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-muted);
+  padding: 0 0.4rem 0.35rem;
+  border-bottom: 0.0625rem solid var(--color-border);
+}
+
+.sp-dialog__params-th--action {
+  width: 2rem;
+}
+
+.sp-dialog__params-row:not(:last-child) .sp-dialog__params-td {
+  border-bottom: 0.0625rem solid var(--color-border);
+}
+
+.sp-dialog__params-td {
+  padding: 0.3rem 0.4rem;
+  vertical-align: middle;
+}
+
+.sp-dialog__params-td--action {
+  width: 2rem;
+  text-align: center;
+}
+
+.sp-dialog__params-input {
+  width: 100%;
+  background: var(--color-bg);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.2rem;
+  padding: 0.3rem 0.5rem;
+  font-size: var(--font-sm);
+  color: var(--color-on-surface);
+  outline: none;
+  transition: border-color 150ms ease;
+}
+
+.sp-dialog__params-input:focus {
+  border-color: var(--color-accent, #63b3ed);
+}
+
+.sp-dialog__params-input::placeholder {
+  color: var(--color-muted);
+  opacity: 0.6;
+}
+
+.sp-dialog__params-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: none;
+  border-radius: 0.2rem;
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: color 150ms ease, background-color 150ms ease;
+}
+
+.sp-dialog__params-delete-btn:hover {
+  color: var(--color-error, #fc8181);
+  background-color: rgba(252, 129, 129, 0.1);
+}
+
+.sp-dialog__add-param-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.55rem;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.25rem;
+  background: none;
+  color: var(--color-on-surface);
+  font-size: var(--font-xs);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.sp-dialog__add-param-btn:hover {
+  background-color: var(--color-surface-hover);
+}
+
+/* ── Monaco editor wrapper ── */
+
+.sp-dialog__monaco-wrap {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Error banner ── */
+
+.sp-dialog__error-banner {
+  padding: 0.5rem 1.1rem;
+  background: rgba(252, 129, 129, 0.1);
+  border-top: 0.0625rem solid var(--color-border);
+  color: var(--color-error, #fc8181);
+  font-size: var(--font-sm);
+  flex-shrink: 0;
+}
+

@@ -1,0 +1,26 @@
+.redis-shell {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0.5rem;
+}
+
+/* Dark terminal on a light theme: round the corners and pad the dark surface so
+   it reads as a softened box rather than a hard-edged rectangle. The background
+   matches DARK_TERMINAL_THEME.background so the padding ring is seamless with
+   the xterm viewport. */
+.redis-shell--dark-on-light {
+  background: #0b0e14;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.redis-shell .xterm {
+  height: 100%;
+}
+
+.redis-shell .xterm-viewport {
+  overflow-y: auto;
+}

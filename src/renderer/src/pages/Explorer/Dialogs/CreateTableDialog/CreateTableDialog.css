@@ -1,0 +1,182 @@
+/* ── Table name / schema row ── */
+
+.create-table-dialog__name-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.1rem;
+  padding: 0.825rem 1.65rem;
+  border-bottom: 0.0625rem solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.create-table-dialog__name-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.create-table-dialog__name-field--schema {
+  width: 10rem;
+}
+
+.create-table-dialog__name-field--name {
+  flex: 1;
+}
+
+.create-table-dialog__label {
+  font-size: var(--font-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  user-select: none;
+}
+
+.create-table-dialog__input {
+  height: var(--input-height);
+  padding: 0 0.6875rem;
+  background: var(--color-input-bg);
+  border: 0.0625rem solid var(--color-input-border);
+  border-radius: 0.275rem;
+  color: var(--color-on-surface);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: var(--font-base);
+  outline: none;
+  transition: border-color 150ms ease;
+  box-sizing: border-box;
+}
+
+.create-table-dialog__input:focus {
+  border-color: var(--color-primary);
+}
+
+.create-table-dialog__input--error {
+  border-color: #ff716c;
+}
+
+/* ── Main body: columns + properties top, SQL preview bottom ── */
+
+.create-table-dialog__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── TableColumnsEditor context styles ── */
+
+.create-table-dialog__body > .tce {
+  flex: 1;
+  border-bottom: 0.0625rem solid var(--color-border);
+  min-height: 0;
+}
+
+/* ── SQL preview section ── */
+
+.create-table-dialog__sql-section {
+  border-top: 0.0625rem solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  height: 220px;
+  flex-shrink: 0;
+}
+
+.create-table-dialog__sql-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 1.1rem 0.35rem;
+  border-bottom: 0.0625rem solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.create-table-dialog__sql-title {
+  font-size: var(--font-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.create-table-dialog__sql-reset-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.275rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 0.25rem;
+  background: none;
+  border: 0.0625rem solid var(--color-border);
+  color: var(--color-muted);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: var(--font-xs);
+  cursor: pointer;
+  transition:
+    color 120ms ease,
+    border-color 120ms ease;
+}
+
+.create-table-dialog__sql-reset-btn:hover {
+  color: var(--color-on-surface);
+  border-color: var(--color-on-surface);
+}
+
+.create-table-dialog__sql-reset-btn--active {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.create-table-dialog__sql-editor {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Footer error area (shown in footer left slot) ── */
+
+.create-table-dialog__footer-error {
+  font-size: var(--font-sm);
+  color: #ff716c;
+  flex: 1;
+  padding-right: 1.1rem;
+  user-select: text;
+  cursor: text;
+}
+
+/* ── Loading overlay ── */
+
+.create-table-dialog__loading {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.825rem;
+  color: var(--color-muted);
+  font-size: var(--font-sm);
+}
+
+.create-table-dialog__spinner {
+  display: inline-block;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 0.15rem solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: create-table-spin 0.7s linear infinite;
+}
+
+@keyframes create-table-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.create-table-dialog__loading--error {
+  color: #ff716c;
+  user-select: text;
+  cursor: text;
+}
+
+.create-table-dialog__name-error {
+  font-size: var(--font-sm);
+  color: #ff716c;
+}

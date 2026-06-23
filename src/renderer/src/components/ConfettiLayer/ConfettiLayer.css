@@ -1,0 +1,34 @@
+.confetti-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  bottom: 0;
+  animation-name: confetti-burst;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: forwards;
+}
+
+@keyframes confetti-burst {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--end-x), var(--end-y)) rotate(var(--spin, 720deg));
+    opacity: 0;
+  }
+}
+
+/* Hide the layer entirely when animations are disabled to avoid frozen shapes */
+html[data-animations='off'] .confetti-layer {
+  display: none;
+}

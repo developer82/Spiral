@@ -1,0 +1,96 @@
+.import-env-dialog__body {
+  padding: 1.375rem;
+  min-height: 4rem;
+}
+
+.import-env-dialog__waiting {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: var(--font-sm);
+  color: var(--color-muted);
+}
+
+.import-env-dialog__spinner,
+.import-env-dialog__step-spinner {
+  display: flex;
+  align-items: center;
+  animation: import-env-spin 1s linear infinite;
+}
+
+@keyframes import-env-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.import-env-dialog__steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.import-env-dialog__step {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: var(--font-sm);
+  color: var(--color-muted);
+}
+
+.import-env-dialog__step--done {
+  color: var(--color-on-surface);
+}
+
+.import-env-dialog__step-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--color-muted);
+}
+
+.import-env-dialog__step--done .import-env-dialog__step-icon {
+  color: #4ade80;
+}
+
+.import-env-dialog__success {
+  margin-top: 1rem;
+}
+
+.import-env-dialog__success-message {
+  font-size: var(--font-sm);
+  color: var(--color-on-surface);
+  margin-bottom: 0.55rem;
+}
+
+.import-env-dialog__summary {
+  padding-left: 1.1rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.import-env-dialog__summary li {
+  font-size: var(--font-xs, 0.75rem);
+  color: var(--color-muted);
+}
+
+.import-env-dialog__error {
+  margin-top: 0.25rem;
+}
+
+.import-env-dialog__error-title {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: #f87171;
+  margin-bottom: 0.4rem;
+}
+
+.import-env-dialog__error-message {
+  font-size: var(--font-sm);
+  color: var(--color-muted);
+  word-break: break-word;
+}

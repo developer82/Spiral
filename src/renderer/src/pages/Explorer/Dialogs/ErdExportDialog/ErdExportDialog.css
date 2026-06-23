@@ -1,0 +1,136 @@
+.erd-export-dialog__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.erd-export-dialog__section-label {
+  font-size: var(--font-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  user-select: none;
+}
+
+.erd-export-dialog__section-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Color picker */
+
+.erd-export-dialog__color-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.erd-export-dialog__color-input {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.275rem;
+  border: 0.0625rem solid var(--color-border);
+  padding: 0.125rem;
+  cursor: pointer;
+  background: var(--color-input-bg);
+  -webkit-appearance: none;
+  appearance: none;
+  overflow: hidden;
+}
+
+.erd-export-dialog__color-input:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.erd-export-dialog__color-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.erd-export-dialog__color-input::-webkit-color-swatch {
+  border: none;
+  border-radius: 0.2rem;
+}
+
+.erd-export-dialog__color-label {
+  font-size: var(--font-sm);
+  color: var(--color-muted);
+  font-family: 'JetBrains Mono', monospace;
+  min-width: 5rem;
+}
+
+/* Checkbox row */
+
+.erd-export-dialog__checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.erd-export-dialog__checkbox {
+  accent-color: var(--color-primary);
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.erd-export-dialog__checkbox-label {
+  font-size: var(--font-sm);
+  color: var(--color-muted);
+  transition: color 150ms ease;
+}
+
+.erd-export-dialog__checkbox-row:hover .erd-export-dialog__checkbox-label {
+  color: var(--color-on-surface);
+}
+
+/* Grid toggle buttons */
+
+.erd-export-dialog__grid-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.275rem;
+  background: transparent;
+  color: var(--color-muted);
+  font-size: var(--font-sm);
+  font-family: 'Inter', system-ui, sans-serif;
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease;
+}
+
+.erd-export-dialog__grid-btn:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-on-surface);
+}
+
+.erd-export-dialog__grid-btn--active {
+  background: rgba(161, 250, 255, 0.1);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Footer filename */
+
+.erd-export-dialog__footer-filename {
+  font-size: var(--font-xs);
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--color-muted);
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}

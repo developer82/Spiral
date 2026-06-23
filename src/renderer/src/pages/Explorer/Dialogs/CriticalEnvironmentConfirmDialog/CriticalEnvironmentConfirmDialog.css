@@ -1,0 +1,20 @@
+.critical-env-dialog__message {
+  font-size: var(--font-sm);
+  line-height: 1.6;
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
+.critical-env-dialog__checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-size: var(--font-sm);
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.critical-env-dialog__checkbox-row input {
+  margin-top: 0.15rem;
+  cursor: pointer;
+}

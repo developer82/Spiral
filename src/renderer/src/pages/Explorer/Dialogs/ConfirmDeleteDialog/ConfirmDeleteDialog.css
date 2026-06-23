@@ -1,0 +1,24 @@
+.confirm-delete-dialog__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.confirm-delete-dialog__message {
+  font-size: var(--font-sm);
+  color: var(--color-on-surface);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.confirm-delete-dialog__table-name {
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 0.8125rem;
+  color: var(--color-error, #fc8181);
+}
+
+.confirm-delete-dialog__warning {
+  font-size: var(--font-xs);
+  color: var(--color-muted);
+  margin: 0;
+}

@@ -1,0 +1,267 @@
+/* ── QueryTableCanvas ── */
+
+.qtc {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-bg);
+  position: relative;
+}
+
+.qtc__canvas {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.qtc__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-muted);
+  font-size: var(--font-sm);
+}
+
+/* React Flow overrides */
+.qtc__canvas .react-flow__background {
+  background: var(--color-bg);
+}
+
+.qtc__canvas .react-flow__controls {
+  bottom: 0.5rem;
+  right: 0.5rem;
+  left: auto;
+}
+
+/* ── Add tables dropdown panel ── */
+
+.qtc__add-panel-overlay {
+  position: absolute;
+  top: 2.5rem;
+  left: 0.75rem;
+  z-index: 50;
+}
+
+.qtc-add-panel {
+  background: var(--color-topbar-bg);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.375rem;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.35);
+  width: 260px;
+  max-height: 320px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.qtc-add-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 0.0625rem solid var(--color-border);
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--color-on-surface);
+  flex-shrink: 0;
+}
+
+.qtc-add-panel__close {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.qtc-add-panel__close:hover {
+  color: var(--color-on-surface);
+}
+
+.qtc-add-panel__search {
+  padding: 0.4rem 0.65rem;
+  border: none;
+  border-bottom: 0.0625rem solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-on-surface);
+  font-size: var(--font-sm);
+  outline: none;
+  flex-shrink: 0;
+}
+
+.qtc-add-panel__list {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.qtc-add-panel__item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.45rem 0.75rem;
+  border: none;
+  background: none;
+  color: var(--color-on-surface);
+  font-size: var(--font-sm);
+  cursor: pointer;
+  transition: background-color 100ms ease;
+}
+
+.qtc-add-panel__item:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.qtc-add-panel__empty {
+  padding: 0.75rem;
+  font-size: var(--font-sm);
+  color: var(--color-muted);
+  text-align: center;
+}
+
+/* ── QueryTableNode ── */
+
+.qtc-table-node {
+  background: var(--color-topbar-bg);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.375rem;
+  min-width: 220px;
+  max-width: 280px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  font-size: var(--font-xs);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.qtc-table-node__header {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.5rem;
+  background: var(--color-surface-hover);
+  border-bottom: 0.0625rem solid var(--color-border);
+  border-radius: 0.375rem 0.375rem 0 0;
+}
+
+.qtc-table-node__schema {
+  color: var(--color-muted);
+  font-size: 0.65rem;
+}
+
+.qtc-table-node__name {
+  color: var(--color-on-surface);
+  font-weight: 600;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qtc-table-node__alias {
+  color: var(--color-muted);
+  font-size: 0.65rem;
+  flex-shrink: 0;
+}
+
+.qtc-table-node__remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: none;
+  border-radius: 0.2rem;
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 150ms ease, background-color 150ms ease;
+}
+
+.qtc-table-node__remove:hover {
+  color: var(--color-on-surface);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.qtc-table-node__body {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.qtc-table-node__row {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  transition: background-color 80ms ease;
+  border-bottom: 0.0625rem solid transparent;
+}
+
+.qtc-table-node__row:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.qtc-table-node__row--pk {
+  color: #f7d774;
+}
+
+.qtc-table-node__row--fk {
+  color: #a1faff;
+}
+
+.qtc-table-node__checkbox {
+  flex-shrink: 0;
+  width: 11px;
+  height: 11px;
+  cursor: pointer;
+  accent-color: var(--color-accent, #63b3ed);
+}
+
+.qtc-table-node__row-left {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.qtc-table-node__pk-icon {
+  flex-shrink: 0;
+  color: #f7d774;
+}
+
+.qtc-table-node__fk-icon {
+  flex-shrink: 0;
+  color: #a1faff;
+}
+
+.qtc-table-node__col-spacer {
+  display: inline-block;
+  width: 10px;
+  flex-shrink: 0;
+}
+
+.qtc-table-node__col-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-on-surface);
+}
+
+.qtc-table-node__col-type {
+  font-size: 0.6rem;
+  color: var(--color-muted);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.qtc-table-node__handle {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--color-muted);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 50%;
+}

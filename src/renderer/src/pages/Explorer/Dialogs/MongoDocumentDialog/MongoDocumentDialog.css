@@ -1,0 +1,389 @@
+/* ─── Dialog body ──────────────────────────────────────────────────────────── */
+
+.mongo-doc-dialog__title-icon {
+  color: var(--color-accent, #a1faff);
+}
+
+.mongo-doc-dialog__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* ─── Fields section (top, grows to fill) ──────────────────────────────────── */
+
+.mongo-doc-dialog__fields-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ─── JSON section (bottom, fixed height) ──────────────────────────────────── */
+
+.mongo-doc-dialog__json-section {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: 220px;
+  border-top: 0.0625rem solid var(--color-border);
+  overflow: hidden;
+}
+
+/* ─── Panel header ─────────────────────────────────────────────────────────── */
+
+.mongo-doc-dialog__panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 1.1rem 0.45rem;
+  border-bottom: 0.0625rem solid var(--color-border);
+  background: var(--color-surface);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.mongo-doc-dialog__panel-title {
+  font-size: var(--font-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.mongo-doc-dialog__add-field-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.275rem;
+  padding: 0.3rem 0.6875rem;
+  border-radius: 0.275rem;
+  background: var(--color-primary);
+  color: var(--color-primary-on-solid);
+  border: none;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+}
+
+.mongo-doc-dialog__add-field-btn:hover {
+  opacity: 0.85;
+}
+
+.mongo-doc-dialog__panel-header-btn {
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--color-accent, #a1faff);
+  background: none;
+  border: 0.0625rem solid var(--color-accent, #a1faff);
+  border-radius: 0.25rem;
+  padding: 0.15rem 0.5rem;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.mongo-doc-dialog__panel-header-btn:hover {
+  background: rgba(161, 250, 255, 0.1);
+}
+
+/* ─── Fields scroll area ───────────────────────────────────────────────────── */
+
+.mongo-doc-dialog__fields-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.625rem 0.75rem;
+}
+
+/* ─── JSON error banner ────────────────────────────────────────────────────── */
+
+.mongo-doc-dialog__json-error {
+  font-size: var(--font-xs);
+  color: var(--color-error, #fc8181);
+  padding: 0.3rem 0.75rem;
+  border-top: 0.0625rem solid rgba(252, 129, 129, 0.3);
+  background: rgba(252, 129, 129, 0.06);
+  flex-shrink: 0;
+}
+
+/* ─── Save error ───────────────────────────────────────────────────────────── */
+
+.mongo-doc-dialog__save-error {
+  padding: 0.75rem 1rem 0;
+  flex-shrink: 0;
+}
+
+/* ─── Monaco / JsonViewer container ───────────────────────────────────────── */
+
+.mongo-doc-dialog__monaco-wrap {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.mongo-doc-dialog__json-preview-wrap {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0.75rem;
+}
+
+/* ─── Field table (mdf = Mongo Document Fields) ────────────────────────────── */
+
+.mdf-table-wrap {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.mdf-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.mdf-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--color-topbar-bg);
+  padding: 0.4rem 0.55rem;
+  font-size: var(--font-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-muted);
+  text-align: left;
+  border-bottom: 0.0625rem solid var(--color-border);
+  user-select: none;
+  z-index: 1;
+}
+
+.mdf-th-name  { width: auto; }
+.mdf-th-type  { width: 8rem; }
+.mdf-th-value { width: 40%; }
+.mdf-th-del   { width: 2.4rem; }
+
+.mdf-table td {
+  padding: 0.275rem 0.55rem;
+  border-bottom: 0.0625rem solid var(--color-border);
+  vertical-align: middle;
+}
+
+.mdf-row:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.mdf-row--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ─── Name cell ────────────────────────────────────────────────────────────── */
+
+.mdf-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.mdf-name-warning {
+  font-size: 0.65rem;
+  color: var(--color-warning, #f6ad55);
+  flex-shrink: 0;
+}
+
+/* ─── Inputs & selects (match tce style: transparent until focused) ─────────── */
+
+.mdf-col-input {
+  width: 100%;
+  background: transparent;
+  border: 0.0625rem solid transparent;
+  border-radius: 0.2rem;
+  color: var(--color-on-surface);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: var(--font-sm);
+  padding: 0.2rem 0.3rem;
+  outline: none;
+  transition: border-color 100ms ease;
+  box-sizing: border-box;
+}
+
+.mdf-col-input:focus {
+  border-color: var(--color-primary);
+  background: var(--color-input-bg);
+}
+
+.mdf-col-input:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mdf-col-input--error {
+  border-color: var(--color-error, #fc8181) !important;
+}
+
+.mdf-col-input--extra {
+  width: 5rem;
+  flex-shrink: 0;
+}
+
+.mdf-col-select {
+  width: 100%;
+  background: transparent;
+  border: 0.0625rem solid transparent;
+  border-radius: 0.2rem;
+  color: var(--color-on-surface);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: var(--font-sm);
+  padding: 0.2rem 0.3rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 100ms ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2373757d' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.35rem center;
+  padding-right: 1.4rem;
+  box-sizing: border-box;
+}
+
+.mdf-col-select:focus {
+  border-color: var(--color-primary);
+  background-color: var(--color-input-bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2373757d' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.35rem center;
+}
+
+.mdf-col-select:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mdf-col-select option {
+  background: var(--color-input-bg);
+  color: var(--color-on-surface);
+}
+
+/* ─── Delete button ─────────────────────────────────────────────────────────── */
+
+.mdf-col-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: none;
+  border-radius: 0.2rem;
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: color 120ms ease, background-color 120ms ease;
+}
+
+.mdf-col-delete:hover {
+  color: #ff716c;
+  background: rgba(255, 113, 108, 0.12);
+}
+
+/* ─── Value cell (flex for multi-input types) ───────────────────────────────── */
+
+.mdf-value-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.mdf-value-cell .mdf-col-input {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+}
+
+/* ─── Muted type badge (null / minKey / maxKey / object / array) ────────────── */
+
+.mdf-badge {
+  font-size: var(--font-xs);
+  color: var(--color-muted);
+  font-style: italic;
+  padding-left: 0.3rem;
+}
+
+/* ─── Add-child row ─────────────────────────────────────────────────────────── */
+
+.mdf-add-child-row td {
+  padding: 0.1rem 0;
+  border-bottom: 0.0625rem solid var(--color-border);
+}
+
+.mdf-add-child-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: var(--font-xs);
+  color: var(--color-accent, #a1faff);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.2rem 0.3rem;
+  opacity: 0.8;
+  transition: opacity 120ms ease;
+}
+
+.mdf-add-child-btn:hover {
+  opacity: 1;
+}
+
+/* ─── Footer checkboxes ─────────────────────────────────────────────────────── */
+
+.mongo-doc-dialog__footer-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mongo-doc-dialog__footer-check-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--font-sm);
+  color: var(--color-on-surface);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.mongo-doc-dialog__footer-check {
+  cursor: pointer;
+  accent-color: var(--color-primary);
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+/* ─── Bottom "Add Field" button ─────────────────────────────────────────────── */
+
+.mdf-add-field-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+  margin-left: 0.55rem;
+  font-size: var(--font-xs);
+  color: var(--color-accent, #a1faff);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0;
+  opacity: 0.85;
+  transition: opacity 120ms ease;
+}
+
+.mdf-add-field-btn:hover {
+  opacity: 1;
+}
+

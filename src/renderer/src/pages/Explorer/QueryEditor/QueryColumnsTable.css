@@ -1,0 +1,147 @@
+/* ── QueryColumnsTable ── */
+
+.qct {
+  width: 100%;
+  overflow: auto;
+  font-size: var(--font-xs);
+}
+
+.qct__table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 680px;
+}
+
+.qct__th {
+  position: sticky;
+  top: 0;
+  background: var(--color-topbar-bg);
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-muted);
+  border-bottom: 0.0625rem solid var(--color-border);
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.qct__th--output,
+.qct__td--output {
+  text-align: center;
+  width: 56px;
+}
+
+.qct__th--sortorder,
+.qct__td--sortorder {
+  width: 72px;
+}
+
+.qct__th--sorttype,
+.qct__td--sorttype {
+  width: 120px;
+}
+
+.qct__th--col,
+.qct__td--col {
+  width: 140px;
+}
+
+.qct__th--alias,
+.qct__td--alias {
+  width: 130px;
+}
+
+.qct__th--table,
+.qct__td--table {
+  width: 160px;
+}
+
+.qct__row {
+  border-bottom: 0.0625rem solid var(--color-border);
+  transition: background-color 80ms ease;
+}
+
+.qct__row:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.qct__row--hidden {
+  opacity: 0.5;
+}
+
+.qct__td {
+  padding: 0.25rem 0.5rem;
+  vertical-align: middle;
+  color: var(--color-on-surface);
+}
+
+.qct__col-name {
+  font-weight: 500;
+}
+
+.qct__table-ref {
+  font-size: 0.65rem;
+  color: var(--color-muted);
+}
+
+.qct__input {
+  width: 100%;
+  background: transparent;
+  border: 0.0625rem solid transparent;
+  border-radius: 0.2rem;
+  padding: 0.2rem 0.3rem;
+  font-size: var(--font-xs);
+  color: var(--color-on-surface);
+  outline: none;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.qct__input:focus {
+  border-color: var(--color-border);
+  background: var(--color-bg);
+}
+
+.qct__input::placeholder {
+  color: var(--color-muted);
+}
+
+.qct__checkbox {
+  width: 13px;
+  height: 13px;
+  cursor: pointer;
+  accent-color: var(--color-accent, #63b3ed);
+}
+
+.qct__select {
+  width: 100%;
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  border: 0.0625rem solid transparent;
+  border-radius: 0.2rem;
+  padding: 0.2rem 0.3rem;
+  font-size: var(--font-xs);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 150ms ease;
+}
+
+.qct__select option {
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+}
+
+.qct__select:focus {
+  border-color: var(--color-border);
+}
+
+.qct__select:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.qct__empty {
+  padding: 0.75rem;
+  text-align: center;
+  color: var(--color-muted);
+}

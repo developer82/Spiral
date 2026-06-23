@@ -1,0 +1,144 @@
+/* ── Shared Dialog Chrome ─────────────────────────────────────────────────── */
+/* Imported once by BaseDialog. Do not import in individual dialog files.     */
+
+/* ── Overlay ── */
+
+.dialog {
+  position: fixed;
+  inset: 0;
+  z-index: var(--dialog-z-index, 100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.65rem;
+  background: var(--dialog-overlay-bg);
+  backdrop-filter: var(--dialog-overlay-filter);
+  -webkit-backdrop-filter: var(--dialog-overlay-filter);
+}
+
+/* ── Panel ── */
+
+.dialog__panel {
+  background: var(--dialog-panel-bg);
+  backdrop-filter: var(--dialog-panel-filter);
+  -webkit-backdrop-filter: var(--dialog-panel-filter);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: var(--dialog-border-radius);
+  width: 100%;
+  max-width: 38rem;
+  max-height: calc(100vh - 3.3rem);
+  box-shadow: 0 1.65rem 4.4rem rgba(0, 0, 0, 0.48);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+/* ── Header ── */
+
+.dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.375rem;
+  border-bottom: 0.0625rem solid var(--color-border);
+  flex-shrink: 0;
+  gap: 0.55rem;
+}
+
+.dialog__header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.dialog__header-icon {
+  display: flex;
+  align-items: center;
+  color: var(--color-muted);
+  flex-shrink: 0;
+}
+
+.dialog__title {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: var(--font-lg);
+  font-weight: 700;
+  color: var(--color-on-surface);
+  letter-spacing: -0.01em;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dialog__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.925rem;
+  height: 1.925rem;
+  border: none;
+  border-radius: 0.275rem;
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
+}
+
+.dialog__close:hover:not(:disabled) {
+  color: var(--color-on-surface);
+  background-color: var(--color-surface-hover);
+}
+
+.dialog__close:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Body ── */
+
+.dialog__body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog__scroll-area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1.375rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.375rem;
+}
+
+/* ── Footer ── */
+
+.dialog__footer {
+  flex-shrink: 0;
+  padding: 0.875rem 1.375rem;
+  border-top: 0.0625rem solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
+.dialog__footer--space-between {
+  justify-content: space-between;
+}
+
+.dialog__footer-left,
+.dialog__footer-right {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+

@@ -1,0 +1,43 @@
+/* Unified navigation controller — replaces .app__body layout */
+
+.nav-controller {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  gap: var(--section-gap);
+  padding: var(--section-gap);
+}
+
+.nav-controller__nav {
+  display: flex;
+  gap: var(--section-gap);
+  flex-shrink: 0;
+}
+
+.nav-controller__screen-nav {
+  --sidenav-glow-bg: rgba(255, 210, 60, 0.09);
+  --sidenav-glow-border: rgba(255, 210, 60, 0.26);
+  position: relative;
+  display: flex;
+  background:
+    radial-gradient(ellipse 180% 15% at top right, var(--sidenav-glow-bg) 0%, transparent 100%),
+    radial-gradient(ellipse 180% 15% at bottom left, var(--sidenav-glow-bg) 0%, transparent 100%),
+    var(--color-topbar-bg);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: var(--section-radius);
+  overflow: hidden;
+}
+
+.nav-controller__screen-nav::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--section-radius);
+  background:
+    linear-gradient(to bottom, var(--sidenav-glow-border) 0%, transparent 10%) right / 0.0625rem 100% no-repeat,
+    linear-gradient(to left, var(--sidenav-glow-border) 0%, transparent 100%) top / 100% 0.0625rem no-repeat,
+    linear-gradient(to top, var(--sidenav-glow-border) 0%, transparent 10%) left / 0.0625rem 100% no-repeat,
+    linear-gradient(to right, var(--sidenav-glow-border) 0%, transparent 100%) bottom / 100% 0.0625rem no-repeat;
+  pointer-events: none;
+  z-index: 1;
+}

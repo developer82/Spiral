@@ -1,0 +1,92 @@
+/* Reuses .index-dialog__* classes from ManageIndexesDialog for shared atoms. */
+/* This file adds MongoDB-specific overrides and the fields table layout. */
+
+.mongo-index-dialog__body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Fields table (field name + type + remove) ── */
+
+.mongo-index-dialog__fields-table {
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.3rem;
+  overflow: hidden;
+}
+
+.mongo-index-dialog__fields-header {
+  display: grid;
+  grid-template-columns: 1fr 9rem 2rem;
+  padding: 0.45rem 0.75rem;
+  background: var(--color-surface);
+  border-bottom: 0.0625rem solid var(--color-border);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  gap: 0.5rem;
+}
+
+.mongo-index-dialog__field-row {
+  display: grid;
+  grid-template-columns: 1fr 9rem 2rem;
+  padding: 0.35rem 0.75rem;
+  border-bottom: 0.0625rem solid var(--color-border);
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.mongo-index-dialog__field-row:last-child {
+  border-bottom: none;
+}
+
+.mongo-index-dialog__field-row:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* ── Textarea for EJSON/JSON inputs ── */
+
+.mongo-index-dialog__textarea {
+  min-height: 4.5rem;
+  resize: vertical;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-input-bg, var(--color-surface));
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.3rem;
+  color: var(--color-on-surface);
+  font-size: var(--font-xs);
+  font-family: 'Space Grotesk', monospace;
+  outline: none;
+  transition: border-color 150ms ease;
+  width: 100%;
+  box-sizing: border-box;
+  line-height: 1.5;
+}
+
+.mongo-index-dialog__textarea:focus {
+  border-color: var(--color-accent, #63b3ed);
+}
+
+.mongo-index-dialog__textarea:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ── List item label with muted default suffix ── */
+
+.mongo-index-dialog__list-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mongo-index-dialog__list-default {
+  color: var(--color-muted);
+  font-style: italic;
+  font-size: var(--font-xs);
+  margin-left: 0.2em;
+}

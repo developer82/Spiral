@@ -1,0 +1,298 @@
+/* ── Docs page layout ── */
+
+.docs {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  gap: var(--section-gap);
+}
+
+/* ── Sidebar ── */
+
+.docs__sidebar {
+  width: var(--settings-sidebar-width);
+  flex-shrink: 0;
+  background-color: var(--color-topbar-bg);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: var(--section-radius);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.docs__sidebar-inner {
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  flex: 1;
+}
+
+/* ── Search ── */
+
+.docs__search-wrap {
+  position: relative;
+  margin-bottom: 0.55rem;
+}
+
+.docs__search-icon {
+  position: absolute;
+  left: 0.6875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-muted);
+  pointer-events: none;
+}
+
+.docs__search {
+  width: 100%;
+  background-color: var(--color-input-bg);
+  border: 0.0625rem solid var(--color-input-border);
+  border-radius: 0.275rem;
+  color: var(--color-on-surface);
+  font-size: var(--font-sm);
+  font-family: 'Inter', system-ui, sans-serif;
+  padding: 0.55rem 0.825rem 0.55rem 2.2rem;
+  outline: none;
+  transition: border-color 150ms ease;
+  box-sizing: border-box;
+}
+
+.docs__search:focus {
+  border-color: var(--color-primary);
+}
+
+.docs__search::placeholder {
+  color: var(--color-muted);
+}
+
+/* ── Nav items ── */
+
+.docs__nav-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 0.825rem;
+  border: none;
+  background: none;
+  border-radius: 0.275rem;
+  cursor: pointer;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: var(--font-base);
+  font-weight: 500;
+  color: var(--color-muted);
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
+  text-align: left;
+  line-height: 1.4;
+}
+
+.docs__nav-item:hover {
+  color: var(--color-on-surface);
+  background-color: var(--color-surface-hover);
+}
+
+.docs__nav-item--sub {
+  font-size: var(--font-sm);
+  font-weight: 400;
+  padding-left: 1.65rem;
+  color: var(--color-muted);
+}
+
+.docs__nav-item--active {
+  color: var(--color-primary);
+  background-color: var(--color-primary-tint-hover);
+}
+
+.docs__nav-item--active:hover {
+  background-color: var(--color-primary-tint-active);
+}
+
+.docs__no-results {
+  font-size: var(--font-sm);
+  color: var(--color-muted);
+  padding: 0.55rem 0.825rem;
+  margin: 0;
+}
+
+/* ── Content area ── */
+
+.docs__content {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  background-color: var(--color-topbar-bg);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: var(--section-radius);
+  padding: 2.75rem 3.3rem;
+}
+
+.docs__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-muted);
+  font-size: var(--font-md);
+}
+
+/* ── Markdown prose ── */
+
+.docs__markdown {
+  max-width: 52rem;
+}
+
+.docs__markdown h1 {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: var(--font-2xl);
+  font-weight: 700;
+  color: var(--color-on-surface);
+  letter-spacing: -0.02em;
+  margin-bottom: 1.1rem;
+  margin-top: 0;
+  padding-bottom: 0.825rem;
+  border-bottom: 0.0625rem solid var(--color-border);
+}
+
+.docs__markdown h2 {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: var(--font-xl);
+  font-weight: 700;
+  color: var(--color-on-surface);
+  margin-top: 2.2rem;
+  margin-bottom: 0.825rem;
+}
+
+.docs__markdown h3 {
+  font-size: var(--font-md);
+  font-weight: 700;
+  color: var(--color-on-surface);
+  margin-top: 1.65rem;
+  margin-bottom: 0.55rem;
+}
+
+.docs__markdown p {
+  font-size: var(--font-base);
+  color: var(--color-on-surface);
+  line-height: 1.7;
+  margin-bottom: 1.1rem;
+}
+
+.docs__markdown ul,
+.docs__markdown ol {
+  padding-left: 1.65rem;
+  margin-bottom: 1.1rem;
+  color: var(--color-on-surface);
+  font-size: var(--font-base);
+  line-height: 1.7;
+}
+
+.docs__markdown li {
+  margin-bottom: 0.275rem;
+}
+
+.docs__markdown li > ul,
+.docs__markdown li > ol {
+  margin-top: 0.275rem;
+  margin-bottom: 0;
+}
+
+.docs__markdown a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.docs__markdown a:hover {
+  text-decoration: underline;
+}
+
+.docs__markdown strong {
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+.docs__markdown em {
+  font-style: italic;
+}
+
+.docs__markdown code {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 0.875em;
+  background-color: var(--color-topbar-bg);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.2rem;
+  padding: 0.1em 0.4em;
+  color: var(--color-primary);
+}
+
+.docs__markdown pre {
+  background-color: var(--color-topbar-bg);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.55rem;
+  padding: 1.1rem 1.375rem;
+  overflow-x: auto;
+  margin-bottom: 1.1rem;
+}
+
+.docs__markdown pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: var(--font-sm);
+  color: var(--color-on-surface);
+  border-radius: 0;
+}
+
+.docs__markdown blockquote {
+  border-left: 0.25rem solid var(--color-primary);
+  margin-left: 0;
+  margin-right: 0;
+  padding: 0.55rem 1.1rem;
+  background-color: var(--color-primary-tint-soft, rgba(99, 102, 241, 0.06));
+  border-radius: 0 0.275rem 0.275rem 0;
+  margin-bottom: 1.1rem;
+}
+
+.docs__markdown blockquote p {
+  margin-bottom: 0;
+  color: var(--color-on-surface);
+}
+
+.docs__markdown hr {
+  border: none;
+  border-top: 0.0625rem solid var(--color-border);
+  margin: 1.65rem 0;
+}
+
+.docs__markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-sm);
+  margin-bottom: 1.1rem;
+}
+
+.docs__markdown th {
+  text-align: left;
+  padding: 0.6875rem 1.1rem;
+  background-color: var(--color-topbar-bg);
+  border: 0.0625rem solid var(--color-border);
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.docs__markdown td {
+  padding: 0.6875rem 1.1rem;
+  border: 0.0625rem solid var(--color-border);
+  color: var(--color-on-surface);
+}
+
+.docs__markdown tr:nth-child(even) td {
+  background-color: rgba(255, 255, 255, 0.015);
+}
+
+.docs__markdown img {
+  max-width: 100%;
+  border-radius: 0.55rem;
+  margin-bottom: 1.1rem;
+}

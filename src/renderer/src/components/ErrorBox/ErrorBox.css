@@ -1,0 +1,73 @@
+.error-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: var(--font-sm);
+  color: var(--color-error, #fc8181);
+  padding: 0.625rem 0.75rem;
+  border: 0.0625rem solid var(--color-error, #fc8181);
+  border-radius: 0.375rem;
+  background: rgba(252, 129, 129, 0.08);
+  word-break: break-word;
+  -webkit-user-select: text;
+  user-select: text;
+  cursor: text;
+}
+
+.error-box__message {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.error-box__label {
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.error-box__statement {
+  margin: 0;
+  padding: 0.5rem 0.625rem;
+  font-size: var(--font-xs, 0.75rem);
+  font-family: var(--font-mono, monospace);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 0.25rem;
+  border: 0.0625rem solid rgba(252, 129, 129, 0.3);
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--color-error, #fc8181);
+  opacity: 0.85;
+}
+
+.error-box__context-menu {
+  position: fixed;
+  z-index: 9999;
+  margin: 0;
+  padding: 0.25rem 0.3rem;
+  list-style: none;
+  background: color-mix(in srgb, var(--color-surface-variant) 40%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 0.0625rem solid var(--color-border, rgba(255, 255, 255, 0.12));
+  border-radius: 0.375rem;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.4);
+  min-width: 8rem;
+  user-select: none;
+}
+
+.error-box__context-menu li {
+  padding: 0.375rem 0.75rem;
+  font-size: var(--font-sm);
+  color: var(--color-text, #cdd6f4);
+  cursor: pointer;
+  border-radius: 0.3rem;
+  transition: background-color 100ms ease;
+}
+
+.error-box__context-menu li:hover {
+  background-color: var(--color-primary-tint-hover);
+}
+
+html[data-theme='dark'] .error-box__context-menu li:hover {
+  background-color: #2764e1;
+  color: #ffffff;
+}

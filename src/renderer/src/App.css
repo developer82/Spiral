@@ -1,0 +1,45 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--color-bg);
+  color: var(--color-on-surface);
+}
+
+.app__content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  min-width: 0;
+}
+
+.app__page {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+}
+
+.app__page--active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Monaco editor context menu — match app translucent style ── */
+
+.monaco-menu-container > .monaco-scrollable-element {
+  background-color: rgba(34, 38, 47, 0.6) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  backdrop-filter: blur(14px) !important;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.4) !important;
+  border-radius: 0.45rem !important;
+  outline: 0.0625rem solid rgba(255, 255, 255, 0.1) !important;
+}
+
+html[data-theme='light'] .monaco-menu-container > .monaco-scrollable-element {
+  background-color: rgba(228, 216, 198, 0.6) !important;
+  outline: 0.0625rem solid rgba(0, 0, 0, 0.1) !important;
+}

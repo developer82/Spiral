@@ -1,0 +1,20 @@
+.avatar-placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.avatar-placeholder--icon {
+  background-color: var(--color-topbar-bg);
+  color: var(--color-muted);
+}
+
+.avatar-placeholder--initials {
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1;
+}

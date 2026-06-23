@@ -1,0 +1,482 @@
+/* ── Body ── */
+
+.manage-roles-dialog__body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Left panel ── */
+
+.manage-roles-dialog__list-panel {
+  width: 280px;
+  min-width: 200px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 0.0625rem solid var(--color-border);
+}
+
+.manage-roles-dialog__list-header {
+  padding: 0.75rem 1rem 0.5rem;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 0.0625rem solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.manage-roles-dialog__list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.375rem 0;
+}
+
+.manage-roles-dialog__list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: var(--font-sm);
+  color: var(--color-on-surface);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 100ms ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.manage-roles-dialog__list-item:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.manage-roles-dialog__list-item--selected {
+  background-color: var(--color-accent-subtle, rgba(99, 179, 237, 0.12));
+  color: var(--color-accent, #63b3ed);
+}
+
+.manage-roles-dialog__list-item--selected:hover {
+  background-color: var(--color-accent-subtle, rgba(99, 179, 237, 0.18));
+}
+
+.manage-roles-dialog__list-add {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-top: 0.0625rem solid var(--color-border);
+  background: none;
+  color: var(--color-muted);
+  font-size: var(--font-sm);
+  cursor: pointer;
+  width: 100%;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
+}
+
+.manage-roles-dialog__list-add:hover {
+  color: var(--color-on-surface);
+  background-color: var(--color-surface-hover);
+}
+
+/* ── Right panel ── */
+
+.manage-roles-dialog__editor-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* ── Tab bar ── */
+
+.manage-roles-dialog__tabs {
+  display: flex;
+  border-bottom: 0.0625rem solid var(--color-border);
+  flex-shrink: 0;
+  gap: 0;
+}
+
+.manage-roles-dialog__tab {
+  padding: 0.6rem 1.1rem;
+  font-size: var(--font-sm);
+  color: var(--color-muted);
+  background: none;
+  border: none;
+  border-bottom: 0.1875rem solid transparent;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
+  margin-bottom: -0.0625rem;
+}
+
+.manage-roles-dialog__tab:hover {
+  color: var(--color-on-surface);
+}
+
+.manage-roles-dialog__tab--active {
+  color: var(--color-accent, #63b3ed);
+  border-bottom-color: var(--color-accent, #63b3ed);
+}
+
+/* ── Tab content ── */
+
+.manage-roles-dialog__tab-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.manage-roles-dialog__tab-content--members {
+  overflow: hidden;
+  padding: 1rem 1.25rem;
+}
+
+.manage-roles-dialog__empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--color-muted);
+  font-size: var(--font-sm);
+  text-align: center;
+  padding: 2rem;
+}
+
+/* ── Field / label / input / select ── */
+
+.manage-roles-dialog__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.manage-roles-dialog__label {
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.manage-roles-dialog__input {
+  height: 2.2rem;
+  padding: 0 0.75rem;
+  background: var(--color-input-bg, var(--color-surface));
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.3rem;
+  color: var(--color-on-surface);
+  font-size: var(--font-sm);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 150ms ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.manage-roles-dialog__input:focus {
+  border-color: var(--color-accent, #63b3ed);
+}
+
+.manage-roles-dialog__input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.manage-roles-dialog__select {
+  height: 2.2rem;
+  padding: 0 2rem 0 0.75rem;
+  background: var(--color-input-bg, var(--color-surface));
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.3rem;
+  color: var(--color-on-surface);
+  font-size: var(--font-sm);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 150ms ease;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+}
+
+.manage-roles-dialog__select:focus {
+  border-color: var(--color-accent, #63b3ed);
+}
+
+.manage-roles-dialog__select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.manage-roles-dialog__select option {
+  background: var(--color-input-bg, var(--color-surface));
+  color: var(--color-on-surface);
+}
+
+/* ── Fixed role notice ── */
+
+.manage-roles-dialog__fixed-notice {
+  padding: 0.55rem 0.875rem;
+  background: rgba(255, 200, 100, 0.07);
+  border: 0.0625rem solid rgba(255, 200, 100, 0.2);
+  border-radius: 0.3rem;
+  font-size: var(--font-sm);
+  color: var(--color-muted);
+}
+
+/* ── Securables ── */
+
+.manage-roles-dialog__securables-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.manage-roles-dialog__securables-body {
+  display: flex;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.3rem;
+  overflow: hidden;
+  flex: 1;
+  min-height: 180px;
+}
+
+.manage-roles-dialog__securables-list {
+  width: 170px;
+  flex-shrink: 0;
+  border-right: 0.0625rem solid var(--color-border);
+  overflow-y: auto;
+}
+
+.manage-roles-dialog__securable-item {
+  padding: 0.4rem 0.75rem;
+  font-size: var(--font-sm);
+  color: var(--color-on-surface);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 100ms ease;
+}
+
+.manage-roles-dialog__securable-item:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.manage-roles-dialog__securable-item--selected {
+  background-color: var(--color-accent-subtle, rgba(99, 179, 237, 0.12));
+  color: var(--color-accent, #63b3ed);
+}
+
+.manage-roles-dialog__perms-panel {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.manage-roles-dialog__perms-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-muted);
+  font-size: var(--font-sm);
+  padding: 1rem;
+}
+
+.manage-roles-dialog__perms-header {
+  display: grid;
+  grid-template-columns: 1fr 7rem;
+  padding: 0.375rem 0.75rem;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 0.0625rem solid var(--color-border);
+  position: sticky;
+  top: 0;
+  background: var(--color-surface);
+  z-index: 1;
+}
+
+.manage-roles-dialog__perms-row {
+  display: grid;
+  grid-template-columns: 1fr 7rem;
+  padding: 0.3rem 0.75rem;
+  align-items: center;
+  font-size: var(--font-sm);
+  color: var(--color-on-surface);
+  border-bottom: 0.0625rem solid var(--color-border);
+}
+
+.manage-roles-dialog__perms-row:last-child {
+  border-bottom: none;
+}
+
+.manage-roles-dialog__perms-select {
+  height: 1.8rem;
+  padding: 0 1.5rem 0 0.5rem;
+  background: var(--color-input-bg, var(--color-surface));
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.25rem;
+  color: var(--color-on-surface);
+  font-size: var(--font-xs);
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.35rem center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.manage-roles-dialog__perms-select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.manage-roles-dialog__perms-select option {
+  background: var(--color-input-bg, var(--color-surface));
+  color: var(--color-on-surface);
+}
+
+/* ── Members / Memberships tab ── */
+
+.manage-roles-dialog__members-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.manage-roles-dialog__member-list {
+  flex: 1;
+  overflow-y: auto;
+  border: 0.0625rem solid var(--color-border);
+  border-bottom: none;
+  border-radius: 0.3rem 0.3rem 0 0;
+}
+
+.manage-roles-dialog__member-header {
+  padding: 0.45rem 1rem;
+  background: var(--color-surface);
+  border-bottom: 0.0625rem solid var(--color-border);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.manage-roles-dialog__member-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.75rem;
+  border-bottom: 0.0625rem solid var(--color-border);
+  font-size: var(--font-sm);
+  color: var(--color-on-surface);
+}
+
+.manage-roles-dialog__member-row:last-child {
+  border-bottom: none;
+}
+
+.manage-roles-dialog__member-remove {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: var(--font-xs);
+  transition:
+    color 100ms ease,
+    background-color 100ms ease;
+  flex-shrink: 0;
+}
+
+.manage-roles-dialog__member-remove:hover:not(:disabled) {
+  color: var(--color-danger, #fc8181);
+  background-color: rgba(252, 129, 129, 0.1);
+}
+
+.manage-roles-dialog__member-remove:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.manage-roles-dialog__member-empty {
+  padding: 1rem;
+  text-align: center;
+  color: var(--color-muted);
+  font-size: var(--font-sm);
+}
+
+.manage-roles-dialog__member-add-row {
+  display: flex;
+  gap: 0.5rem;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0 0 0.3rem 0.3rem;
+  padding: 0.5rem;
+  background: var(--color-surface);
+  flex-shrink: 0;
+}
+
+.manage-roles-dialog__member-add-btn {
+  flex-shrink: 0;
+  height: 2.2rem;
+  padding: 0 0.875rem;
+  background: none;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.3rem;
+  color: var(--color-on-surface);
+  font-size: var(--font-sm);
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+  white-space: nowrap;
+}
+
+.manage-roles-dialog__member-add-btn:hover:not(:disabled) {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-accent, #63b3ed);
+}
+
+.manage-roles-dialog__member-add-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.manage-roles-dialog__public-notice {
+  padding: 1rem;
+  color: var(--color-muted);
+  font-size: var(--font-sm);
+  line-height: 1.5;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.3rem;
+}

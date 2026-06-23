@@ -1,0 +1,2274 @@
+{
+  "update": {
+    "checking": "Checking for updates",
+    "updateAvailable": "Update available",
+    "upToDate": "Up to date",
+    "updated": "Updated — see what's new",
+    "downloading": "Downloading {{percent}}%",
+    "downloadingPill": "Downloading Update… {{percent}}%",
+    "installUpdate": "Install Update",
+    "dialogTitle": "Update Available",
+    "currentVersion": "Current Version",
+    "newVersion": "New Version",
+    "releaseNotes": "Release Notes",
+    "updateNowButton": "Update Now",
+    "laterButton": "Later",
+    "installing": "Installing…",
+    "installNow": "Install Now",
+    "close": "Close",
+    "downloadProgressTitle": "Downloading Update",
+    "downloadProgressText": "Downloading… {{percent}}% • {{speed}}",
+    "downloadComplete": "Download Complete",
+    "downloadCompleteText": "Version {{version}} is ready to install.",
+    "hideDownload": "Continue in Background",
+    "cancelDownload": "Cancel Download",
+    "cancelDownloadConfirmTitle": "Cancel download?",
+    "cancelDownloadConfirmMessage": "The update download will stop and the downloaded data will be discarded. You can download it again later.",
+    "releaseNotesTitle": "Release Notes",
+    "loadingNotes": "Loading release notes…",
+    "noNotes": "No release notes available"
+  },
+  "nav": {
+    "sideNav": {
+      "ariaLabel": "Side navigation",
+      "explorer": "Explorer",
+      "profiler": "Profiler",
+      "compare": "Compare",
+      "query": "Query Editor",
+      "schema": "Schema View",
+      "security": "Security",
+      "metrics": "Metrics",
+      "settings": "Settings",
+      "profile": "User Profile"
+    },
+    "topBar": {
+      "ariaLabel": "Main menu",
+      "file": "File",
+      "edit": "Edit",
+      "view": "View",
+      "window": "Window",
+      "history": "History",
+      "help": "Help"
+    }
+  },
+  "deleteConfirmDialog": {
+    "cancel": "Cancel",
+    "confirm": "Delete",
+    "close": "Close"
+  },
+  "confirmDialog": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "close": "Close"
+  },
+  "settings": {
+    "navAriaLabel": "Settings navigation",
+    "groups": {
+      "application": "Application Settings",
+      "developer": "Developer"
+    },
+    "sections": {
+      "userProfile": "User Profile",
+      "general": "General",
+      "appearance": "Appearance",
+      "databasesConfig": "Databases Config",
+      "resultsViewConfig": "Results View Config",
+      "ai": "AI"
+    },
+    "databasesConfig": {
+      "title": "Databases Config",
+      "subtitle": "Configure default query behavior and connection settings for your databases.",
+      "queryDefaults": "Query Defaults",
+      "explorer": "Explorer",
+      "queryTimeout": {
+        "label": "Query Timeout",
+        "desc": "Maximum time (in seconds) to wait before cancelling a running query",
+        "noTimeout": "No timeout",
+        "seconds": "{{count}} seconds"
+      },
+      "showSystemDatabases": {
+        "label": "Show System Databases",
+        "desc": "Display system databases (master, model, msdb, tempdb) in the Explorer tree"
+      },
+      "selectTopRowsCount": {
+        "label": "Select Top Rows Count",
+        "desc": "Number of rows to return when using \"Select Top Rows\" from the table context menu"
+      },
+      "jsonResults": "JSON Results",
+      "copyJsonFormatted": {
+        "label": "Copy JSON as Formatted Text",
+        "desc": "When copying a JSON value from the result viewer, format it with indentation. Disable to copy compact, single-line JSON"
+      },
+      "queryExecution": "Query Execution",
+      "autoIncludeExecutionPlan": {
+        "label": "Auto Include Execution Plan",
+        "desc": "Automatically generate and display the execution plan for every query that is run"
+      },
+      "autoIncludeClientStatistics": {
+        "label": "Auto Include Client Statistics",
+        "desc": "Automatically collect and display client statistics for every query that is run"
+      },
+      "comparisonExport": "Comparison Export",
+      "askBeforeIncludingSecrets": {
+        "label": "Ask Before Including Secrets",
+        "desc": "Show a confirmation prompt each time you save a comparison report, asking whether to include connection passwords and file paths in the exported JSON"
+      },
+      "includeSecretsByDefault": {
+        "label": "Include Secrets by Default",
+        "desc": "Pre-select \"include connection secrets\" in the export confirmation dialog. Has no effect when the prompt is disabled — the setting is used directly instead"
+      },
+      "mysqlTools": {
+        "title": "MySQL Client Tools",
+        "subtitle": "Optional paths to the mysqldump and mysql binaries used for MySQL backup and restore. Leave blank to use the binaries found on your system PATH. When neither is available, a built-in pure-JS engine is used instead.",
+        "mysqldumpPath": {
+          "label": "mysqldump Path",
+          "desc": "Full path to the mysqldump executable used for MySQL backups"
+        },
+        "mysqlClientPath": {
+          "label": "mysql Client Path",
+          "desc": "Full path to the mysql client executable used for MySQL restores"
+        },
+        "test": {
+          "label": "Detected Tools",
+          "desc": "Run a check to verify the configured binaries are reachable",
+          "button": "Test",
+          "testing": "Testing…",
+          "found": "found",
+          "notFound": "not found"
+        }
+      },
+      "postgresTools": {
+        "title": "PostgreSQL Client Tools",
+        "subtitle": "Optional paths to the pg_dump, pg_restore and psql binaries used for PostgreSQL backup and restore. Leave blank to use the binaries found on your system PATH. These tools are required for Postgres backup and restore.",
+        "pgDumpPath": {
+          "label": "pg_dump Path",
+          "desc": "Full path to the pg_dump executable used for PostgreSQL backups"
+        },
+        "pgRestorePath": {
+          "label": "pg_restore Path",
+          "desc": "Full path to the pg_restore executable used for custom/tar/directory restores"
+        },
+        "psqlPath": {
+          "label": "psql Path",
+          "desc": "Full path to the psql executable used for plain-format restores"
+        },
+        "test": {
+          "label": "Detected Tools",
+          "desc": "Run a check to verify the configured binaries are reachable",
+          "button": "Test",
+          "testing": "Testing…",
+          "found": "found",
+          "notFound": "not found"
+        }
+      },
+      "mongoTools": {
+        "title": "MongoDB Database Tools",
+        "subtitle": "Optional paths to the mongodump and mongorestore binaries used for MongoDB backup and restore. Leave blank to use the binaries found on your system PATH. When the tools are missing, Spiral falls back to a built-in JSON engine.",
+        "mongodumpPath": {
+          "label": "mongodump Path",
+          "desc": "Full path to the mongodump executable used for MongoDB backups"
+        },
+        "mongorestorePath": {
+          "label": "mongorestore Path",
+          "desc": "Full path to the mongorestore executable used for restoring MongoDB archives"
+        }
+      }
+    },
+    "resultsViewConfig": {
+      "title": "Results View Config",
+      "subtitle": "Configure how query results are displayed and formatted.",
+      "columnHeaders": "Column Headers",
+      "uppercaseColumnHeaders": {
+        "label": "Uppercase Column Headers",
+        "desc": "Display column names in the results table in uppercase instead of their original casing"
+      },
+      "showKeyIconsInResults": {
+        "label": "Show Key Icons in Column Headers",
+        "desc": "Show a key icon next to column names that are primary keys or foreign keys when browsing table data"
+      },
+      "tableOptions": "Table Options",
+      "useInteractiveTables": {
+        "label": "Use Interactive Tables",
+        "desc": "Allow interacting with table data, including creating, deleting, sorting rows and enhanced look & feel"
+      }
+    },
+    "ai": {
+      "title": "AI Settings",
+      "subtitle": "Manage AI models and configure your Hugging Face access token.",
+      "hfToken": {
+        "sectionTitle": "Authentication",
+        "label": "Hugging Face Token",
+        "desc": "Required to download AI models. Get a free token at huggingface.co/settings/tokens",
+        "placeholder": "hf_..."
+      },
+      "models": {
+        "title": "Models",
+        "download": "Download",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "confirmDelete": "Confirm Delete",
+        "cancelDelete": "Cancel",
+        "sizeOnDisk": "{{size}} on disk",
+        "notDownloaded": "Not downloaded",
+        "downloading": "Downloading…",
+        "startingDownload": "Starting download…",
+        "authHint": "Add your Hugging Face token above to authenticate."
+      }
+    },
+    "comingSoon": "— Coming soon",
+    "resetDefaults": "Reset Defaults",
+    "userProfile": {
+      "title": "User Profile",
+      "helloTitle": "Hello, {{name}}",
+      "subtitle": "Manage your profile, password, and application lock settings.",
+      "privacyNote": "All information is stored locally on your device and is never sent to anyone or anywhere.",
+      "identity": "Identity",
+      "avatarAlt": "Profile avatar",
+      "chooseImage": "Choose image",
+      "removeImage": "Remove image",
+      "displayName": "Display Name",
+      "displayNameDesc": "A name shown as a tooltip on your profile icon in the side navigation.",
+      "displayNamePlaceholder": "Enter your name…",
+      "passwordSection": "Password Protection",
+      "lockSection": "Auto-Lock",
+      "password": {
+        "noPasswordTitle": "No Password Set",
+        "noPasswordDesc": "Protect the app with a password to prevent unauthorized access.",
+        "hasPasswordTitle": "Password Set",
+        "hasPasswordDesc": "Your application is protected with a password.",
+        "setButton": "Set Password",
+        "changeButton": "Change Password",
+        "removeButton": "Remove Password",
+        "setTitle": "Set a Password",
+        "changeTitle": "Change Password",
+        "removeTitle": "Remove Password",
+        "removeDesc": "Enter your current password to confirm removal.",
+        "removeWarning": "Warning: Removing your password will decrypt all stored connection passwords and save them as plain text.",
+        "currentPlaceholder": "Current password",
+        "newPlaceholder": "New password",
+        "confirmPlaceholder": "Confirm new password",
+        "setConfirm": "Set Password",
+        "changeConfirm": "Update Password",
+        "removeConfirm": "Remove Password",
+        "cancel": "Cancel",
+        "saving": "Saving…",
+        "setSuccess": "Password set successfully.",
+        "changeSuccess": "Password updated.",
+        "removeSuccess": "Password removed.",
+        "errorEmpty": "Password cannot be empty.",
+        "errorMismatch": "Passwords do not match.",
+        "errorCurrentRequired": "Please enter your current password.",
+        "recoveryNote": "Forgot your password? You can reset the application by clearing the app data from your operating system's application data directory."
+      },
+      "lockOnStartup": {
+        "label": "Lock on Startup",
+        "desc": "Require password entry each time the application starts."
+      },
+      "lockOnInactivity": {
+        "label": "Lock on Inactivity",
+        "desc": "Automatically lock the application after a period of inactivity."
+      },
+      "lockOnMinimize": {
+        "label": "Lock when Minimized",
+        "desc": "Lock the application whenever the window is minimized to the taskbar or dock."
+      },
+      "inactivityTimeout": {
+        "label": "Inactivity Timeout",
+        "desc": "Minutes of inactivity before the application locks.",
+        "minutes": "min"
+      }
+    },
+    "general": {
+      "title": "General Settings",
+      "subtitle": "Configure your workspace preferences and core application behavior.",
+      "language": {
+        "label": "Language",
+        "desc": "Select the display language for the application interface"
+      },
+      "environments": {
+        "label": "Manage Environments",
+        "desc": "Define named environments that can be assigned to connections and query tabs.",
+        "manage": "Manage",
+        "count_one": "1 environment",
+        "count_other": "{{count}} environments",
+        "dialogTitle": "Manage Environments",
+        "tableTitle": "Available Environments",
+        "tableSubtitle": "Use environments to highlight risky targets and control query safeguards.",
+        "emptyDescription": "No description",
+        "columns": {
+          "color": "Color",
+          "name": "Name",
+          "description": "Description",
+          "critical": "Mode",
+          "actions": "Actions"
+        },
+        "values": {
+          "critical": "Critical",
+          "standard": "Standard"
+        },
+        "fields": {
+          "name": "Name",
+          "namePlaceholder": "Production",
+          "description": "Description",
+          "descriptionPlaceholder": "Primary customer-facing environment",
+          "critical": "Critical environment",
+          "criticalHint": "Critical environments require confirmation before potentially unsafe query execution.\nEven with this option on, sometimes software makes mistakes. Running code that makes changes to your data is your responsibility and you should always verify the code before execution.",
+          "color": "Color"
+        },
+        "editor": {
+          "addTitle": "Add Environment",
+          "editTitle": "Edit Environment",
+          "subtitle": "Choose a recognizable name, color, and risk level."
+        },
+        "validation": {
+          "nameRequired": "Environment name is required",
+          "nameUnique": "Environment names must be unique"
+        },
+        "deleteInUse": {
+          "title": "Delete Environment",
+          "message_one": "\"{{name}}\" is assigned to {{count}} connection. Deleting it will clear that assignment. Continue?",
+          "message_other": "\"{{name}}\" is assigned to {{count}} connections. Deleting it will clear those assignments. Continue?"
+        },
+        "actions": {
+          "add": "Add",
+          "edit": "Edit",
+          "delete": "Delete",
+          "create": "Create",
+          "update": "Update",
+          "close": "Close"
+        }
+      },
+      "defaultConnectionSort": {
+        "label": "Default Connection Sort",
+        "desc": "Initial sort order applied to the connections list when the application loads",
+        "fields": {
+          "name": "Name",
+          "createdAt": "Creation Date",
+          "lastUsedAt": "Last Used",
+          "provider": "Provider",
+          "environment": "Environment"
+        },
+        "directions": {
+          "asc": "Ascending",
+          "desc": "Descending"
+        }
+      },
+      "hfToken": {
+        "label": "Hugging Face Token",
+        "desc": "Required to download AI models. Get a free token at huggingface.co/settings/tokens",
+        "placeholder": "hf_..."
+      },
+      "likeConfetti": {
+        "label": "I like confetti",
+        "desc": "Show occasional confetti on successful operations"
+      },
+      "tipsAndTricks": {
+        "label": "Tips & Tricks",
+        "desc": "Show helpful tips and tricks while you work",
+        "preview": "Preview"
+      },
+      "appUpdate": {
+        "label": "Application Update",
+        "desc": "Check for and install the latest version of Spiral",
+        "checkButton": "Check for Updates",
+        "checking": "Checking…",
+        "releaseNotesButton": "Release Notes"
+      },
+      "analytics": {
+        "label": "Usage Analytics",
+        "desc": "Spiral uses Google Analytics to understand how the app is used so we can make it better. No personal information is collected, and no connection details or passwords are ever sent. You can opt out at any time.",
+        "toggleLabel": "Share anonymous usage data"
+      }
+    },
+    "appearance": {
+      "title": "Appearance",
+      "subtitle": "Customize the visual style and interface layout of the application.",
+      "resetDefaults": "Reset Defaults",
+      "themePreferences": "Theme Preferences",
+      "themes": {
+        "dark": "Neon Dark",
+        "light": "Solar Light",
+        "glassLight": "Glass Light",
+        "system": "System Sync",
+        "selectAriaLabel": "Select {{theme}} theme",
+        "selectedTheme": {
+          "title": "Selected Theme",
+          "desc": "Choose a specific theme from the full theme library"
+        },
+        "dropdown": {
+          "placeholder": "Select a theme...",
+          "searchPlaceholder": "Search themes...",
+          "noResults": "No themes found",
+          "ariaLabel": "Theme"
+        }
+      },
+      "interfaceElements": "Interface Elements",
+      "syntaxHighlighting": {
+        "title": "Syntax Highlighting",
+        "desc": "Enable colorful code in the query editor"
+      },
+      "showGridLines": {
+        "title": "Show Grid Lines",
+        "desc": "Display borders between rows and columns in data view"
+      },
+      "hideSideNav": {
+        "title": "Hide Side Navigation Bar",
+        "desc": "Hide the left-side page navigation icons until they are shown again from the View menu"
+      },
+      "erdBackground": {
+        "title": "ERD Default Background",
+        "desc": "Default background style for newly created ERD diagrams",
+        "none": "None",
+        "dots": "Dots",
+        "grid": "Grid"
+      },
+      "accessibility": "Accessibility",
+      "fontScaling": {
+        "label": "Font Scaling",
+        "ariaLabel": "Font scaling",
+        "default": "100% (Default)"
+      },
+      "customTitlebar": {
+        "title": "Custom Title Bar",
+        "desc": "Use the top bar as the window title bar, enabling drag and native-style window controls. Requires a restart to apply."
+      },
+      "enableAnimations": {
+        "title": "Enable Animations",
+        "desc": "Show motion effects such as dialog entry transitions across the application"
+      },
+      "showToolbarTextButtons": {
+        "title": "Show Toolbar Text Buttons",
+        "desc": "Display text labels next to toolbar icons in the Explorer page"
+      },
+      "darkTerminals": {
+        "title": "Dark Terminals",
+        "desc": "Keep the Redis and MongoDB terminal background dark instead of matching the selected theme colors"
+      },
+      "glassEffectColor": {
+        "title": "Glass Effect Color",
+        "desc": "Adjust the glowing color in the side navigation panel.",
+        "off": "Off",
+        "auto": "Auto",
+        "manual": "Manual",
+        "morning": "Morning",
+        "noon": "Noon",
+        "evening": "Evening"
+      },
+      "restartRequired": "A restart is required to apply this change.",
+      "restartNow": "Restart Now"
+    }
+  },
+  "explorer": {
+    "newConnection": "New Connection",
+    "databases": "Databases",
+    "tables": "Tables",
+    "views": "Views",
+    "storedProcedures": "Stored Procedures",
+    "functions": "Functions",
+    "types": "Types",
+    "typeDataTypes": "Data Types",
+    "typeTables": "Tables",
+    "typeMemoryOptimizedTables": "Memory Optimized Tables",
+    "typeEnums": "Enums",
+    "typeComposites": "Composite Types",
+    "security": "Security",
+    "securityUsers": "Users",
+    "securityRoles": "Roles",
+    "securitySchemas": "Schemas",
+    "redisKeyspaces": "Keyspaces",
+    "mongodbCollections": "Collections",
+    "redisKeyspace": {
+      "refreshContextMenuLabel": "Refresh",
+      "exploreDataContextMenuLabel": "Explore Data"
+    },
+    "redisDbExplorer": {
+      "refresh": "Refresh",
+      "searchPlaceholder": "Search keys or values…",
+      "noKeys": "No keys found",
+      "loadError": "Failed to load keys",
+      "noExpiry": "No expiry",
+      "expiresAt": "Expires {{datetime}}",
+      "pageSizeLabel": "Rows",
+      "pageOf": "{{page}} of {{total}}",
+      "keys": "keys",
+      "expiring": "expiring",
+      "addKey": "Add Key",
+      "deleteConfirmTitle": "Delete Key",
+      "deleteConfirmMessage": "Delete \"{{keyName}}\"? This cannot be undone.",
+      "columns": {
+        "rowNumber": "#",
+        "keyName": "Key Name",
+        "ttl": "TTL",
+        "value": "Value",
+        "type": "Type",
+        "size": "Size"
+      }
+    },
+    "redisKeyEdit": {
+      "title": "Edit Key",
+      "newTitle": "New Key",
+      "keyNamePlaceholder": "Enter key name",
+      "ttlLabel": "TTL",
+      "ttlSeconds": "Seconds",
+      "ttlNoExpiry": "No Expiry",
+      "streamReadOnly": "Stream entries are immutable",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleteConfirmTitle": "Delete Key",
+      "deleteConfirmMessage": "Delete \"{{keyName}}\"?",
+      "loadError": "Failed to load key value",
+      "addItem": "Add item",
+      "addField": "Add field",
+      "addMember": "Add member",
+      "field": "Field",
+      "value": "Value",
+      "member": "Member",
+      "score": "Score"
+    },
+    "deleteRedisKey": {
+      "contextMenuLabel": "Delete",
+      "confirmTitle": "Delete Key",
+      "confirmMessage": "Are you sure you want to delete the key \"{{keyName}}\"? This action cannot be undone."
+    },
+    "deleteRedisPrefix": {
+      "contextMenuLabel": "Delete",
+      "confirmTitle": "Delete Keys",
+      "confirmMessage": "Are you sure you want to delete all keys under the prefix \"{{prefix}}:\"? This action cannot be undone."
+    },
+    "redisDashboard": {
+      "contextMenuLabel": "Dashboard",
+      "tabTitle": "Dashboard",
+      "lastRefreshed": "Last refreshed",
+      "autoRefreshOn": "Auto-refresh on",
+      "noData": "No data available",
+      "commandSuccess": "Command completed successfully",
+      "errorDialog": {
+        "title": "Connection Error"
+      },
+      "searchPlaceholder": "Search keys…",
+      "maintenanceNote": "Use these commands to manage your Redis server. Flush commands are irreversible.",
+      "dangerZone": "Danger Zone",
+      "noKeys": "No databases with keys",
+      "noInfoResults": "No matching keys",
+      "sections": {
+        "server": "Server",
+        "memory": "Memory",
+        "stats": "Stats",
+        "persistence": "Persistence",
+        "replication": "Replication",
+        "cacheEfficiency": "Cache Efficiency",
+        "keyStats": "Key Statistics",
+        "maintenance": "Maintenance",
+        "allInfo": "All Redis INFO"
+      },
+      "actions": {
+        "refresh": "Refresh",
+        "copySnapshot": "Copy Snapshot",
+        "openRawInfo": "Open Raw INFO"
+      },
+      "fields": {
+        "redisVersion": "Redis Version",
+        "mode": "Mode",
+        "os": "OS",
+        "processId": "Process ID",
+        "port": "TCP Port",
+        "uptime": "Uptime",
+        "hz": "Hz",
+        "configFile": "Config File",
+        "usedMemory": "Used Memory",
+        "peakMemory": "Peak Memory",
+        "rssMemory": "RSS Memory",
+        "luaMemory": "Lua Memory",
+        "maxMemory": "Max Memory",
+        "noLimit": "No limit",
+        "evictionPolicy": "Eviction Policy",
+        "fragmentationRatio": "Fragmentation Ratio",
+        "allocator": "Allocator",
+        "connectedClients": "Connected Clients",
+        "blockedClients": "Blocked Clients",
+        "totalConnections": "Total Connections",
+        "totalCommands": "Commands Processed",
+        "opsPerSec": "Ops / sec",
+        "rejectedConnections": "Rejected Connections",
+        "netIn": "Net Input",
+        "netOut": "Net Output",
+        "pubsubChannels": "Pub/Sub Channels",
+        "keyspaceHits": "Keyspace Hits",
+        "keyspaceMisses": "Keyspace Misses",
+        "hitRatio": "Hit Ratio",
+        "expiredKeys": "Expired Keys",
+        "evictedKeys": "Evicted Keys",
+        "rdbChanges": "Changes Since Last Save",
+        "rdbSaveInProgress": "RDB Save In Progress",
+        "rdbLastStatus": "Last RDB Status",
+        "rdbLastSave": "Last RDB Save",
+        "aofEnabled": "AOF Enabled",
+        "aofLastStatus": "Last AOF Rewrite Status",
+        "aofSize": "AOF File Size",
+        "yes": "Yes",
+        "no": "No",
+        "role": "Role",
+        "connectedSlaves": "Connected Replicas",
+        "masterHost": "Master",
+        "masterLinkStatus": "Master Link",
+        "replicationOffset": "Replication Offset",
+        "replicationId": "Replication ID",
+        "nodeAddr": "Address",
+        "nodeRole": "Role",
+        "nodeStatus": "Status",
+        "nodeFlags": "Flags",
+        "connected": "Connected",
+        "disconnected": "Disconnected",
+        "database": "Database",
+        "keys": "Keys",
+        "expires": "Expires",
+        "avgTtl": "Avg TTL (ms)",
+        "infoSection": "Section",
+        "infoKey": "Key",
+        "infoValue": "Value"
+      },
+      "commands": {
+        "confirm": "Execute",
+        "cancel": "Cancel",
+        "bgsave": {
+          "label": "BGSAVE",
+          "confirmTitle": "Trigger Background Save",
+          "confirmMessage": "This will trigger an asynchronous RDB snapshot to disk. Continue?"
+        },
+        "bgrewriteaof": {
+          "label": "BGREWRITEAOF",
+          "confirmTitle": "Trigger AOF Rewrite",
+          "confirmMessage": "This will trigger an asynchronous AOF rewrite in the background. Continue?"
+        },
+        "memoryPurge": {
+          "label": "MEMORY PURGE",
+          "confirmTitle": "Purge Memory",
+          "confirmMessage": "This will attempt to release fragmented memory back to the OS allocator. Continue?"
+        },
+        "slowlogReset": {
+          "label": "SLOWLOG RESET",
+          "confirmTitle": "Reset Slow Log",
+          "confirmMessage": "This will permanently clear the slow query log. Continue?"
+        },
+        "flushdb": {
+          "label": "FLUSHDB db{{dbIndex}}",
+          "confirmTitle": "Flush Database",
+          "confirmMessage": "⚠ This will permanently delete ALL keys in database {{dbIndex}}. This action cannot be undone. Are you absolutely sure?"
+        },
+        "flushall": {
+          "label": "FLUSHALL",
+          "confirmTitle": "Flush All Databases",
+          "confirmMessage": "⚠ This will permanently delete ALL keys in ALL databases on this Redis server. This action cannot be undone. Are you absolutely sure?"
+        }
+      }
+    },
+    "manageDataTypes": {
+      "dialogTitle": "Manage Data Types",
+      "listHeader": "Data Types",
+      "noDataTypes": "No data types",
+      "newDataType": "New Data Type",
+      "selectOrAdd": "Select a data type or add a new one",
+      "addButton": "Add Data Type",
+      "saveButton": "Create",
+      "deleteButton": "Delete",
+      "schemaLabel": "Schema",
+      "nameLabel": "Name",
+      "namePlaceholder": "MyTypeName",
+      "dataTypeLabel": "Data Type",
+      "lengthLabel": "Length",
+      "precisionLabel": "Precision",
+      "scaleLabel": "Scale",
+      "nullableLabel": "Nullability",
+      "allowNulls": "Allow NULLs",
+      "storageLabel": "Storage",
+      "createContextMenuLabel": "Create Data Type",
+      "editContextMenuLabel": "Edit Data Type",
+      "refreshContextMenuLabel": "Refresh",
+      "validation": {
+        "nameRequired": "Name is required",
+        "schemaRequired": "Schema is required"
+      }
+    },
+    "manageTableTypes": {
+      "dialogTitle": "Manage Table Types",
+      "listHeader": "Table Types",
+      "noItems": "No table types",
+      "newItem": "New Table Type",
+      "selectOrAdd": "Select a table type or add a new one",
+      "addButton": "Add Table Type",
+      "saveButton": "Create",
+      "updateButton": "Update",
+      "deleteButton": "Delete Table Type",
+      "schemaLabel": "Schema",
+      "nameLabel": "Name",
+      "namePlaceholder": "MyTableType",
+      "columnsHeader": "Columns",
+      "createContextMenuLabel": "Create Table Type",
+      "editContextMenuLabel": "Edit Table Type",
+      "refreshContextMenuLabel": "Refresh",
+      "validation": {
+        "nameRequired": "Name is required",
+        "schemaRequired": "Schema is required"
+      }
+    },
+    "manageMemoryOptimizedTableTypes": {
+      "dialogTitle": "Manage Memory-Optimized Table Types",
+      "listHeader": "Memory-Optimized Table Types",
+      "noItems": "No memory-optimized table types",
+      "newItem": "New Memory-Optimized Table Type",
+      "selectOrAdd": "Select a type or add a new one",
+      "addButton": "Add Type",
+      "saveButton": "Create",
+      "updateButton": "Update",
+      "deleteButton": "Delete Type",
+      "schemaLabel": "Schema",
+      "nameLabel": "Name",
+      "namePlaceholder": "MyMemOptType",
+      "columnsHeader": "Columns",
+      "createContextMenuLabel": "Create Memory-Optimized Table Type",
+      "editContextMenuLabel": "Edit Memory-Optimized Table Type",
+      "refreshContextMenuLabel": "Refresh",
+      "validation": {
+        "nameRequired": "Name is required",
+        "schemaRequired": "Schema is required",
+        "primaryKeyRequired": "At least one column must be marked as Primary Key (required for memory-optimized table types)"
+      }
+    },
+    "columns": "Columns",
+    "keys": "Keys",
+    "constraints": "Constraints",
+    "triggers": "Triggers",
+    "indexes": "Indexes",
+    "statistics": "Statistics",
+    "emptyState": "No connections yet. Click \"New Connection\" to get started.",
+    "search": {
+      "placeholder": "Search by name or host…",
+      "ariaLabel": "Search connections"
+    },
+    "filter": {
+      "ariaLabel": "Filter connections",
+      "title": "Filter Connections",
+      "provider": "Provider",
+      "environment": "Environment"
+    },
+    "sort": {
+      "ariaLabel": "Sort connections",
+      "title": "Sort Connections",
+      "noEnvironment": "No environment",
+      "fields": {
+        "name": "Name",
+        "createdAt": "Creation Date",
+        "lastUsedAt": "Last Used",
+        "provider": "Provider",
+        "environment": "Environment"
+      },
+      "directions": {
+        "asc": "Ascending",
+        "desc": "Descending"
+      }
+    },
+    "connecting": "Connecting",
+    "loading": "Loading",
+    "noItems": "No items",
+    "connectionError": "Connection failed",
+    "retryConnection": "Click to retry",
+    "eagerLoading": "Pre-loading database structure…",
+    "statusLabel": {
+      "disconnected": "Disconnected",
+      "connecting": "Connecting",
+      "connected": "Connected",
+      "error": "Connection error"
+    },
+    "dialog": {
+      "title": "New Connection",
+      "editTitle": "Edit Connection",
+      "fields": {
+        "name": "Name",
+        "provider": "Provider",
+        "host": "Host",
+        "port": "Port",
+        "username": "Username",
+        "password": "Password",
+        "rememberPassword": "Remember Password",
+        "defaultDatabase": "Default Database",
+        "color": "Icon Color",
+        "colorResetDefault": "Reset to default",
+        "autoConnect": "Auto Connect",
+        "autoConnectDesc": "Automatically connect to this database when the application starts",
+        "eagerLoading": "Eager Loading",
+        "eagerLoadingDesc": "Pre-load all databases, tables, views, stored procedures and functions in the background after connecting, for instant tree navigation",
+        "backgroundAutoRefresh": "Background Auto Refresh",
+        "backgroundAutoRefreshDesc": "Silently watch expanded tree areas for schema changes and refresh them automatically without interrupting your workflow",
+        "redisHideEmptyDatabases": "Hide Empty Logical Databases",
+        "redisHideEmptyDatabasesDesc": "Show only Redis logical databases that contain at least one key. Refresh the database list to reveal databases once they have values.",
+        "filePath": "Database File",
+        "browseFile": "Browse…",
+        "redisMode": "Deployment Mode",
+        "redisModeStandalone": "Standalone",
+        "redisModeCluster": "Cluster",
+        "redisModeSentinel": "Sentinel",
+        "sentinelNodes": "Sentinel Nodes",
+        "sentinelMasterName": "Master Name",
+        "redisUsername": "Username (ACL)",
+        "redisDatabaseIndex": "Database Index",
+        "redisTls": "TLS / SSL",
+        "redisTlsEnable": "Enable TLS/SSL",
+        "redisTlsServername": "Server Name (SNI)",
+        "redisTlsValidation": "Certificate Validation",
+        "redisTlsRejectUnauthorized": "Reject Unauthorized Certificates",
+        "sshTunnel": "SSH Tunnel",
+        "sshTunnelEnable": "Enable SSH Tunneling",
+        "sshHost": "SSH Host",
+        "sshPort": "SSH Port",
+        "sshUsername": "SSH Username",
+        "sshAuthMode": "Authentication Mode",
+        "sshAuthModePassword": "Password",
+        "sshAuthModeKey": "Private Key",
+        "sshPassword": "SSH Password",
+        "sshPrivateKeyPath": "Private Key File",
+        "sshPassphrase": "Passphrase",
+        "sshPassphrasePlaceholder": "Leave empty if key has no passphrase",
+        "mongodbSrv": "DNS Seedlist (SRV)",
+        "mongodbSrvEnable": "Use SRV record (mongodb+srv://) — required for Atlas and most cloud clusters",
+        "mongodbUri": "MongoDB URI",
+        "mongodbUriHint": "Supply a full URI to override all other fields, or leave blank and fill in the fields below",
+        "mongodbAuthMechanism": "Authentication Mechanism",
+        "mongodbAuthSource": "Auth Source Database",
+        "mongodbReplicaSet": "Replica Set Name",
+        "mongodbDirectConnection": "Direct Connection",
+        "mongodbDirectConnectionEnable": "Connect directly (bypass topology discovery)",
+        "mongodbTls": "TLS / SSL",
+        "mongodbTlsEnable": "Enable TLS/SSL",
+        "mongodbTlsCAFile": "CA Certificate File",
+        "mongodbTlsCertKeyFile": "Client Certificate / Key File",
+        "mongodbTlsCertKeyPassword": "Certificate Key Passphrase",
+        "mongodbTlsAllowInvalidHostnames": "Allow invalid hostnames",
+        "mongodbTlsAllowInvalidCerts": "Allow invalid certificates (insecure)",
+        "environment": "Environment",
+        "environmentDesc": "Assign an environment label to this connection.",
+        "environmentUnset": "No environment",
+        "environmentSearchPlaceholder": "Search environments",
+        "environmentNoResults": "No environments found"
+      },
+      "providers": {
+        "sqlserver": "SQL Server",
+        "mysql": "MySQL",
+        "sqlite": "SQLite"
+      },
+      "actions": {
+        "testConnection": "Test Connection",
+        "testingConnection": "Testing…",
+        "save": "Save",
+        "update": "Update",
+        "cancel": "Cancel"
+      },
+      "tabs": {
+        "connectionDetails": "Connection Details",
+        "connectionString": "Connection String",
+        "options": "Options"
+      },
+      "connectionStringTab": {
+        "parseError": "Could not parse connection string"
+      },
+      "testResult": {
+        "success": "Connected successfully"
+      },
+      "validation": {
+        "nameRequired": "Connection name is required",
+        "hostRequired": "Host is required",
+        "portInvalid": "Port must be a number between 1 and 65535",
+        "usernameRequired": "Username is required",
+        "filePathRequired": "Database file path is required",
+        "sentinelNodesRequired": "At least one sentinel node address is required",
+        "sentinelMasterNameRequired": "Sentinel master name is required",
+        "x509CertRequired": "Client certificate file is required for X.509 authentication",
+        "sshHostRequired": "SSH host is required",
+        "sshUsernameRequired": "SSH username is required",
+        "sshPrivateKeyRequired": "Private key file path is required"
+      },
+      "createPrompt": {
+        "message": "This file does not exist. Create a new SQLite database at this path?",
+        "confirm": "Create Database",
+        "cancel": "Cancel"
+      }
+    },
+    "criticalEnvironmentConfirm": {
+      "title": "Critical Environment",
+      "close": "Close",
+      "message": "You are about to run a query against the critical environment \"{{environmentName}}\". Continue?",
+      "skipForTab": "Do not ask me again for this tab",
+      "cancel": "Cancel",
+      "confirm": "Run Query"
+    },
+    "contextMenu": {
+      "edit": "Edit",
+      "connect": "Connect",
+      "disconnect": "Disconnect",
+      "delete": "Delete",
+      "deleteConnectionTitle": "Delete Connection",
+      "confirmDelete": "Are you sure you want to delete \"{{name}}\"?",
+      "confirmDeleteConnected": "\"{{name}}\" is currently connected. Disconnect and delete this connection?",
+      "confirmDisconnectForEdit": "This connection is active. Disconnect before editing?",
+      "confirmDisconnectForEditTitle": "Active Connection",
+      "confirmDisconnectForEditConfirm": "Disconnect & Edit"
+    },
+    "createDatabase": {
+      "refreshContextMenuLabel": "Refresh",
+      "contextMenuLabel": "Create Database",
+      "dialogTitle": "Create Database",
+      "nameLabel": "Database Name",
+      "namePlaceholder": "Enter database name",
+      "createButton": "Create",
+      "creatingButton": "Creating…",
+      "cancelButton": "Cancel",
+      "unknownError": "An unexpected error occurred",
+      "validation": {
+        "nameRequired": "Database name is required",
+        "nameInvalidChars": "Database name cannot contain [, ], or ' characters"
+      }
+    },
+    "serverFileBrowser": {
+      "title": "Browse Server Files",
+      "select": "Select",
+      "cancel": "Cancel",
+      "loading": "Loading…",
+      "noDrives": "No drives available",
+      "emptyFolder": "This folder is empty",
+      "fileNameLabel": "File name",
+      "fileNamePlaceholder": "Enter a file name",
+      "manualFallback": "Could not browse the server filesystem (insufficient permissions). Enter a full path manually.",
+      "manualPathLabel": "Full path",
+      "manualPathPlaceholder": "e.g. C:\\Backups\\MyDatabase.bak",
+      "enterManually": "Enter path manually",
+      "browseDrives": "Browse drives"
+    },
+    "backup": {
+      "contextMenuLabel": "Back Up…",
+      "dialogTitle": "Back Up Database",
+      "loading": "Loading…",
+      "source": "Source",
+      "databaseLabel": "Database",
+      "nameLabel": "Backup set name",
+      "namePlaceholder": "Optional name for this backup",
+      "backupType": "Backup type",
+      "types": {
+        "full": "Full",
+        "differential": "Differential",
+        "log": "Transaction Log"
+      },
+      "backupComponent": "Backup component",
+      "componentDatabase": "Database",
+      "componentFiles": "Files and filegroups",
+      "chooseFiles": "Choose files…",
+      "filesSelected": "{{count}} item(s) selected",
+      "destination": "Destination",
+      "noDestinations": "No backup locations added yet.",
+      "addDestination": "Add",
+      "removeDestination": "Remove",
+      "media": "Media",
+      "appendExisting": "Append to the existing backup set",
+      "overwriteExisting": "Overwrite all existing backup sets",
+      "reliability": "Reliability",
+      "verify": "Verify backup when finished",
+      "checksum": "Perform checksum before writing to media",
+      "continueOnError": "Continue on error",
+      "transactionLog": "Transaction log",
+      "truncateLog": "Truncate the transaction log",
+      "tailLog": "Back up the tail of the log, and leave the database in the restoring state",
+      "expiration": "Backup expiration",
+      "expirationNone": "Backup set does not expire",
+      "expirationAfter": "After",
+      "days": "days",
+      "expirationOn": "On",
+      "compression": "Compression",
+      "compressionDefault": "Use the default server setting",
+      "compressionCompress": "Compress backup",
+      "compressionNone": "Do not compress backup",
+      "previewScript": "Preview Script",
+      "hideScript": "Hide Script",
+      "cancel": "Cancel",
+      "backUp": "Back Up",
+      "backingUp": "Backing up…",
+      "success": "Backup completed in {{seconds}}s.",
+      "unknownError": "An unexpected error occurred",
+      "validation": {
+        "destinationRequired": "Add at least one backup location.",
+        "filesRequired": "Select at least one file or filegroup.",
+        "expirationDateRequired": "Choose an expiration date."
+      },
+      "filesAndFilegroups": {
+        "title": "Select Files and Filegroups",
+        "empty": "No files found for this database.",
+        "data": "Data",
+        "log": "Log",
+        "confirm": "OK",
+        "cancel": "Cancel"
+      }
+    },
+    "restore": {
+      "contextMenuLabel": "Restore…",
+      "dialogTitle": "Restore Database",
+      "loading": "Loading…",
+      "source": "Source",
+      "sourceDatabase": "Database",
+      "sourceDevice": "Device",
+      "addDevice": "Add",
+      "restorePlan": "Restore plan",
+      "refresh": "Refresh",
+      "noBackupSets": "No backup sets available.",
+      "colType": "Type",
+      "colDatabase": "Database",
+      "colDate": "Date",
+      "colPosition": "Position",
+      "colFile": "File",
+      "destination": "Destination",
+      "targetDatabase": "Target database",
+      "options": "Options",
+      "replace": "Overwrite the existing database (WITH REPLACE)",
+      "takeTailLog": "Take tail-log backup before restore",
+      "restrictedUser": "Restrict access to the restored database (RESTRICTED_USER)",
+      "recoveryState": "Recovery state",
+      "recovery": "RESTORE WITH RECOVERY",
+      "norecovery": "RESTORE WITH NORECOVERY",
+      "standby": "RESTORE WITH STANDBY",
+      "relocate": "Relocate files",
+      "loadFileList": "Load file list",
+      "noMoveFiles": "Load the file list to relocate database files.",
+      "previewScript": "Preview Script",
+      "hideScript": "Hide Script",
+      "cancel": "Cancel",
+      "restore": "Restore",
+      "restoring": "Restoring…",
+      "success": "Restore completed in {{seconds}}s.",
+      "unknownError": "An unexpected error occurred",
+      "validation": {
+        "targetRequired": "Enter a target database name.",
+        "sourceRequired": "Select at least one backup set to restore."
+      }
+    },
+    "mysqlBackup": {
+      "dialogTitle": "Back Up MySQL Database",
+      "source": "Source",
+      "databaseLabel": "Database",
+      "content": "Content",
+      "contentBoth": "Schema and data",
+      "contentSchema": "Schema only",
+      "contentData": "Data only",
+      "destination": "Destination",
+      "noFile": "No file selected",
+      "chooseFile": "Choose File…",
+      "compress": "Compress output (gzip)",
+      "options": "Options",
+      "opt": {
+        "addDropTable": "Add DROP TABLE statements",
+        "singleTransaction": "Single transaction (consistent snapshot)",
+        "includeRoutines": "Include stored routines",
+        "includeTriggers": "Include triggers",
+        "includeEvents": "Include events",
+        "extendedInsert": "Use extended INSERT statements",
+        "addCreateDatabase": "Add CREATE DATABASE statement"
+      },
+      "charset": "Character set",
+      "engineCli": "mysqldump detected — backups use the mysqldump client",
+      "engineJs": "mysqldump not found — backups use the built-in engine",
+      "previewCommand": "Preview Command",
+      "hideCommand": "Hide Command",
+      "cancel": "Cancel",
+      "backUp": "Back Up",
+      "backingUp": "Backing Up…",
+      "success": "Backup completed in {{seconds}}s ({{size}} KB, {{engine}} engine).",
+      "unknownError": "An unknown error occurred during backup.",
+      "validation": {
+        "fileRequired": "Choose a destination file."
+      }
+    },
+    "mysqlRestore": {
+      "dialogTitle": "Restore MySQL Database",
+      "source": "Source",
+      "noFile": "No file selected",
+      "chooseFile": "Choose File…",
+      "target": "Target",
+      "targetDatabase": "Target Database",
+      "createIfNotExists": "Create database if it does not exist",
+      "stopOnError": "Stop on first error",
+      "cancel": "Cancel",
+      "restore": "Restore",
+      "restoring": "Restoring…",
+      "success": "Restore completed in {{seconds}}s ({{engine}} engine, {{count}} statements).",
+      "unknownError": "An unknown error occurred during restore.",
+      "validation": {
+        "fileRequired": "Choose a backup file to restore.",
+        "targetRequired": "Enter a target database name."
+      }
+    },
+    "mongoBackup": {
+      "dialogTitle": "Back Up MongoDB Database",
+      "source": "Source",
+      "databaseLabel": "Database",
+      "destination": "Destination",
+      "noFile": "No file selected",
+      "chooseFile": "Choose File…",
+      "compress": "Compress output (gzip)",
+      "engineCli": "mongodump detected — backups use a mongodump archive",
+      "engineJs": "mongodump not found — backups use the built-in JSON engine",
+      "previewCommand": "Preview Command",
+      "hideCommand": "Hide Command",
+      "cancel": "Cancel",
+      "backUp": "Back Up",
+      "backingUp": "Backing Up…",
+      "success": "Backup completed in {{seconds}}s ({{size}} KB, {{engine}} engine).",
+      "unknownError": "An unknown error occurred during backup.",
+      "validation": {
+        "fileRequired": "Choose a destination file."
+      }
+    },
+    "mongoRestore": {
+      "dialogTitle": "Restore MongoDB Database",
+      "source": "Source",
+      "noFile": "No file selected",
+      "chooseFile": "Choose File…",
+      "target": "Target",
+      "targetDatabase": "Target Database",
+      "drop": "Drop collections before restoring",
+      "stopOnError": "Stop on first error",
+      "cancel": "Cancel",
+      "restore": "Restore",
+      "restoring": "Restoring…",
+      "success": "Restore completed in {{seconds}}s ({{engine}} engine, {{count}} collections).",
+      "unknownError": "An unknown error occurred during restore.",
+      "validation": {
+        "fileRequired": "Choose a backup file to restore.",
+        "targetRequired": "Enter a target database name."
+      }
+    },
+    "sqliteBackup": {
+      "dialogTitle": "Back Up SQLite Database",
+      "source": "Source",
+      "databaseLabel": "Database",
+      "destination": "Destination",
+      "noFile": "No file selected",
+      "chooseFile": "Choose File…",
+      "compact": "Compact (VACUUM)",
+      "compress": "Compress output (gzip)",
+      "cancel": "Cancel",
+      "backUp": "Back Up",
+      "backingUp": "Backing Up…",
+      "success": "Backup completed in {{seconds}}s ({{size}} KB).",
+      "unknownError": "An unknown error occurred during backup.",
+      "validation": {
+        "fileRequired": "Choose a destination file."
+      }
+    },
+    "sqliteRestore": {
+      "dialogTitle": "Restore SQLite Database",
+      "source": "Source",
+      "noFile": "No file selected",
+      "chooseFile": "Choose File…",
+      "target": "Target",
+      "databaseLabel": "Database",
+      "overwriteWarning": "Restoring overwrites the current database file with the selected backup.",
+      "safetyCopy": "Save a copy of the current database first",
+      "cancel": "Cancel",
+      "restore": "Restore",
+      "restoring": "Restoring…",
+      "success": "Restore completed in {{seconds}}s.",
+      "safetyCopySaved": "Previous database saved to {{path}}.",
+      "unknownError": "An unknown error occurred during restore.",
+      "validation": {
+        "fileRequired": "Choose a backup file to restore."
+      }
+    },
+    "redisBackup": {
+      "dialogTitle": "Back Up Redis Database",
+      "dialogTitleAll": "Back Up All Redis Databases",
+      "scope": "Scope",
+      "scopeDatabase": "Database {{index}}",
+      "scopeAll": "All databases",
+      "destination": "Destination",
+      "noFile": "No file selected",
+      "chooseFile": "Choose File…",
+      "compress": "Compress output (gzip)",
+      "cancel": "Cancel",
+      "backUp": "Back Up",
+      "backingUp": "Backing Up…",
+      "success": "Backup completed in {{seconds}}s — {{keys}} keys across {{databases}} database(s), {{size}} KB.",
+      "unknownError": "An unknown error occurred during backup.",
+      "contextMenuLabel": "Backup",
+      "contextMenuAllLabel": "Backup all databases",
+      "validation": {
+        "fileRequired": "Choose a destination file."
+      }
+    },
+    "redisRestore": {
+      "dialogTitle": "Restore Redis Database",
+      "dialogTitleAll": "Restore All Redis Databases",
+      "source": "Source",
+      "noFile": "No file selected",
+      "chooseFile": "Choose File…",
+      "target": "Target",
+      "targetDatabaseIndex": "Target database index",
+      "conflict": "If a key already exists",
+      "conflictReplace": "Overwrite existing keys",
+      "conflictFlush": "Flush database first",
+      "conflictSkip": "Skip existing keys",
+      "cancel": "Cancel",
+      "restore": "Restore",
+      "restoring": "Restoring…",
+      "success": "Restore completed in {{seconds}}s — {{restored}} keys restored, {{skipped}} skipped, across {{databases}} database(s).",
+      "unknownError": "An unknown error occurred during restore.",
+      "contextMenuLabel": "Restore",
+      "contextMenuAllLabel": "Restore all databases",
+      "validation": {
+        "fileRequired": "Choose a backup file to restore.",
+        "targetRequired": "Enter a valid target database index."
+      }
+    },
+    "postgresBackup": {
+      "dialogTitle": "Back Up PostgreSQL Database",
+      "source": "Source",
+      "databaseLabel": "Database",
+      "content": "Content",
+      "contentBoth": "Schema and data",
+      "contentSchema": "Schema only",
+      "contentData": "Data only",
+      "destination": "Destination",
+      "format": "Output format",
+      "formatPlain": "Plain SQL (.sql)",
+      "formatCustom": "Custom (compressed archive)",
+      "formatTar": "Tar archive",
+      "formatDirectory": "Directory",
+      "noFile": "No file selected",
+      "chooseFile": "Choose File…",
+      "chooseFolder": "Choose Folder…",
+      "compress": "Compress output (gzip)",
+      "compressionLevel": "Compression level (0–9)",
+      "options": "Options",
+      "opt": {
+        "noOwner": "No owner (skip ownership commands)",
+        "noPrivileges": "No privileges (skip GRANT/REVOKE)",
+        "clean": "Add DROP commands (clean)",
+        "createDatabase": "Add CREATE DATABASE statement"
+      },
+      "encoding": "Encoding",
+      "engineCli": "pg_dump detected — backups use the pg_dump client",
+      "engineMissing": "pg_dump not found — install the PostgreSQL client tools to back up",
+      "previewCommand": "Preview Command",
+      "hideCommand": "Hide Command",
+      "cancel": "Cancel",
+      "backUp": "Back Up",
+      "backingUp": "Backing Up…",
+      "success": "Backup completed in {{seconds}}s ({{size}} KB).",
+      "unknownError": "An unknown error occurred during backup.",
+      "validation": {
+        "fileRequired": "Choose a destination file or folder."
+      }
+    },
+    "postgresRestore": {
+      "dialogTitle": "Restore PostgreSQL Database",
+      "source": "Source",
+      "noFile": "No file selected",
+      "chooseFile": "Choose File…",
+      "format": "Archive format",
+      "formatPlain": "Plain SQL (.sql)",
+      "formatCustom": "Custom (compressed archive)",
+      "formatTar": "Tar archive",
+      "formatDirectory": "Directory",
+      "target": "Target",
+      "targetDatabase": "Target Database",
+      "createDatabase": "Create database before restoring",
+      "clean": "Drop existing objects first (clean)",
+      "noOwner": "No owner (skip ownership commands)",
+      "singleTransaction": "Restore as a single transaction",
+      "jobs": "Parallel jobs",
+      "cancel": "Cancel",
+      "restore": "Restore",
+      "restoring": "Restoring…",
+      "success": "Restore completed in {{seconds}}s.",
+      "unknownError": "An unknown error occurred during restore.",
+      "validation": {
+        "fileRequired": "Choose a backup file to restore.",
+        "targetRequired": "Enter a target database name."
+      }
+    },
+    "renameCollection": {
+      "contextMenuLabel": "Rename",
+      "dialogTitle": "Rename Collection",
+      "nameLabel": "New Name",
+      "renameButton": "Rename",
+      "renamingButton": "Renaming…",
+      "cancelButton": "Cancel",
+      "unknownError": "An unexpected error occurred",
+      "validation": {
+        "nameRequired": "Collection name is required",
+        "sameName": "New name must be different from current name",
+        "systemPrefix": "Collection name cannot start with \"system.\""
+      }
+    },
+    "dropCollection": {
+      "contextMenuLabel": "Drop",
+      "confirmTitle": "Drop Collection",
+      "confirmMessage": "Are you sure you want to drop \"{{collectionName}}\"? This action cannot be undone."
+    },
+    "createCollection": {
+      "refreshContextMenuLabel": "Refresh",
+      "contextMenuLabel": "Create Collection",
+      "dialogTitle": "Create Collection",
+      "nameLabel": "Collection Name",
+      "namePlaceholder": "Enter collection name",
+      "createButton": "Create",
+      "creatingButton": "Creating…",
+      "cancelButton": "Cancel",
+      "unknownError": "An unexpected error occurred",
+      "validation": {
+        "nameRequired": "Collection name is required",
+        "systemPrefix": "Collection name cannot start with \"system.\""
+      }
+    },
+    "unsavedChanges": {
+      "dialogTitle": "Unsaved Changes",
+      "message": "\"{{fileName}}\" has unsaved changes. Do you want to save before closing?",
+      "saveButton": "Save",
+      "discardButton": "Don't Save",
+      "cancelButton": "Cancel"
+    },
+    "createTable": {
+      "refreshContextMenuLabel": "Refresh",
+      "contextMenuLabel": "Create Table",
+      "dialogTitle": "Create Table",
+      "schemaLabel": "Schema",
+      "tableNameLabel": "Table Name",
+      "tableNamePlaceholder": "Enter table name",
+      "columnsTitle": "Columns",
+      "propertiesTitle": "Column Properties",
+      "propertiesEmpty": "Select a column to view its properties",
+      "addColumnButton": "Add Column",
+      "noColumns": "No columns yet. Click \"Add Column\" to get started.",
+      "colHeader": {
+        "name": "Name",
+        "type": "Type",
+        "null": "Null"
+      },
+      "props": {
+        "length": "Length",
+        "lengthCustom": "Custom",
+        "precisionScale": "Precision / Scale",
+        "precision": "Precision",
+        "scale": "Scale",
+        "defaultValue": "Default Value",
+        "defaultValuePlaceholder": "e.g. GETDATE(), 0, 'N/A'",
+        "primaryKey": "Primary Key",
+        "identity": "Identity",
+        "identitySeedIncrement": "Seed / Increment",
+        "identitySeed": "Seed",
+        "identityIncrement": "Increment"
+      },
+      "sqlPreviewTitle": "SQL Preview",
+      "resetSqlButton": "Reset SQL",
+      "resetSqlTitle": "Revert to auto-generated SQL",
+      "cancelButton": "Cancel",
+      "createButton": "Create Table",
+      "creatingButton": "Creating…",
+      "loading": "Loading table schema…",
+      "closeAriaLabel": "Close dialog",
+      "unknownError": "An unexpected error occurred",
+      "validation": {
+        "nameRequired": "Table name is required",
+        "nameInvalidChars": "Table name cannot contain [, ], or ' characters",
+        "noSql": "Nothing to execute. Add columns or edit the SQL directly."
+      }
+    },
+    "manageAggregations": {
+      "cancelButton": "Cancel",
+      "createButton": "Create Aggregation",
+      "saveButton": "Save Aggregation",
+      "savingButton": "Saving…",
+      "deleteButton": "Delete",
+      "deletingButton": "Deleting…"
+    },
+    "collectionValidation": {
+      "dialogTitle": "Collection Validation — {{collection}}",
+      "actionLabel": "Action",
+      "actionWarn": "Warning",
+      "actionError": "Error",
+      "actionErrorAndLog": "Error and Log",
+      "levelLabel": "Level",
+      "levelOff": "Off",
+      "levelModerate": "Moderate",
+      "levelStrict": "Strict",
+      "generateRulesButton": "Generate Rules",
+      "generatingButton": "Generating…",
+      "testButton": "Test Rules",
+      "testingButton": "Testing…",
+      "passedHeader": "Passed Validation",
+      "failedHeader": "Failed Validation",
+      "noResults": "No documents",
+      "cancelButton": "Cancel",
+      "saveButton": "Save Rules",
+      "savingButton": "Saving…",
+      "editContextMenuLabel": "Edit Validation Rules",
+      "prevPage": "Prev",
+      "nextPage": "Next"
+    },
+    "editTable": {
+      "contextMenuLabel": "Edit Table",
+      "dialogTitle": "Edit Table: {{tableName}}",
+      "saveButton": "Save Changes",
+      "savingButton": "Saving…"
+    },
+    "foreignKeys": {
+      "dialogTitle": "Manage Foreign Keys — {{table}}",
+      "listHeader": "Foreign Keys",
+      "noKeys": "No foreign keys",
+      "newKey": "(new)",
+      "addButton": "Add Foreign Key",
+      "addContextMenuLabel": "Add Foreign Key",
+      "editContextMenuLabel": "Edit Foreign Key",
+      "selectOrAdd": "Select a foreign key or add a new one",
+      "tableMapping": "Table Mapping",
+      "sourceTable": "Source Table (Referenced)",
+      "sourceColumn": "Source Column",
+      "destinationTable": "Destination Table (FK Holder)",
+      "destinationColumn": "Destination Column",
+      "selectTable": "— Select table —",
+      "selectColumn": "— Select column —",
+      "properties": "Properties",
+      "name": "Name",
+      "description": "Description",
+      "descriptionPlaceholder": "Optional description…",
+      "enforceForReplication": "Enforce for Replication",
+      "enforceFkConstraints": "Enforce Foreign Key Constraints",
+      "deleteRule": "Delete Rule",
+      "updateRule": "Update Rule",
+      "saveButton": "Save FK",
+      "deleteButton": "Delete FK"
+    },
+    "manageTriggers": {
+      "dialogTitle": "Manage Triggers — {{table}}",
+      "listHeader": "Triggers",
+      "noTriggers": "No triggers",
+      "newTrigger": "(new)",
+      "addButton": "Add Trigger",
+      "createContextMenuLabel": "Create Trigger",
+      "editContextMenuLabel": "Edit Trigger",
+      "selectOrAdd": "Select a trigger or add a new one",
+      "nameLabel": "Name",
+      "namePlaceholder": "trg_MyTrigger",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Optional description…",
+      "tableLabel": "Table",
+      "timingLabel": "When to Run",
+      "after": "AFTER",
+      "insteadOf": "INSTEAD OF",
+      "eventsLabel": "Events",
+      "insertEvent": "INSERT",
+      "updateEvent": "UPDATE",
+      "deleteEvent": "DELETE",
+      "codeLabel": "Trigger Code",
+      "saveButton": "Save Trigger",
+      "deleteButton": "Delete Trigger",
+      "validation": {
+        "nameRequired": "Trigger name is required.",
+        "eventRequired": "At least one event (INSERT, UPDATE, DELETE) must be selected.",
+        "codeRequired": "Trigger code is required."
+      }
+    },
+    "manageIndexes": {
+      "dialogTitle": "Manage Indexes — {{table}}",
+      "listHeader": "Indexes",
+      "noIndexes": "No indexes",
+      "newIndex": "(new)",
+      "addButton": "Add Index",
+      "createContextMenuLabel": "Create Index",
+      "editContextMenuLabel": "Edit Index",
+      "rebuild": "Rebuild",
+      "reorganize": "Reorganize",
+      "disable": "Disable",
+      "selectOrAdd": "Select an index or add a new one",
+      "primaryKeyNote": "Primary key indexes cannot be modified here.",
+      "nameLabel": "Name",
+      "namePlaceholder": "idx_TableName_Column",
+      "typeLabel": "Type",
+      "typeClustered": "CLUSTERED",
+      "typeNonClustered": "NONCLUSTERED",
+      "typeClusteredDisabled": "CLUSTERED (table already has one)",
+      "uniqueLabel": "Unique",
+      "columnsLabel": "Index Columns",
+      "addColumn": "Add Column",
+      "columnHeader": "Column",
+      "sortHeader": "Sort",
+      "includeHeader": "Include",
+      "ascending": "ASC",
+      "descending": "DESC",
+      "filterLabel": "Filter Expression",
+      "filterPlaceholder": "e.g. [Status] = 'Active' (optional, for partial index)",
+      "fillFactorLabel": "Fill Factor (0–100)",
+      "fillFactorPlaceholder": "e.g. 80",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Optional description…",
+      "saveButton": "Save Index",
+      "deleteButton": "Delete Index",
+      "rebuilding": "Rebuilding…",
+      "reorganizing": "Reorganizing…",
+      "disabling": "Disabling…",
+      "rebuildSuccess": "Index rebuilt successfully.",
+      "reorganizeSuccess": "Index reorganized successfully.",
+      "disableSuccess": "Index disabled successfully.",
+      "validation": {
+        "nameRequired": "Index name is required.",
+        "columnsRequired": "At least one key column is required."
+      }
+    },
+    "manageMongoIndexes": {
+      "dialogTitle": "Manage Indexes — {{collection}}",
+      "listHeader": "Indexes",
+      "noIndexes": "No indexes",
+      "newIndex": "(new)",
+      "addButton": "Add Index",
+      "createContextMenuLabel": "Create Index",
+      "editContextMenuLabel": "Edit Index",
+      "dropContextMenuLabel": "Drop Index",
+      "refreshContextMenuLabel": "Refresh",
+      "selectOrAdd": "Select an index or add a new one",
+      "idIndexNote": "The _id index is created automatically and cannot be modified.",
+      "nameLabel": "Name",
+      "namePlaceholder": "Leave blank to auto-generate",
+      "fieldsLabel": "Index Fields",
+      "fieldNameHeader": "Field",
+      "fieldTypeHeader": "Type",
+      "addField": "Add Field",
+      "uniqueLabel": "Unique",
+      "sparseLabel": "Sparse (skip documents where indexed field is missing)",
+      "ttlLabel": "Expire After Seconds (TTL)",
+      "ttlPlaceholder": "e.g. 3600 (leave blank for no TTL)",
+      "partialFilterLabel": "Partial Filter Expression",
+      "partialFilterPlaceholder": "e.g. {\"status\": \"active\"}",
+      "wildcardProjectionLabel": "Wildcard Projection",
+      "wildcardProjectionPlaceholder": "e.g. {\"tags\": 1}",
+      "collationLabel": "Collation",
+      "collationPlaceholder": "e.g. {\"locale\": \"en\", \"strength\": 2}",
+      "saveButton": "Save Index",
+      "deleteButton": "Drop Index",
+      "dropConfirmTitle": "Drop Index",
+      "dropConfirmMessage": "Drop index \"{{indexName}}\"? This cannot be undone.",
+      "validation": {
+        "fieldsRequired": "At least one index field is required.",
+        "invalidJson": "{{field}} must be valid JSON."
+      }
+    },
+    "checkConstraints": {
+      "dialogTitle": "Manage Constraints — {{table}}",
+      "listHeader": "Constraints",
+      "noConstraints": "No check constraints",
+      "newConstraint": "(new)",
+      "addButton": "Add Constraint",
+      "addContextMenuLabel": "Add Constraint",
+      "editContextMenuLabel": "Edit Constraint",
+      "selectOrAdd": "Select a constraint or add a new one",
+      "condition": "Condition",
+      "properties": "Properties",
+      "name": "Name",
+      "description": "Description",
+      "descriptionPlaceholder": "Optional description…",
+      "checkExistingData": "Check existing data",
+      "enforceInsertsAndUpdates": "Enforce INSERTs and UPDATEs",
+      "enforceForReplication": "Enforce for replication",
+      "saveButton": "Save Constraint",
+      "deleteButton": "Delete Constraint",
+      "validation": {
+        "nameRequired": "Constraint name is required.",
+        "conditionRequired": "Condition is required."
+      }
+    },
+    "dropTable": {
+      "contextMenuLabel": "Delete",
+      "confirmTitle": "Drop Table",
+      "confirmMessage": "Are you sure you want to drop table \"{{tableName}}\"? This action cannot be undone."
+    },
+    "dropDatabase": {
+      "contextMenuLabel": "Delete",
+      "confirmTitle": "Drop Database",
+      "confirmMessage": "Are you sure you want to drop database \"{{databaseName}}\"? This action cannot be undone."
+    },
+    "createErd": {
+      "contextMenuLabel": "Create ERD Schema"
+    },
+    "erdFilesFolder": "ERD Files",
+    "erdFile": {
+      "remove": "Remove from list"
+    },
+    "erd": {
+      "export": {
+        "title": "Export as PNG",
+        "background": "Background",
+        "transparent": "Transparent",
+        "grid": "Grid",
+        "gridOptions": {
+          "none": "None",
+          "dots": "Dots",
+          "grid": "Grid"
+        },
+        "summary": "Include database summary (tables, columns, relations, indexes)",
+        "cancel": "Cancel",
+        "export": "Export"
+      }
+    },
+    "selectTopRows": "Select Top {{count}} Rows",
+    "newQuery": "New Query",
+    "profile": "Profile",
+    "views": "Views",
+    "manageServerUsers": {
+      "dialogTitle": "Manage Server Logins",
+      "listHeader": "Logins",
+      "addButton": "Add Login",
+      "editButton": "Edit Login",
+      "deleteButton": "Delete Login",
+      "newLogin": "New Login",
+      "selectOrAdd": "Select a login or add a new one",
+      "loginNameLabel": "Login name",
+      "loginNamePlaceholder": "Enter login name",
+      "authTypeLabel": "Authentication type",
+      "authType_sql": "SQL Server authentication",
+      "authType_windows": "Windows authentication",
+      "authType_entra": "Microsoft Entra authentication",
+      "passwordLabel": "Password",
+      "passwordEditPlaceholder": "Leave blank to keep current password",
+      "confirmPasswordLabel": "Confirm password",
+      "enforcePolicyLabel": "Enforce password policy",
+      "enforceExpirationLabel": "Enforce password expiration",
+      "mustChangeLabel": "User must change password at next login",
+      "defaultDatabaseLabel": "Default database",
+      "defaultLanguageLabel": "Default language",
+      "defaultLanguageDefault": "<default>",
+      "tab_general": "General",
+      "tab_serverRoles": "Server Roles",
+      "tab_userMapping": "User Mapping",
+      "databaseColumn": "Database",
+      "rolesForDatabase": "Roles for: {{database}}",
+      "noRolesAvailable": "No roles available",
+      "selectMappedDatabase": "Select a mapped database to view roles",
+      "saveButton": "Save",
+      "loginNameRequired": "Login name is required",
+      "passwordRequired": "Password is required",
+      "passwordMismatch": "Passwords do not match",
+      "confirmDelete": "Drop login \"{{name}}\"? This cannot be undone."
+    },
+    "manageServerRoles": {
+      "dialogTitle": "Manage Server Roles",
+      "listHeader": "Roles",
+      "addButton": "Add Role",
+      "editButton": "Edit Role",
+      "deleteButton": "Delete Role",
+      "newRole": "New Role",
+      "selectOrAdd": "Select a role or add a new one",
+      "roleNameLabel": "Role name",
+      "roleNamePlaceholder": "Enter role name",
+      "ownerLabel": "Owner",
+      "tab_general": "General",
+      "tab_members": "Members",
+      "tab_memberships": "Memberships",
+      "secureablesLabel": "Securables",
+      "permissionsLabel": "Explicit permissions for: {{securable}}",
+      "selectSecurable": "Select a securable to view permissions",
+      "permColumn": "Permission",
+      "grantColumn": "Grant",
+      "withGrantColumn": "With Grant",
+      "denyColumn": "Deny",
+      "membersHeader": "Members",
+      "noMembers": "No members",
+      "addMemberPlaceholder": "Select a login to add...",
+      "membershipsHeader": "This role is a member of",
+      "noMemberships": "No role memberships",
+      "addMembershipPlaceholder": "Select a role to join...",
+      "saveButton": "Save",
+      "roleNameRequired": "Role name is required",
+      "fixedRoleReadOnly": "Fixed server roles cannot be modified",
+      "confirmDelete": "Drop role \"{{name}}\"? This cannot be undone.",
+      "confirmDeleteContextMenu": "Drop server role \"{{name}}\"? This cannot be undone."
+    },
+    "manageMySqlUsers": {
+      "dialogTitle": "Manage MySQL Users",
+      "listHeader": "Users",
+      "addButton": "Add User",
+      "editButton": "Edit User",
+      "deleteButton": "Delete User",
+      "newUser": "New User",
+      "selectOrAdd": "Select a user or add a new one",
+      "usernameLabel": "Username",
+      "usernamePlaceholder": "Enter username",
+      "hostLabel": "Host",
+      "hostPlaceholder": "% (any host)",
+      "pluginLabel": "Authentication plugin",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter password",
+      "passwordEditPlaceholder": "Leave blank to keep current password",
+      "accountLockedLabel": "Account locked",
+      "passwordExpiredLabel": "Password expired",
+      "tab_general": "General",
+      "tab_globalPrivileges": "Global Privileges",
+      "tab_databasePrivileges": "Database Privileges",
+      "dbPrivilegesHeader": "Database",
+      "dbPrivilegesEmpty": "No database privileges granted",
+      "saveButton": "Save",
+      "usernameRequired": "Username is required",
+      "passwordRequired": "Password is required for this authentication plugin",
+      "confirmDelete": "Drop user \"{{name}}\"? This cannot be undone."
+    },
+    "manageRedisAclUsers": {
+      "dialogTitle": "Manage Redis Users",
+      "listHeader": "Users",
+      "addButton": "Add User",
+      "editButton": "Edit User",
+      "deleteButton": "Delete User",
+      "newUser": "New User",
+      "selectOrAdd": "Select a user or add a new one",
+      "usernameLabel": "Username",
+      "usernamePlaceholder": "Enter username",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter password",
+      "passwordEditPlaceholder": "Leave blank to keep current password",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "Re-enter password",
+      "passwordMismatch": "Passwords do not match",
+      "enabledLabel": "Account enabled",
+      "nopassLabel": "No password required (nopass)",
+      "tab_general": "General",
+      "tab_commands": "Commands",
+      "tab_keys": "Keys & Channels",
+      "allCommandsLabel": "Allow all commands",
+      "allKeysLabel": "All keys",
+      "noKeysLabel": "No key access",
+      "allChannelsLabel": "All channels",
+      "noChannelsLabel": "No channel access",
+      "addKeyPatternPlaceholder": "Key pattern (e.g. cache:*)",
+      "addChannelPatternPlaceholder": "Channel pattern (e.g. notifications:*)",
+      "addPatternButton": "Add",
+      "keyPatternsLabel": "Key patterns",
+      "channelPatternsLabel": "Channel patterns",
+      "saveButton": "Save",
+      "usernameRequired": "Username is required",
+      "confirmDelete": "Delete user \"{{name}}\"? This cannot be undone."
+    },
+    "manageMongoUsers": {
+      "dialogTitle": "Manage MongoDB Users",
+      "listHeader": "Users",
+      "addButton": "Add User",
+      "editButton": "Edit User",
+      "deleteButton": "Delete User",
+      "newUser": "New User",
+      "selectOrAdd": "Select a user or add a new one",
+      "usernameLabel": "Username",
+      "usernamePlaceholder": "Enter username",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter password",
+      "passwordEditPlaceholder": "Leave blank to keep current password",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "Re-enter password",
+      "passwordMismatch": "Passwords do not match",
+      "tab_general": "General",
+      "tab_roles": "Roles",
+      "roleLabel": "Role",
+      "databaseLabel": "Database",
+      "addRoleButton": "Add Role",
+      "noRoles": "No roles assigned",
+      "saveButton": "Save",
+      "usernameRequired": "Username is required",
+      "confirmDelete": "Delete user \"{{name}}\"? This cannot be undone."
+    },
+    "manageMySqlDatabaseUsers": {
+      "dialogTitle": "Manage Database Users",
+      "listHeader": "Users",
+      "addButton": "Add User",
+      "editButton": "Edit User",
+      "deleteButton": "Revoke All Access",
+      "selectOrAdd": "Select a user to manage privileges",
+      "tab_privileges": "Privileges",
+      "saveButton": "Save",
+      "noUsers": "No users have access to this database",
+      "confirmRevoke": "Revoke all privileges on \"{{database}}\" from \"{{name}}\"? This cannot be undone."
+    },
+    "manageDatabaseUsers": {
+      "dialogTitle": "Manage Database Users",
+      "listHeader": "Users",
+      "addButton": "Add User",
+      "editButton": "Edit User",
+      "deleteButton": "Delete User",
+      "newUser": "New User",
+      "selectOrAdd": "Select a user or add a new one",
+      "userNameLabel": "User name",
+      "userNamePlaceholder": "Enter user name",
+      "userTypeLabel": "User type",
+      "userType_sql": "SQL user with login",
+      "userType_windows": "Windows user",
+      "userType_external": "External provider (Entra ID)",
+      "userType_nologin": "SQL user without login",
+      "loginLabel": "Login",
+      "loginPlaceholder": "Select a server login",
+      "defaultSchemaLabel": "Default schema",
+      "tab_general": "General",
+      "tab_membership": "Membership",
+      "saveButton": "Save",
+      "userNameRequired": "User name is required",
+      "loginRequired": "A server login must be selected",
+      "confirmDelete": "Drop user \"{{name}}\" from database \"{{database}}\"? This cannot be undone."
+    },
+    "manageViews": {
+      "title": "Manage Views",
+      "viewsListHeader": "Views",
+      "noViews": "No views",
+      "newView": "New View",
+      "selectOrCreate": "Select a view or create a new one",
+      "viewNameLabel": "View Name",
+      "viewNamePlaceholder": "MyViewName",
+      "schemaLabel": "Schema",
+      "deleteView": "Delete View",
+      "errorNoName": "View name is required.",
+      "errorNoSQL": "View definition (SELECT query) is required.",
+      "refreshContextMenuLabel": "Refresh Views",
+      "createContextMenuLabel": "Create View",
+      "editContextMenuLabel": "Edit View",
+      "queryEditor": {
+        "addTable": "Add Table",
+        "canvasHint": "Add tables to start building your query",
+        "canvasEmpty": "Drag tables here to build your query",
+        "loadingSchema": "Loading schema…",
+        "syncWarning": "SQL was edited manually — visual builder may not reflect current query",
+        "runQuery": "Run",
+        "results": "Results",
+        "rows": "rows",
+        "resultsEmpty": "Run the query to see results",
+        "resultsNoRows": "Query executed — no rows returned",
+        "columnsTable": "Column configuration",
+        "columnsEmpty": "Add tables to see columns",
+        "colColumn": "Column",
+        "colAlias": "Alias",
+        "colTable": "Table",
+        "colOutput": "Output",
+        "colSortType": "Sort Type",
+        "colSortOrder": "Sort Order",
+        "colFilter": "Filter"
+      }
+    },
+    "manageStoredProcedures": {
+      "title": "Manage Stored Procedures",
+      "listHeader": "Stored Procedures",
+      "noItems": "No stored procedures",
+      "newItem": "New Stored Procedure",
+      "selectOrCreate": "Select a stored procedure or create a new one",
+      "propertiesHeader": "Properties",
+      "nameLabel": "Name",
+      "namePlaceholder": "usp_MyProcedure",
+      "schemaLabel": "Schema",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Optional description…",
+      "parametersHeader": "Parameters",
+      "noParameters": "No parameters",
+      "addParameter": "Add Parameter",
+      "colParamName": "Name",
+      "colParamType": "Type",
+      "colParamDefault": "Default Value",
+      "paramNamePlaceholder": "@ParamName",
+      "paramTypePlaceholder": "INT",
+      "paramDefaultPlaceholder": "NULL",
+      "bodyHeader": "Procedure Body",
+      "deleteProcedure": "Delete Stored Procedure",
+      "errorNoName": "Procedure name is required.",
+      "errorNoBody": "Procedure body is required.",
+      "refreshContextMenuLabel": "Refresh Stored Procedures",
+      "createContextMenuLabel": "Create Stored Procedure",
+      "editContextMenuLabel": "Edit Stored Procedure"
+    }
+  },
+  "profiler": {
+    "emptyState": "No active profiler sessions. Right-click a database in Explorer and choose \"Profile\" to start tracking.",
+    "startDialog": {
+      "title": "Start Profiling",
+      "eventsTitle": "Events to Track",
+      "start": "Start",
+      "cancel": "Cancel"
+    },
+    "eventTypes": {
+      "sqlStatement": "SQL Statements",
+      "blockedQuery": "Blocked Queries",
+      "sessionLogin": "Session Login",
+      "sessionLogout": "Session Logout",
+      "error": "Errors"
+    },
+    "tab": {
+      "running": "Running",
+      "paused": "Paused",
+      "stopped": "Stopped",
+      "close": "Close tab"
+    },
+    "toolbar": {
+      "pause": "Pause",
+      "resume": "Resume",
+      "stop": "Stop",
+      "events": "events",
+      "filterPlaceholder": "Filter by SQL, login, host…"
+    },
+    "table": {
+      "time": "Time",
+      "type": "Type",
+      "duration": "Duration (ms)",
+      "cpu": "CPU (ms)",
+      "reads": "Reads",
+      "writes": "Writes",
+      "rows": "Rows",
+      "login": "Login",
+      "host": "Host",
+      "waitType": "Wait Type",
+      "waitingForEvents": "Waiting for events…",
+      "noEvents": "No events captured."
+    },
+    "sqlViewer": {
+      "selectEvent": "Select an event to view its SQL",
+      "noQuery": "(no query text available)"
+    },
+    "error": {
+      "title": "Profiling stopped:",
+      "permissionDenied": "The login does not have VIEW SERVER STATE permission. Grant this permission to enable the profiler."
+    }
+  },
+  "pages": {
+    "query": "Query Editor",
+    "schema": "Schema View",
+    "security": "Security",
+    "metrics": "Metrics"
+  },
+  "common": {
+    "save": "Save",
+    "saving": "Saving…",
+    "close": "Close",
+    "loading": "Loading…",
+    "deleting": "Deleting…"
+  },
+  "menu": {
+    "file": {
+      "new": "New",
+      "open": "Open",
+      "save": "Save",
+      "saveAs": "Save As...",
+      "saveAll": "Save All",
+      "close": "Close",
+      "importEnvironment": "Import Environment",
+      "exportEnvironment": "Export Environment",
+      "quit": "Quit"
+    },
+    "edit": {
+      "cut": "Cut",
+      "copy": "Copy",
+      "paste": "Paste",
+      "delete": "Delete"
+    },
+    "view": {
+      "explorer": "Explorer",
+      "profiler": "Profiler",
+      "compare": "Compare",
+      "settings": "Settings",
+      "profile": "Profile",
+      "showSideNav": "Show Side Navigation Bar",
+      "hideSideNav": "Hide Side Navigation Bar"
+    },
+    "window": {
+      "closeAllTabs": "Close All Tabs",
+      "lockScreen": "Lock Screen"
+    },
+    "help": {
+      "about": "About",
+      "checkForUpdates": "Check for Updates...",
+      "documentation": "Documentation",
+      "takeScreenshot": "Take Screenshot",
+      "showTip": "Show Tip",
+      "developerTools": "Show Developer Tools"
+    }
+  },
+  "compare": {
+    "addComparison": "Add Comparison",
+    "actions": {
+      "compare": "Compare",
+      "comparing": "Comparing...",
+      "delete": "Delete",
+      "edit": "Edit"
+    },
+    "deleteConfirmTitle": "Delete Comparison",
+    "deleteConfirm": "Delete comparison \"{{name}}\"?",
+    "detail": {
+      "keyMappings": "Custom Logical Keys",
+      "noDescription": "No description provided yet.",
+      "noKeyMappings": "No custom logical keys defined yet. Primary keys will be used when available.",
+      "providers": "Providers",
+      "scope": "Scope",
+      "source": "Source Database",
+      "target": "Target Database",
+      "unmapped": "Not mapped"
+    },
+    "dialog": {
+      "actions": {
+        "addMapping": "Add Mapping",
+        "cancel": "Cancel",
+        "newConnection": "New Connection",
+        "removeMapping": "Remove mapping",
+        "save": "Save Comparison",
+        "swapEndpoints": "Swap source and target",
+        "update": "Update Comparison"
+      },
+      "fields": {
+        "connection": "Connection",
+        "database": "Database",
+        "description": "Description",
+        "name": "Comparison Name",
+        "providers": "Providers"
+      },
+      "keyMappings": {
+        "empty": "Add table-level overrides when the compare should use custom logical keys instead of the physical primary key.",
+        "help": "Optional overrides for mixed schemas or views that need a custom logical key definition.",
+        "sourceColumns": "Source Columns",
+        "sourceTable": "Source Table",
+        "targetColumns": "Target Columns",
+        "targetTable": "Target Table"
+      },
+      "loadingDatabases": "Loading databases...",
+      "placeholders": {
+        "selectConnection": "Select a connection",
+        "selectDatabase": "Select a database"
+      },
+      "providerSummary": {
+        "empty": "Select source and target connections to populate providers."
+      },
+      "sections": {
+        "endpoints": "Source and Target",
+        "endpointsHelp": "Each side can point to an existing Explorer connection or create a new connection inline.",
+        "general": "Comparison Details",
+        "keyMappings": "Custom Composite Keys",
+        "scope": "Compare Scope",
+        "source": "Source",
+        "target": "Target"
+      },
+      "titleEdit": "Edit Comparison",
+      "titleNew": "New Comparison",
+      "validation": {
+        "nameRequired": "Comparison name is required.",
+        "scopeRequired": "Select at least one compare scope.",
+        "sourceConnectionRequired": "Choose a source connection.",
+        "sourceDatabaseRequired": "Choose a source database.",
+        "targetConnectionRequired": "Choose a target connection.",
+        "targetDatabaseRequired": "Choose a target database."
+      }
+    },
+    "emptySearch": "No comparisons match your search.",
+    "emptyState": "No comparisons yet. Click \"Add Comparison\" to get started.",
+    "emptySelection": "Select a comparison or create a new one to review its configuration.",
+    "filter": {
+      "ariaLabel": "Filter comparisons",
+      "provider": "Provider",
+      "title": "Filter"
+    },
+    "panelAriaLabel": "Comparisons panel",
+    "search": {
+      "ariaLabel": "Search comparisons",
+      "placeholder": "Search comparisons..."
+    },
+    "sort": {
+      "ariaLabel": "Sort comparisons",
+      "directions": {
+        "asc": "Ascending",
+        "desc": "Descending"
+      },
+      "fields": {
+        "createdAt": "Date created",
+        "name": "Name",
+        "sourceProvider": "Source provider",
+        "targetProvider": "Target provider",
+        "updatedAt": "Last updated"
+      },
+      "title": "Sort by"
+    },
+    "report": {
+      "categories": {
+        "checkConstraints": "Check Constraints",
+        "columns": "Columns",
+        "foreignKeys": "Foreign Keys",
+        "functions": "Functions",
+        "indexes": "Indexes",
+        "rows": "Rows",
+        "securityRoles": "Database Roles",
+        "securitySchemas": "Schemas",
+        "securityUsers": "Database Users",
+        "storedProcedures": "Stored Procedures",
+        "tables": "Tables",
+        "triggers": "Triggers",
+        "views": "Views"
+      },
+      "changeTypes": {
+        "added": "Added",
+        "modified": "Modified",
+        "removed": "Removed",
+        "unsupported": "Skipped"
+      },
+      "empty": "Run Compare to generate a report with all detected differences.",
+      "executionFailed": "Unable to complete the comparison.",
+      "generatedAt": "Generated {{timestamp}}",
+      "noDifferences": "No differences were found for the selected scope.",
+      "source": "Source",
+      "swapDirectionIndicator": "Sync direction: {{truth}} → {{receiver}}",
+      "summary": {
+        "added": "Added",
+        "modified": "Modified",
+        "removed": "Removed",
+        "total": "Total",
+        "unsupported": "Skipped"
+      },
+      "actions": {
+        "createScript": "Create Script",
+        "generatingScript": "Generating…",
+        "print": "Print",
+        "save": "Save",
+        "saving": "Saving…",
+        "swap": "Swap",
+        "swapped": "Swapped",
+        "sync": "Sync",
+        "syncAll": "Sync All",
+        "syncing": "Syncing…"
+      },
+      "target": "Target",
+      "title": "Results Report",
+      "warnings": "Warnings",
+      "search": {
+        "placeholder": "Search by name…",
+        "ariaLabel": "Search results",
+        "noResults": "No results match your search or filters."
+      },
+      "filter": {
+        "ariaLabel": "Filter results",
+        "title": "Change Type"
+      },
+      "sort": {
+        "ariaLabel": "Sort results",
+        "title": "Sort by Name",
+        "directions": {
+          "asc": "A → Z",
+          "desc": "Z → A"
+        }
+      }
+    },
+    "scope": {
+      "groups": {
+        "data": {
+          "description": "Define which datasets should be compared at the row level.",
+          "title": "Table Data"
+        },
+        "schema": {
+          "description": "Choose the structural and programmable surfaces to inspect.",
+          "title": "Schema & Structural Objects"
+        }
+      },
+      "options": {
+        "indexingSubsystems": {
+          "description": "Clustered and non-clustered indexes, full-text objects, and spatial or XML indexes.",
+          "label": "Indexing Subsystems"
+        },
+        "keyMatchedSets": {
+          "description": "Compare added, deleted, and modified rows using physical or custom logical keys.",
+          "label": "Key-Matched Sets"
+        },
+        "programmableObjects": {
+          "description": "Stored procedures, user-defined functions, triggers, and views.",
+          "label": "Programmable Objects"
+        },
+        "rowLevelValues": {
+          "description": "Field-by-field comparisons across target tables or updatable views.",
+          "label": "Row-Level Values"
+        },
+        "securityMetadataProfiles": {
+          "description": "Users, roles, grants, certificates, synonyms, keys, and extended properties.",
+          "label": "Security & Metadata Profiles"
+        },
+        "tablesCoreConstraints": {
+          "description": "Tables, columns, system data types, identities, primary and foreign keys, unique constraints, and check constraints.",
+          "label": "Tables & Core Constraints"
+        }
+      }
+    },
+    "scopeLabels": {
+      "data.keyMatchedSets": "Key-Matched Sets",
+      "data.rowLevelValues": "Row-Level Values",
+      "schema.indexingSubsystems": "Indexing Subsystems",
+      "schema.programmableObjects": "Programmable Objects",
+      "schema.securityMetadataProfiles": "Security & Metadata Profiles",
+      "schema.tablesCoreConstraints": "Tables & Core Constraints"
+    },
+    "exportSecretsDialog": {
+      "title": "Save Comparison Report",
+      "close": "Close dialog",
+      "message": "Do you want to include connection details such as passwords and file paths in the exported JSON file?",
+      "warning": "Including secrets means anyone with access to the file can read your database credentials. Only share the file with trusted recipients.",
+      "includeSecrets": "Include connection passwords and file paths",
+      "dontAskAgain": "Don't ask me again (saves current choice as default)",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "syncConfirmDialog": {
+      "title": "Sync Databases",
+      "close": "Close dialog",
+      "warningAll": "This will apply all syncable findings in the report to {{receiverName}}. This action cannot be automatically undone unless you generate a revert script below.",
+      "warningSingle": "This will apply the selected finding to {{receiverName}}. This action cannot be automatically undone unless you generate a revert script below.",
+      "selectedFinding": "Selected finding: {{findingName}}",
+      "createRevertScript": "Generate a revert script (saved before sync executes)",
+      "revertScriptNote": "The revert script will be saved to a file you choose. Keep it safe — it lets you undo the sync if needed.",
+      "cancel": "Cancel",
+      "confirm": "Sync Now"
+    }
+  },
+  "environmentImportExport": {
+    "exportTitle": "Export Environment",
+    "exportDescription": "Export your Spiral configuration to a file for backup or transfer to another machine.",
+    "exportConnections": "Database Connections",
+    "exportComparisons": "Compare Plans",
+    "exportPasswords": "Passwords",
+    "exportSettings": "Settings",
+    "exportPasswordsHint": "Include connection passwords and SSH credentials",
+    "export": "Export",
+    "exporting": "Exporting...",
+    "cancel": "Cancel",
+    "importTitle": "Import Environment",
+    "importWaiting": "Waiting for file selection...",
+    "importValidating": "Validating file...",
+    "importConnections": "Importing database connections...",
+    "importComparisons": "Importing compare plans...",
+    "importSettings": "Importing settings...",
+    "importSuccess": "Import completed successfully.",
+    "importSuccessConnections": "{{count}} connection(s) imported",
+    "importSuccessComparisons": "{{count}} compare plan(s) imported",
+    "importSuccessSettings": "Settings imported",
+    "importError": "Import failed",
+    "close": "Close"
+  },
+  "jsonViewer": {
+    "copy": "Copy",
+    "expandAll": "Expand All Fields",
+    "collapseAll": "Collapse All Fields",
+    "invalidJson": "Invalid JSON",
+    "errorAt": "at line {{line}}, column {{col}}"
+  },
+  "docs": {
+    "navAriaLabel": "Documentation navigation",
+    "searchPlaceholder": "Search documentation...",
+    "noResults": "No sections found",
+    "empty": "No documentation available"
+  },
+  "tips": {
+    "dismiss": "Dismiss tip",
+    "titles": {
+      "aTipForYou": "A tip for you",
+      "tipOfTheDay": "Tip of the day",
+      "niceToKnow": "Nice to know",
+      "whatsNext": "What's next?",
+      "didYouKnow": "Did you know?",
+      "didYouTryThisTrick": "Did you try this trick?",
+      "haveYouTriedThis": "Have you tried this?",
+      "includedInThisApplication": "Included in this application"
+    }
+  }
+}

@@ -1,0 +1,51 @@
+.export-env-dialog__description {
+  font-size: var(--font-sm);
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.export-env-dialog__options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.export-env-dialog__option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  cursor: pointer;
+  font-size: var(--font-sm);
+  color: var(--color-on-surface);
+  line-height: 1.4;
+}
+
+.export-env-dialog__option input[type='checkbox'] {
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+  accent-color: var(--color-primary);
+  width: 0.9rem;
+  height: 0.9rem;
+  cursor: pointer;
+}
+
+.export-env-dialog__option--sub {
+  padding-left: 1.5rem;
+}
+
+.export-env-dialog__option--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.export-env-dialog__option--disabled input[type='checkbox'] {
+  cursor: not-allowed;
+}
+
+.export-env-dialog__option-hint {
+  display: block;
+  font-size: var(--font-xs, 0.7rem);
+  color: var(--color-muted);
+  margin-top: 0.15rem;
+}

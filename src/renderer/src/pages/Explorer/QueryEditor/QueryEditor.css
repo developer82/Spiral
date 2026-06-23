@@ -1,0 +1,288 @@
+/* ── QueryEditor ── */
+
+.qe {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-bg);
+  font-size: var(--font-xs);
+}
+
+.qe--loading,
+.qe--error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 100%;
+  color: var(--color-muted);
+  font-size: var(--font-sm);
+}
+
+.qe--error {
+  color: var(--color-error, #fc8181);
+}
+
+@keyframes qe-spin {
+  to { transform: rotate(360deg); }
+}
+
+.qe__loading-icon {
+  animation: qe-spin 1s linear infinite;
+}
+
+/* ── Resizable panes ── */
+
+.qe__canvas-pane {
+  flex-shrink: 0;
+  height: var(--qe-h, 28%);
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.qe__cols-pane {
+  flex-shrink: 0;
+  height: var(--qe-h, 22%);
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.qe__sql-pane {
+  flex-shrink: 0;
+  height: var(--qe-h, 30%);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.qe__results {
+  flex-shrink: 0;
+  height: var(--qe-h, 20%);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* ── Drag resizer handle ── */
+
+.qe__resizer {
+  flex-shrink: 0;
+  height: 0.3125rem;
+  background: var(--color-border);
+  cursor: row-resize;
+  transition: background-color 100ms ease;
+  position: relative;
+  z-index: 10;
+}
+
+.qe__resizer:hover,
+.qe__resizer:active {
+  background: var(--color-accent, #4a90e2);
+}
+
+/* ── Sync warning ── */
+
+.qe__sync-warning {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  background: var(--color-warning-bg, rgba(246, 173, 85, 0.12));
+  border-bottom: 0.0625rem solid var(--color-border);
+  color: var(--color-warning, #f6ad55);
+  font-size: var(--font-xs);
+  flex-shrink: 0;
+}
+
+/* ── SQL editor pane internals ── */
+
+.qe__sql-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  border-bottom: 0.0625rem solid var(--color-border);
+  background: var(--color-topbar-bg);
+  flex-shrink: 0;
+}
+
+.qe__sql-label {
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-muted);
+  flex: 1;
+}
+
+.qe__run-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.65rem;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.275rem;
+  background: none;
+  color: var(--color-on-surface);
+  font-size: var(--font-xs);
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.qe__run-btn:hover:not(:disabled) {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-muted);
+}
+
+.qe__run-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+@keyframes qe-run-spin {
+  to { transform: rotate(360deg); }
+}
+
+.qe__run-spin {
+  animation: qe-run-spin 0.75s linear infinite;
+}
+
+.qe__monaco-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.qe__monaco-wrap .monaco-editor {
+  height: 100% !important;
+}
+
+/* ── Results panel ── */
+
+.qe__results-header {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  background: var(--color-topbar-bg);
+  border-bottom: 0.0625rem solid var(--color-border);
+  color: var(--color-on-surface);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.qe__results-count {
+  margin-left: auto;
+  color: var(--color-muted);
+  font-weight: 400;
+  font-size: 0.65rem;
+}
+
+.qe__results-body {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  min-height: 0;
+}
+
+.qe__results-error {
+  padding: 0.5rem 0.75rem;
+  color: var(--color-error, #fc8181);
+  font-size: var(--font-xs);
+}
+
+.qe__results-empty {
+  padding: 0.5rem 0.75rem;
+  color: var(--color-muted);
+  font-size: var(--font-xs);
+}
+
+.qe__results-scroll {
+  flex: 1;
+  overflow: auto;
+}
+
+.qe__results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-xs);
+}
+
+.qe__results-th {
+  position: sticky;
+  top: 0;
+  padding: 0.3rem 0.6rem;
+  background: var(--color-table-header-bg);
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-muted);
+  border-bottom: 0.0625rem solid var(--color-border);
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.qe__th-label {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.qe__sort-arrow {
+  font-size: 0.6rem;
+  color: var(--color-accent, var(--color-muted));
+  line-height: 1;
+}
+
+.qe__filter-icon {
+  color: var(--color-accent, #60a5fa);
+  flex-shrink: 0;
+}
+
+.qe__sort-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--color-muted);
+  color: var(--color-topbar-bg);
+  font-size: 0.55rem;
+  font-weight: 700;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.qe__results-tr {
+  border-bottom: 0.0625rem solid var(--color-border);
+}
+
+.qe__results-tr:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.qe__results-td {
+  padding: 0.25rem 0.6rem;
+  color: var(--color-on-surface);
+  white-space: nowrap;
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qe__null {
+  color: var(--color-muted);
+  font-style: italic;
+  font-size: 0.65rem;
+}

@@ -1,0 +1,131 @@
+.server-browser__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 24rem;
+}
+
+.server-browser__breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  padding: 0.35rem 0.5rem;
+  background: var(--surface-2, rgba(127, 127, 127, 0.08));
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.server-browser__crumb-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.server-browser__crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: none;
+  border: none;
+  color: var(--text-color, inherit);
+  cursor: pointer;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  font: inherit;
+}
+
+.server-browser__crumb:hover {
+  background: var(--surface-3, rgba(127, 127, 127, 0.15));
+}
+
+.server-browser__crumb-sep {
+  opacity: 0.5;
+}
+
+.server-browser__list {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid var(--border-color, rgba(127, 127, 127, 0.25));
+  border-radius: 6px;
+  max-height: 18rem;
+  min-height: 12rem;
+}
+
+.server-browser__row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--text-color, inherit);
+  cursor: pointer;
+  padding: 0.4rem 0.65rem;
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.server-browser__row:hover {
+  background: var(--surface-2, rgba(127, 127, 127, 0.1));
+}
+
+.server-browser__row--selected {
+  background: var(--accent-soft, rgba(80, 140, 255, 0.18));
+}
+
+.server-browser__row--file {
+  opacity: 0.95;
+}
+
+.server-browser__row-icon {
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.server-browser__row-icon--folder {
+  color: var(--accent-color, #d9a14a);
+}
+
+.server-browser__row-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.server-browser__empty {
+  padding: 1rem;
+  text-align: center;
+  opacity: 0.6;
+  font-size: 0.85rem;
+}
+
+.server-browser__filename {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.server-browser__manual {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.server-browser__manual-notice {
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+
+.server-browser__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.server-browser__footer-right {
+  display: flex;
+  gap: 0.5rem;
+}

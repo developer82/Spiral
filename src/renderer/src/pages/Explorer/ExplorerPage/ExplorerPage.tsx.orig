@@ -1,0 +1,4141 @@
+import { useState, useRef } from 'react'
+import {
+  Plus,
+  ChevronRight,
+  ChevronDown,
+  Database,
+  AlertCircle,
+  FilePlus,
+  FileText,
+  Save,
+  FolderOpen,
+  X,
+  Play,
+  AlignLeft,
+  TableProperties,
+  Loader2,
+  Download,
+  Pencil,
+  Plug,
+  PlugZap,
+  Trash2,
+  DatabaseZap,
+  RefreshCw,
+  Key,
+  Lock,
+  Bell,
+  Network,
+  Activity,
+  ListOrdered,
+  ScrollText,
+  BarChart2,
+  Eye,
+  Code,
+  Tag,
+  List
+} from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import type {
+  ConnectionRecord,
+  ConnectionRuntimeState,
+  ExplorerNode,
+  ExplorerNodeKind,
+  NodeLoadState,
+  QueryResultSet,
+  QueryMessage,
+  ProviderCapabilities
+} from '../connections.types'
+import { PROVIDER_METADATA } from '../providerMetadata'
+import NewConnectionDialog from '../Dialogs/NewConnectionDialog/NewConnectionDialog'
+import CreateDatabaseDialog from '../Dialogs/CreateDatabaseDialog/CreateDatabaseDialog'
+import CreateTableDialog from '../Dialogs/CreateTableDialog/CreateTableDialog'
+import ManageForeignKeysDialog from '../Dialogs/ManageForeignKeysDialog/ManageForeignKeysDialog'
+import ManageConstraintsDialog from '../Dialogs/ManageConstraintsDialog/ManageConstraintsDialog'
+import ManageTriggersDialog from '../Dialogs/ManageTriggersDialog/ManageTriggersDialog'
+import ManageIndexesDialog from '../Dialogs/ManageIndexesDialog/ManageIndexesDialog'
+import ManageViewsDialog from '../Dialogs/ManageViewsDialog/ManageViewsDialog'
+import ManageStoredProceduresDialog from '../Dialogs/ManageStoredProceduresDialog/ManageStoredProceduresDialog'
+import ManageDataTypesDialog from '../Dialogs/ManageDataTypesDialog/ManageDataTypesDialog'
+import ManageTableTypesDialog from '../Dialogs/ManageTableTypesDialog/ManageTableTypesDialog'
+import ManageMemoryOptimizedTableTypesDialog from '../Dialogs/ManageMemoryOptimizedTableTypesDialog/ManageMemoryOptimizedTableTypesDialog'
+import UnsavedChangesDialog from '../Dialogs/UnsavedChangesDialog/UnsavedChangesDialog'
+import ConfirmDeleteDialog from '../Dialogs/ConfirmDeleteDialog/ConfirmDeleteDialog'
+import RecordDialog from '../Dialogs/RecordDialog/RecordDialog'
+import { buildDeleteSql } from '../deleteUtils'
+import { buildUpdateBooleanSql } from '../updateUtils'
+import QueryEditor, { type QueryEditorHandle } from '../MonacoEditor/QueryEditor'
+import { parseSqlOrderBy, parseSqlWhere, parseSqlTableRefs, modifyOrderByInSql, type SortIndicator } from '../QueryEditor/sortIndicators'
+import Menu, { type MenuItem } from '../../../components/Menu/Menu'
+import { useSettings } from '../../Settings/useSettings'
+import { useMenuStateContext } from '../../../contexts/MenuStateContext'
+import VirtualResultsTable from '../VirtualResultsTable/VirtualResultsTable'
+import './ExplorerPage.css'
+import ErdCanvas from '../ErdCanvas/ErdCanvas'
+import type { ErdBackground } from '../ErdCanvas/ErdCanvas'
+import type { ErdSchema, ErdFileContent, ErdCanvasSerializedState } from '../erd.types'
+import type { Node, Edge } from '@xyflow/react'
+import ErdExportDialog from '../Dialogs/ErdExportDialog/ErdExportDialog'
+import type { ErdExportOptions } from '../Dialogs/ErdExportDialog/ErdExportDialog'
+import ExecutionPlanCanvas from '../ExecutionPlanCanvas/ExecutionPlanCanvas'
+import ClientStatisticsView from '../ClientStatisticsView/ClientStatisticsView'
+import type { ClientStatistics } from '../ClientStatisticsView/ClientStatisticsView'
+import StartProfilingDialog from '../../Profiler/StartProfilingDialog'
+import { useProfilerContext } from '../../../contexts/ProfilerContext'
+import type { TrackedEventType } from '../../Profiler/profiler.types'
+
+interface QueryTab {
+  id: string
+  kind: 'query'
+  title: string
+  filePath?: string
+  content: string
+  isDirty: boolean
+  connectionId?: string
+  databaseName?: string
+}
+
+interface ErdTab {
+  id: string
+  kind: 'erd'
+  title: string
+  connectionId: string
+  databaseName: string
+  loadState: 'loading' | 'loaded' | 'error'
+  schema?: ErdSchema
+  error?: string
+  background: ErdBackground
+  filePath?: string
+  initialNodes?: Node[]
+  initialEdges?: Edge[]
+  initialCurveType?: 'default' | 'smoothstep'
+  initialViewport?: { x: number; y: number; zoom: number }
+}
+
+type Tab = QueryTab | ErdTab
+
+type TabQueryState =
+  | { status: 'idle' }
+  | { status: 'running' }
+  | { status: 'ok'; resultSets: QueryResultSet[]; messages: QueryMessage[]; durationMs: number; executionPlanXml?: string; clientStatistics?: ClientStatistics; sortIndicators?: Record<string, SortIndicator>; filteredColumns?: Set<string> }
+  | { status: 'error'; message: string }
+
+type ResultsView = 'results' | 'messages' | 'execution-plan' | 'client-statistics'
+
+let tabCounter = 0
+
+const MIN_PANEL_WIDTH = 180
+const MAX_PANEL_WIDTH = 480
+
+/** Kinds that have children and can be expanded. */
+const EXPANDABLE_KINDS = new Set<ExplorerNodeKind>([
+  'databases-folder',
+  'database',
+  'tables-folder',
+  'views-folder',
+  'stored-procedures-folder',
+  'functions-folder',
+  'types-folder',
+  'type-data-types-folder',
+  'type-tables-folder',
+  'type-memory-optimized-tables-folder',
+  'type-enums-folder',
+  'type-composites-folder',
+  'table',
+  'table-columns-folder',
+  'table-keys-folder',
+  'table-constraints-folder',
+  'table-triggers-folder',
+  'table-indexes-folder',
+  'table-statistics-folder'
+])
+
+const NODE_ICONS: Record<ExplorerNodeKind, React.FC<React.SVGProps<SVGSVGElement>>> = {
+  'databases-folder': Database as React.FC<React.SVGProps<SVGSVGElement>>,
+  database: Database as React.FC<React.SVGProps<SVGSVGElement>>,
+  'tables-folder': Table2 as React.FC<React.SVGProps<SVGSVGElement>>,
+  table: Table2 as React.FC<React.SVGProps<SVGSVGElement>>,
+  'views-folder': Eye as React.FC<React.SVGProps<SVGSVGElement>>,
+  view: Eye as React.FC<React.SVGProps<SVGSVGElement>>,
+  'stored-procedures-folder': Code as React.FC<React.SVGProps<SVGSVGElement>>,
+  'stored-procedure': Code as React.FC<React.SVGProps<SVGSVGElement>>,
+  'functions-folder': Zap as React.FC<React.SVGProps<SVGSVGElement>>,
+  function: Zap as React.FC<React.SVGProps<SVGSVGElement>>,
+  'types-folder': Tag as React.FC<React.SVGProps<SVGSVGElement>>,
+  'type-data-types-folder': Tag as React.FC<React.SVGProps<SVGSVGElement>>,
+  'type-tables-folder': Tag as React.FC<React.SVGProps<SVGSVGElement>>,
+  'type-memory-optimized-tables-folder': Tag as React.FC<React.SVGProps<SVGSVGElement>>,
+  type: Tag as React.FC<React.SVGProps<SVGSVGElement>>,
+  'table-columns-folder': List as React.FC<React.SVGProps<SVGSVGElement>>,
+  column: List as React.FC<React.SVGProps<SVGSVGElement>>,
+  'column-pk': Key as React.FC<React.SVGProps<SVGSVGElement>>,
+  'table-keys-folder': Key as React.FC<React.SVGProps<SVGSVGElement>>,
+  key: Key as React.FC<React.SVGProps<SVGSVGElement>>,
+  'table-constraints-folder': Lock as React.FC<React.SVGProps<SVGSVGElement>>,
+  constraint: Lock as React.FC<React.SVGProps<SVGSVGElement>>,
+  'table-triggers-folder': Bell as React.FC<React.SVGProps<SVGSVGElement>>,
+  trigger: Bell as React.FC<React.SVGProps<SVGSVGElement>>,
+  'table-indexes-folder': Layers as React.FC<React.SVGProps<SVGSVGElement>>,
+  index: Layers as React.FC<React.SVGProps<SVGSVGElement>>,
+  'table-statistics-folder': BarChart2 as React.FC<React.SVGProps<SVGSVGElement>>,
+  statistic: BarChart2 as React.FC<React.SVGProps<SVGSVGElement>>,
+  'type-enums-folder': Tag as React.FC<React.SVGProps<SVGSVGElement>>,
+  'type-composites-folder': Tag as React.FC<React.SVGProps<SVGSVGElement>>
+}
+
+/**
+ * For folder/category nodes the label is derived from the i18n system rather
+ * than the node's own label field (which is an implementation detail).
+ */
+const FOLDER_I18N_KEYS: Partial<Record<ExplorerNodeKind, string>> = {
+  'databases-folder': 'explorer.databases',
+  'tables-folder': 'explorer.tables',
+  'views-folder': 'explorer.views',
+  'stored-procedures-folder': 'explorer.storedProcedures',
+  'functions-folder': 'explorer.functions',
+  'types-folder': 'explorer.types',
+  'type-data-types-folder': 'explorer.typeDataTypes',
+  'type-tables-folder': 'explorer.typeTables',
+  'type-memory-optimized-tables-folder': 'explorer.typeMemoryOptimizedTables',
+  'table-columns-folder': 'explorer.columns',
+  'table-keys-folder': 'explorer.keys',
+  'table-constraints-folder': 'explorer.constraints',
+  'table-triggers-folder': 'explorer.triggers',
+  'table-indexes-folder': 'explorer.indexes',
+  'table-statistics-folder': 'explorer.statistics',
+  'type-enums-folder': 'explorer.typeEnums',
+  'type-composites-folder': 'explorer.typeComposites'
+}
+
+/** Static root node shown as the single child of every connected connection. */
+const DATABASES_NODE: ExplorerNode = { id: 'databases', label: 'Databases', kind: 'databases-folder' }
+
+/**
+ * Returns the SQL identifier text to insert when a tree node is dragged into
+ * the query editor, or null if the node kind is not draggable.
+ *
+ * Label formats come from SqlServerProvider:
+ *   database  → "AdventureWorks"
+ *   table     → "dbo.Product"
+ *   column    → "ProductID (int)"     ← strip trailing " (type)"
+ *   view      → "dbo.SomeView"
+ *   stored-procedure / function → "dbo.MySP"
+ */
+export function getNodeDragText(node: ExplorerNode): string | null {
+  const { kind, label } = node
+  switch (kind) {
+    case 'database':
+      return `[${label}]`
+    case 'table': {
+      const dotIdx = label.indexOf('.')
+      if (dotIdx === -1) return `[${label}]`
+      const schema = label.slice(0, dotIdx)
+      const name = label.slice(dotIdx + 1)
+      return `[${schema}].[${name}]`
+    }
+    case 'column':
+    case 'column-pk': {
+      // Strip trailing " (type, null)" — e.g. "ProductID (PK int, not null)" → "ProductID"
+      const colName = label.replace(/ \([^)]+\)$/, '')
+      return `[${colName}]`
+    }
+    case 'view':
+    case 'stored-procedure':
+    case 'function': {
+      const dotIdx = label.lastIndexOf('.')
+      const name = dotIdx === -1 ? label : label.slice(dotIdx + 1)
+      return `[${name}]`
+    }
+    default:
+      return null
+  }
+}
+
+/**
+ * Returns the folder-type keys (e.g. 'tables', 'views') that should be
+ * refreshed in the tree after a DDL statement is executed.
+ */
+export function detectDdlFolderTypes(sql: string): string[] {
+  const folderTypes = new Set<string>()
+  const pattern = /\b(CREATE|DROP|ALTER)\s+(TABLE|VIEW|PROCEDURE|PROC|FUNCTION|TYPE)\b/gi
+  let match: RegExpExecArray | null
+  while ((match = pattern.exec(sql)) !== null) {
+    const objectType = match[2].toUpperCase()
+    if (objectType === 'TABLE') folderTypes.add('tables')
+    else if (objectType === 'VIEW') folderTypes.add('views')
+    else if (objectType === 'PROCEDURE' || objectType === 'PROC') folderTypes.add('stored-procedures')
+    else if (objectType === 'FUNCTION') folderTypes.add('functions')
+    else if (objectType === 'TYPE') folderTypes.add('types')
+  }
+  return Array.from(folderTypes)
+}
+
+function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.Element {
+  const { t } = useTranslation()
+  const { settings } = useSettings()
+  const { activateSession } = useProfilerContext()
+  const { updateMenuState } = useMenuStateContext()
+  const [connections, setConnections] = useState<ConnectionRecord[]>([])
+  const [tabs, setTabs] = useState<Tab[]>([])
+  const [activeTabId, setActiveTabId] = useState<string | null>(null)
+  const [activeConnectionId, setActiveConnectionId] = useState<string | null>(null)
+  const [selectedKey, setSelectedKey] = useState<string | null>(null)
+  const [tabQueryStates, setTabQueryStates] = useState<Map<string, TabQueryState>>(new Map())
+  const [tabResultsViews, setTabResultsViews] = useState<Map<string, ResultsView>>(new Map())
+  const [expandedConns, setExpandedConns] = useState<Set<string>>(new Set())
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set())
+  const [nodeStates, setNodeStates] = useState<Map<string, NodeLoadState>>(new Map())
+  const [runtimeStates, setRuntimeStates] = useState<Map<string, ConnectionRuntimeState>>(
+    new Map()
+  )
+  const [eagerLoadStates, setEagerLoadStates] = useState<Map<string, 'loading' | 'complete' | 'error'>>(new Map())
+  const [connectionsCapabilities, setConnectionsCapabilities] = useState<Map<string, ProviderCapabilities>>(new Map())
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [editingConnection, setEditingConnection] = useState<ConnectionRecord | null>(null)
+  const [createDbDialog, setCreateDbDialog] = useState<{ connectionId: string } | null>(null)
+  const [createTableDialog, setCreateTableDialog] = useState<{
+    connectionId: string
+    databaseName: string
+    provider: ConnectionRecord['provider']
+    editTable?: { schema: string; tableName: string }
+  } | null>(null)
+  const [manageForeignKeysDialog, setManageForeignKeysDialog] = useState<{
+    connectionId: string
+    databaseName: string
+    schema: string
+    tableName: string
+    initialFkName?: string
+  } | null>(null)
+  const [manageConstraintsDialog, setManageConstraintsDialog] = useState<{
+    connectionId: string
+    databaseName: string
+    schema: string
+    tableName: string
+    initialConstraintName?: string
+    openAddNew?: boolean
+  } | null>(null)
+  const [manageTriggersDialog, setManageTriggersDialog] = useState<{
+    connectionId: string
+    databaseName: string
+    schema: string
+    tableName: string
+    initialTriggerName?: string
+    openOnNew?: boolean
+  } | null>(null)
+  const [manageIndexesDialog, setManageIndexesDialog] = useState<{
+    connectionId: string
+    databaseName: string
+    schema: string
+    tableName: string
+    initialIndexName?: string
+    openOnNew?: boolean
+  } | null>(null)
+  const [manageViewsDialog, setManageViewsDialog] = useState<{
+    connectionId: string
+    databaseName: string
+    initialViewName?: string
+    openOnNew?: boolean
+  } | null>(null)
+  const [manageStoredProceduresDialog, setManageStoredProceduresDialog] = useState<{
+    connectionId: string
+    databaseName: string
+    initialProcedureName?: string
+    openOnNew?: boolean
+  } | null>(null)
+  const [manageDataTypesDialog, setManageDataTypesDialog] = useState<{
+    connectionId: string
+    databaseName: string
+    initialTypeName?: string
+    openOnNew?: boolean
+  } | null>(null)
+  const [manageTableTypesDialog, setManageTableTypesDialog] = useState<{
+    connectionId: string
+    databaseName: string
+    initialTypeName?: string
+    openOnNew?: boolean
+  } | null>(null)
+  const [manageMemoryOptimizedTableTypesDialog, setManageMemoryOptimizedTableTypesDialog] = useState<{
+    connectionId: string
+    databaseName: string
+    initialTypeName?: string
+    openOnNew?: boolean
+  } | null>(null)
+  const [profilerDialog, setProfilerDialog] = useState<{
+    connectionId: string
+    connectionName: string
+    databaseName: string
+  } | null>(null)
+  const [contextMenu, setContextMenu] = useState<{ items: MenuItem[]; position: { x: number; y: number } } | null>(null)
+  const [columnSortContextMenu, setColumnSortContextMenu] = useState<{
+    tab: QueryTab
+    columnName: string
+    position: { x: number; y: number }
+  } | null>(null)
+  const [selectedRowsMap, setSelectedRowsMap] = useState<Map<string, Set<number>>>(new Map())
+  const [deleteConfirmState, setDeleteConfirmState] = useState<{
+    tabId: string
+    rsIndex: number
+    connectionId: string
+    databaseName: string
+    sourceTable: { schema: string; table: string }
+    pkColumns: string[]
+    selectedRows: Record<string, unknown>[]
+  } | null>(null)
+  const [deleteErrors, setDeleteErrors] = useState<Map<string, string>>(new Map())
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [recordDialogState, setRecordDialogState] = useState<{
+    mode: 'add' | 'edit'
+    connectionId: string
+    databaseName: string | undefined
+    provider: string
+    sourceTable: { schema: string; table: string }
+    pkColumns: string[]
+    row?: Record<string, unknown>
+  } | null>(null)
+  const [updateErrors, setUpdateErrors] = useState<Map<string, string>>(new Map())
+  const [updatingCell, setUpdatingCell] = useState<{ tabId: string; rsIndex: number; colName: string; rowIndex: number } | null>(null)
+  const [boolPillContextMenu, setBoolPillContextMenu] = useState<{
+    columnName: string
+    row: Record<string, unknown>
+    rowIndex: number
+    tab: QueryTab
+    rsIndex: number
+    sourceTable: { schema: string; table: string }
+    pkColumns: string[]
+    position: { x: number; y: number }
+  } | null>(null)
+  const [rowContextMenu, setRowContextMenu] = useState<{
+    row: Record<string, unknown>
+    rowIndex: number
+    tab: QueryTab
+    rsIndex: number
+    sourceTable: { schema: string; table: string }
+    pkColumns: string[]
+    connectionId: string
+    databaseName: string
+    provider: string
+    position: { x: number; y: number }
+  } | null>(null)
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
+  const [unsavedCloseDialog, setUnsavedCloseDialog] = useState<{ tabId: string } | null>(null)
+  const [pendingExportTrigger, setPendingExportTrigger] = useState<ErdExportOptions | null>(null)
+  const [pendingSaveTrigger, setPendingSaveTrigger] = useState(false)
+  const pendingSaveResolveRef = useRef<((state: ErdCanvasSerializedState) => void) | null>(null)
+  const [expandedErdFolders, setExpandedErdFolders] = useState<Set<string>>(new Set())
+  const [panelWidth, setPanelWidth] = useState(() => {
+    const saved = localStorage.getItem('explorer_panel_width')
+    return saved ? parseInt(saved, 10) : 308
+  })
+  const [resultsHeight, setResultsHeight] = useState(260)
+  const [resultsVisible, setResultsVisible] = useState(true)
+  const isDragging = useRef(false)
+  const dragStartX = useRef(0)
+  const dragStartWidth = useRef(0)
+  const panelRef = useRef<HTMLElement>(null)
+  const editorAreaRef = useRef<HTMLDivElement>(null)
+  const isResizingResults = useRef(false)
+  const dragStartY = useRef(0)
+  const dragStartHeight = useRef(0)
+  const isFirstRender = useRef(true)
+
+  useEffect(() => {
+    window.api.connections.getAll().then((conns) => {
+      setConnections(conns)
+      for (const conn of conns) {
+        if (conn.autoConnect) {
+          connectToDatabase(conn.id, true)
+        }
+      }
+    })
+  }, [])
+
+  useEffect(() => {
+    const unsubscribe = window.api.database.onEagerLoadStatus(({ connectionId, status }) => {
+      setEagerLoadStates((prev) => {
+        const next = new Map(prev)
+        next.set(connectionId, status)
+        return next
+      })
+    })
+    return unsubscribe
+  }, [])
+
+  useEffect(() => {
+    panelRef.current?.style.setProperty('--panel-width', `${panelWidth}px`)
+  }, [panelWidth])
+
+  useEffect(() => {
+    editorAreaRef.current?.style.setProperty('--results-height', `${resultsHeight}px`)
+  }, [resultsHeight])
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+    for (const [connectionId, runtimeState] of runtimeStates) {
+      if (runtimeState.status !== 'connected') continue
+      const key = `${connectionId}/databases`
+      if (nodeStates.get(key)?.status === 'loaded') {
+        loadNodeChildren(connectionId, 'databases')
+      }
+    }
+  }, [settings.showSystemDatabases])
+
+  const handleToggleResults = useCallback(() => {
+    setResultsVisible((v) => !v)
+  }, [])
+
+  useEffect(() => {
+    const activeTab = tabs.find((t) => t.id === activeTabId)
+    const hasOpenDocuments = tabs.length > 0
+    const canSaveActive =
+      !activeTab || activeTab.kind === 'erd' || (activeTab.kind === 'query' && activeTab.isDirty)
+    const isDocumentFocused = isActive && activeTabId !== null
+    updateMenuState({ hasOpenDocuments, canSaveActive, isDocumentFocused })
+  }, [tabs, activeTabId, isActive, updateMenuState])
+
+  const handleSaveRef = useRef<() => Promise<void>>(async () => {})
+  const handleOpenRef = useRef<() => Promise<void>>(async () => {})
+  const handleNewQueryRef = useRef<() => void>(() => {})
+  const menuFileActionRef = useRef<(action: string) => void>(() => {})
+  const handleCycleTabRef = useRef<(direction: 1 | -1) => void>(() => {})
+  const queryEditorRefs = useRef(new Map<string, React.RefObject<QueryEditorHandle>>())
+
+  function getOrCreateQueryEditorRef(tabId: string): React.RefObject<QueryEditorHandle> {
+    if (!queryEditorRefs.current.has(tabId)) {
+      queryEditorRefs.current.set(tabId, createRef<QueryEditorHandle>())
+    }
+    return queryEditorRefs.current.get(tabId)!
+  }
+
+  useEffect(() => {
+    if (activeTabId === null) return
+    const activeTab = tabs.find((t) => t.id === activeTabId)
+    if (activeTab?.kind !== 'query') return
+    queryEditorRefs.current.get(activeTabId)?.current?.focus()
+  }, [activeTabId, tabs])
+
+  useEffect(() => {
+    function onFileAction(e: Event): void {
+      menuFileActionRef.current((e as CustomEvent<string>).detail)
+    }
+    window.addEventListener('menu:file-action', onFileAction)
+    return () => window.removeEventListener('menu:file-action', onFileAction)
+  }, [])
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent): void {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault()
+        handleNewQueryRef.current()
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+        e.preventDefault()
+        setResultsVisible((v) => !v)
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault()
+        handleSaveRef.current()
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'o') {
+        e.preventDefault()
+        handleOpenRef.current()
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Tab') {
+        e.preventDefault()
+        handleCycleTabRef.current(e.shiftKey ? -1 : 1)
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [])
+
+  const onResultsResizeStart = useCallback(
+    (e: React.MouseEvent) => {
+      isResizingResults.current = true
+      dragStartY.current = e.clientY
+      dragStartHeight.current = resultsHeight
+      document.body.style.cursor = 'row-resize'
+      document.body.style.userSelect = 'none'
+      let currentHeight = resultsHeight
+
+      function onMouseMove(ev: MouseEvent): void {
+        if (!isResizingResults.current) return
+        const areaHeight = editorAreaRef.current?.clientHeight ?? 600
+        const delta = dragStartY.current - ev.clientY
+        const next = Math.min(
+          Math.round(areaHeight * 0.8),
+          Math.max(120, dragStartHeight.current + delta)
+        )
+        currentHeight = next
+        // Directly update the CSS variable — no React re-render during drag
+        editorAreaRef.current?.style.setProperty('--results-height', `${next}px`)
+      }
+
+      function onMouseUp(): void {
+        isResizingResults.current = false
+        document.body.style.cursor = ''
+        document.body.style.userSelect = ''
+        document.removeEventListener('mousemove', onMouseMove)
+        document.removeEventListener('mouseup', onMouseUp)
+        // Single state update when drag ends to persist the value
+        setResultsHeight(currentHeight)
+      }
+
+      document.addEventListener('mousemove', onMouseMove)
+      document.addEventListener('mouseup', onMouseUp)
+    },
+    [resultsHeight]
+  )
+
+  const onResizeStart = useCallback(
+    (e: React.MouseEvent) => {
+      isDragging.current = true
+      dragStartX.current = e.clientX
+      dragStartWidth.current = panelWidth
+      document.body.style.cursor = 'col-resize'
+      document.body.style.userSelect = 'none'
+
+      function onMouseMove(ev: MouseEvent): void {
+        if (!isDragging.current) return
+        const delta = ev.clientX - dragStartX.current
+        const next = Math.min(
+          MAX_PANEL_WIDTH,
+          Math.max(MIN_PANEL_WIDTH, dragStartWidth.current + delta)
+        )
+        setPanelWidth(next)
+      }
+
+      function onMouseUp(): void {
+        isDragging.current = false
+        document.body.style.cursor = ''
+        document.body.style.userSelect = ''
+        setPanelWidth((w) => {
+          localStorage.setItem('explorer_panel_width', String(w))
+          return w
+        })
+        document.removeEventListener('mousemove', onMouseMove)
+        document.removeEventListener('mouseup', onMouseUp)
+      }
+
+      document.addEventListener('mousemove', onMouseMove)
+      document.addEventListener('mouseup', onMouseUp)
+    },
+    [panelWidth]
+  )
+
+  function setRuntimeState(id: string, state: ConnectionRuntimeState): void {
+    setRuntimeStates((prev) => {
+      const next = new Map(prev)
+      next.set(id, state)
+      return next
+    })
+  }
+
+  function getRuntimeState(id: string): ConnectionRuntimeState {
+    return runtimeStates.get(id) ?? { status: 'disconnected' }
+  }
+
+  function getSelectedContext(): { connectionId: string | null; databaseName: string | null } {
+    if (!selectedKey) return { connectionId: null, databaseName: null }
+    if (selectedKey.startsWith('conn:')) {
+      return { connectionId: selectedKey.slice(5), databaseName: null }
+    }
+    const slashIdx = selectedKey.indexOf('/')
+    if (slashIdx === -1) return { connectionId: null, databaseName: null }
+    const connectionId = selectedKey.slice(0, slashIdx)
+    const nodeId = selectedKey.slice(slashIdx + 1)
+    const dbMatch = nodeId.match(/^db:([^:]+)/)
+    return { connectionId, databaseName: dbMatch?.[1] ?? null }
+  }
+
+  function buildQuerySql(tab: QueryTab, selectedText?: string): string {
+    const content = selectedText || tab.content
+    if (tab.databaseName && tab.connectionId) {
+      const conn = connections.find((c) => c.id === tab.connectionId)
+      if (conn?.provider === 'sqlserver') {
+        return `USE [${tab.databaseName}];\n${content}`
+      }
+    }
+    return content
+  }
+
+  function getTabDatabaseName(tab: QueryTab): string | undefined {
+    if (!tab.databaseName || !tab.connectionId) return undefined
+    const conn = connections.find((c) => c.id === tab.connectionId)
+    return conn?.provider === 'postgres' ? tab.databaseName : undefined
+  }
+
+  function getActiveEditorSelectedText(): string {
+    if (!activeTabId) return ''
+    return queryEditorRefs.current.get(activeTabId)?.current?.getSelectedText() ?? ''
+  }
+
+  async function refreshDdlNodes(connectionId: string, databaseName: string | undefined, sql: string): Promise<void> {
+    if (!databaseName) return
+    const folderTypes = detectDdlFolderTypes(sql)
+    if (folderTypes.length === 0) return
+    await Promise.all(
+      folderTypes.map((ft) => window.api.database.invalidateCache(connectionId, `db:${databaseName}:${ft}`))
+    )
+    for (const ft of folderTypes) {
+      const nodeId = `db:${databaseName}:${ft}`
+      const nodeKey = `${connectionId}/${nodeId}`
+      setNodeStates((prev) => {
+        const next = new Map(prev)
+        next.delete(nodeKey)
+        return next
+      })
+      if (expandedNodes.has(nodeKey)) {
+        loadNodeChildren(connectionId, nodeId)
+      }
+    }
+  }
+
+  /**
+   * Populates `columnKeyMeta` on each result set based on the tables referenced
+   * in the executed SQL. Best-effort — silently skips tables that can't be resolved.
+   */
+  async function applyKeyMetaToResults(
+    connectionId: string,
+    databaseName: string | undefined,
+    sql: string,
+    resultSets: QueryResultSet[]
+  ): Promise<void> {
+    if (!databaseName) return
+    const tableRefs = parseSqlTableRefs(sql)
+    if (tableRefs.length === 0) return
+
+    const defaultSchema = getConnectionCapabilities(connectionId).defaultSchema
+
+    const fetches = await Promise.allSettled(
+      tableRefs.map(({ schema, tableName }) =>
+        Promise.all([
+          window.api.database.getTableSchema(connectionId, databaseName, schema || defaultSchema, tableName),
+          window.api.database.getForeignKeys(connectionId, databaseName, schema || defaultSchema, tableName)
+        ])
+      )
+    )
+
+    const keyMap = new Map<string, { isPrimaryKey: boolean; isForeignKey: boolean; isNullable: boolean; isBoolean: boolean }>()
+    for (const r of fetches) {
+      if (r.status !== 'fulfilled') continue
+      const [schemaResult, fkResult] = r.value
+      if (schemaResult.status !== 'ok') continue
+      const fkColumns = fkResult.status === 'ok'
+        ? new Set(fkResult.foreignKeys.map((fk) => fk.columnName))
+        : new Set<string>()
+      for (const col of schemaResult.columns) {
+        if (!keyMap.has(col.name)) {
+          const colTypeLower = col.type.toLowerCase()
+          keyMap.set(col.name, {
+            isPrimaryKey: col.isPrimaryKey,
+            isForeignKey: fkColumns.has(col.name),
+            isNullable: col.isNullable,
+            isBoolean: colTypeLower === 'bit' || colTypeLower === 'bool' || colTypeLower === 'boolean'
+          })
+        }
+      }
+    }
+
+    if (keyMap.size === 0) return
+    for (const rs of resultSets) {
+      rs.columnKeyMeta = rs.columns.map((col) => keyMap.get(col) ?? null)
+    }
+
+    // Populate sourceTable only when the query references exactly one table
+    if (tableRefs.length === 1) {
+      const singleRef = tableRefs[0]
+      const resolvedSchema = singleRef.schema || defaultSchema
+      for (const rs of resultSets) {
+        rs.sourceTable = { schema: resolvedSchema, table: singleRef.tableName }
+      }
+    }
+  }
+
+  function setNodeState(key: string, state: NodeLoadState): void {
+    setNodeStates((prev) => {
+      const next = new Map(prev)
+      next.set(key, state)
+      return next
+    })
+  }
+
+  async function connectToDatabase(id: string, silent = false): Promise<void> {
+    if (!silent) setRuntimeState(id, { status: 'connecting' })
+    try {
+      const result = await window.api.database.connect(id)
+      if (result.status === 'connected') {
+        setRuntimeState(id, { status: 'connected' })
+        try {
+          const caps = await window.api.database.getCapabilities(id)
+          if (caps) {
+            setConnectionsCapabilities((prev) => {
+              const next = new Map(prev)
+              next.set(id, caps)
+              return next
+            })
+          }
+        } catch {
+          // Capabilities are non-critical; a failure here does not abort the connection
+        }
+      } else {
+        setRuntimeState(id, silent ? { status: 'disconnected' } : { status: 'error', errorMessage: result.message })
+      }
+    } catch {
+      if (!silent) {
+        setRuntimeState(id, { status: 'error', errorMessage: 'Connection failed' })
+      }
+    }
+  }
+
+  function getConnectionCapabilities(connectionId: string): ProviderCapabilities {
+    return connectionsCapabilities.get(connectionId) ?? {
+      executionPlan: { kind: 'xml-visual', buttonLabel: 'Execution Plan' },
+      clientStatistics: { kind: 'client-stats', buttonLabel: 'Client Statistics' },
+      defaultSchema: 'dbo',
+      hasStoredProcedures: true,
+      hasFunctions: true,
+      hasUserDefinedTypes: true,
+      hasTableTypes: true,
+      hasMemoryOptimizedTableTypes: true,
+      hasStatistics: true,
+      hasIndexRebuild: true,
+      hasIndexReorganize: true,
+      hasIndexDisable: true,
+      hasProfiler: true,
+      hasCreateTable: true
+    }
+  }
+
+  function toggleConn(id: string): void {
+    const isExpanded = expandedConns.has(id)
+    setExpandedConns((prev) => {
+      const next = new Set(prev)
+      if (isExpanded) next.delete(id)
+      else next.add(id)
+      return next
+    })
+    setSelectedKey(`conn:${id}`)
+    if (!isExpanded) {
+      setActiveConnectionId(id)
+      const state = getRuntimeState(id)
+      if (state.status === 'disconnected' || state.status === 'error') {
+        connectToDatabase(id)
+      }
+    }
+  }
+
+  async function loadNodeChildren(connectionId: string, nodeId: string): Promise<void> {
+    const key = `${connectionId}/${nodeId}`
+    setNodeState(key, { status: 'loading' })
+    try {
+      const result = await window.api.database.getChildren(connectionId, nodeId)
+      if (result.status === 'ok') {
+        setNodeState(key, { status: 'loaded', children: result.children })
+      } else {
+        setNodeState(key, { status: 'error', errorMessage: result.message })
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to load'
+      setNodeState(key, { status: 'error', errorMessage: message })
+    }
+  }
+
+  function toggleNode(connectionId: string, node: ExplorerNode): void {
+    const key = `${connectionId}/${node.id}`
+    const isExpanded = expandedNodes.has(key)
+    setExpandedNodes((prev) => {
+      const next = new Set(prev)
+      if (isExpanded) next.delete(key)
+      else next.add(key)
+      return next
+    })
+    if (!isExpanded) {
+      const state = nodeStates.get(key)
+      if (!state || state.status === 'error') {
+        loadNodeChildren(connectionId, node.id)
+      }
+    }
+  }
+
+  async function handleSaveConnection(record: Omit<ConnectionRecord, 'id'>): Promise<void> {
+    const saved = await window.api.connections.create(record)
+    setConnections((prev) => [...prev, saved])
+    setIsDialogOpen(false)
+  }
+
+  async function handleUpdateConnection(record: Omit<ConnectionRecord, 'id'>): Promise<void> {
+    if (!editingConnection) return
+    const updated = await window.api.connections.update({ ...record, id: editingConnection.id })
+    setConnections((prev) => prev.map((c) => (c.id === updated.id ? updated : c)))
+    setIsDialogOpen(false)
+    setEditingConnection(null)
+  }
+
+  function closeDialog(): void {
+    setIsDialogOpen(false)
+    setEditingConnection(null)
+  }
+
+  function clearConnectionState(connectionId: string): void {
+    setExpandedConns((prev) => {
+      const next = new Set(prev)
+      next.delete(connectionId)
+      return next
+    })
+    setExpandedNodes((prev) => {
+      const next = new Set(prev)
+      for (const key of next) {
+        if (key.startsWith(`${connectionId}/`)) next.delete(key)
+      }
+      return next
+    })
+    setNodeStates((prev) => {
+      const next = new Map(prev)
+      for (const key of next.keys()) {
+        if (key.startsWith(`${connectionId}/`)) next.delete(key)
+      }
+      return next
+    })
+  }
+
+  async function disconnectConnection(connectionId: string): Promise<void> {
+    try {
+      await window.api.database.disconnect(connectionId)
+    } catch {
+      // ignore disconnect errors — local state is still reset below
+    }
+    setRuntimeState(connectionId, { status: 'disconnected' })
+    clearConnectionState(connectionId)
+  }
+
+  function handleConnectAction(connectionId: string): void {
+    if (!expandedConns.has(connectionId)) {
+      setExpandedConns((prev) => {
+        const next = new Set(prev)
+        next.add(connectionId)
+        return next
+      })
+    }
+    connectToDatabase(connectionId)
+  }
+
+  async function handleDisconnectAction(connectionId: string): Promise<void> {
+    await disconnectConnection(connectionId)
+  }
+
+  async function handleEditAction(connectionId: string): Promise<void> {
+    const conn = connections.find((c) => c.id === connectionId)
+    if (!conn) return
+    const state = getRuntimeState(connectionId)
+    if (state.status === 'connected' || state.status === 'connecting') {
+      const confirmed = window.confirm(t('explorer.contextMenu.confirmDisconnectForEdit'))
+      if (!confirmed) return
+      await disconnectConnection(connectionId)
+    }
+    setEditingConnection(conn)
+    setIsDialogOpen(true)
+  }
+
+  async function handleDeleteAction(connectionId: string): Promise<void> {
+    const conn = connections.find((c) => c.id === connectionId)
+    if (!conn) return
+    const state = getRuntimeState(connectionId)
+    const isActive = state.status === 'connected' || state.status === 'connecting'
+    const message = isActive
+      ? t('explorer.contextMenu.confirmDeleteConnected', { name: conn.name })
+      : t('explorer.contextMenu.confirmDelete', { name: conn.name })
+    if (!window.confirm(message)) return
+    if (isActive) {
+      await disconnectConnection(connectionId)
+    }
+    await window.api.connections.delete(connectionId)
+    setConnections((prev) => prev.filter((c) => c.id !== connectionId))
+    setRuntimeStates((prev) => {
+      const next = new Map(prev)
+      next.delete(connectionId)
+      return next
+    })
+    clearConnectionState(connectionId)
+  }
+
+  function handleNewQuery(): void {
+    tabCounter += 1
+    const id = `tab-${tabCounter}`
+    const { connectionId, databaseName } = getSelectedContext()
+    const newTab: QueryTab = {
+      id,
+      kind: 'query',
+      title: 'Unnamed',
+      content: '',
+      isDirty: false,
+      connectionId: connectionId ?? undefined,
+      databaseName: databaseName ?? undefined
+    }
+    setTabs((prev) => [...prev, newTab])
+    setActiveTabId(id)
+  }
+
+  async function handleSelectTopRows(
+    connectionId: string,
+    databaseName: string,
+    schema: string,
+    tableName: string
+  ): Promise<void> {
+    const count = settings.selectTopRowsCount
+    const scriptResult = await window.api.database.scriptSelectTopRows(connectionId, databaseName, schema, tableName, count)
+    if (scriptResult.status === 'error') {
+      window.alert(scriptResult.message)
+      return
+    }
+    const query = scriptResult.script
+    tabCounter += 1
+    const id = `tab-${tabCounter}`
+    const newTab: QueryTab = {
+      id,
+      kind: 'query',
+      title: `Top ${count} — ${tableName}`,
+      content: query,
+      isDirty: false,
+      connectionId,
+      databaseName
+    }
+    setTabs((prev) => [...prev, newTab])
+    setActiveTabId(id)
+    setActiveConnectionId(connectionId)
+    setTabQueryStates((prev) => {
+      const next = new Map(prev)
+      next.set(id, { status: 'running' })
+      return next
+    })
+    try {
+      const result = await window.api.database.executeQuery(connectionId, query)
+      if (result.status === 'ok' && (settings.showKeyIconsInResults || settings.useInteractiveTables)) {
+        const [schemaResult, fkResult] = await Promise.all([
+          window.api.database.getTableSchema(connectionId, databaseName, schema, tableName),
+          window.api.database.getForeignKeys(connectionId, databaseName, schema, tableName)
+        ])
+        if (schemaResult.status === 'ok') {
+          const fkColumns = fkResult.status === 'ok'
+            ? new Set(fkResult.foreignKeys.map((fk) => fk.columnName))
+            : new Set<string>()
+          const keyMap = new Map(
+            schemaResult.columns.map((col) => {
+              const colTypeLower = col.type.toLowerCase()
+              return [
+                col.name,
+                {
+                  isPrimaryKey: col.isPrimaryKey,
+                  isForeignKey: fkColumns.has(col.name),
+                  isNullable: col.isNullable,
+                  isBoolean: colTypeLower === 'bit' || colTypeLower === 'bool' || colTypeLower === 'boolean'
+                }
+              ]
+            })
+          )
+          for (const rs of result.resultSets) {
+            rs.columnKeyMeta = rs.columns.map((col) => keyMap.get(col) ?? null)
+            rs.sourceTable = { schema, table: tableName }
+          }
+        }
+      }
+      setTabQueryStates((prev) => {
+        const next = new Map(prev)
+        if (result.status === 'ok') {
+          next.set(id, {
+            status: 'ok',
+            resultSets: result.resultSets,
+            messages: result.messages,
+            durationMs: result.durationMs
+          })
+        } else {
+          next.set(id, { status: 'error', message: result.message })
+        }
+        return next
+      })
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Query execution failed'
+      setTabQueryStates((prev) => {
+        const next = new Map(prev)
+        next.set(id, { status: 'error', message })
+        return next
+      })
+    }
+  }
+
+  async function handleDropDatabase(connectionId: string, databaseName: string): Promise<void> {
+    const confirmed = window.confirm(
+      t('explorer.dropDatabase.confirmMessage', { databaseName })
+    )
+    if (!confirmed) return
+
+    const scriptResult = await window.api.database.scriptDropDatabase(connectionId, databaseName)
+    if (scriptResult.status === 'error') {
+      window.alert(scriptResult.message)
+      return
+    }
+    const result = await window.api.database.executeQuery(connectionId, scriptResult.script)
+    if (result.status === 'error') {
+      window.alert(result.message)
+      return
+    }
+    await window.api.database.invalidateCache(connectionId, 'databases')
+    loadNodeChildren(connectionId, 'databases')
+  }
+
+  async function handleDropTable(
+    connectionId: string,
+    databaseName: string,
+    schema: string,
+    tableName: string
+  ): Promise<void> {
+    const confirmed = window.confirm(
+      t('explorer.dropTable.confirmMessage', { tableName: `${schema}.${tableName}` })
+    )
+    if (!confirmed) return
+
+    const scriptResult = await window.api.database.scriptTableDrop(connectionId, databaseName, schema, tableName)
+    if (scriptResult.status === 'error') {
+      window.alert(scriptResult.message)
+      return
+    }
+    const result = await window.api.database.executeQuery(connectionId, scriptResult.script)
+    if (result.status === 'error') {
+      window.alert(result.message)
+      return
+    }
+    await window.api.database.invalidateCache(connectionId, `db:${databaseName}:tables`)
+    loadNodeChildren(connectionId, `db:${databaseName}:tables`)
+  }
+
+  async function handleSave(): Promise<void> {
+    if (!activeTabId) return
+    const activeTab = tabs.find((t) => t.id === activeTabId)
+    if (!activeTab) return
+
+    if (activeTab.kind === 'query') {
+      if (activeTab.filePath) {
+        await window.api.file.save(activeTab.filePath, activeTab.content)
+        setTabs((prev) =>
+          prev.map((t) => (t.id === activeTabId ? { ...t, isDirty: false } : t))
+        )
+      } else {
+        const result = await window.api.file.saveDialog(activeTab.content)
+        if (result.status === 'ok') {
+          const fileName = result.filePath.split(/[\\/]/).pop() ?? result.filePath
+          setTabs((prev) =>
+            prev.map((t) =>
+              t.id === activeTabId
+                ? { ...t, filePath: result.filePath, title: fileName, isDirty: false }
+                : t
+            )
+          )
+        }
+      }
+      return
+    }
+
+    if (activeTab.kind === 'erd') {
+      // Request serialized canvas state from ErdCanvas via saveTrigger
+      const state = await new Promise<ErdCanvasSerializedState>((resolve) => {
+        pendingSaveResolveRef.current = resolve
+        setPendingSaveTrigger(true)
+      })
+      const conn = connections.find((c) => c.id === activeTab.connectionId)
+      const fileContent: ErdFileContent = {
+        version: 1,
+        connectionId: activeTab.connectionId,
+        connectionName: conn?.name ?? activeTab.connectionId,
+        databaseName: activeTab.databaseName,
+        nodes: state.nodes,
+        edges: state.edges,
+        curveType: state.curveType,
+        background: activeTab.background,
+        viewport: state.viewport,
+        savedAt: new Date().toISOString()
+      }
+      const json = JSON.stringify(fileContent, null, 2)
+      if (activeTab.filePath) {
+        await window.api.file.save(activeTab.filePath, json)
+        await window.api.connections.addErdFile(activeTab.connectionId, activeTab.databaseName, activeTab.filePath)
+      } else {
+        const result = await window.api.file.saveErdDialog(json)
+        if (result.status === 'ok') {
+          const fileName = result.filePath.split(/[\\/]/).pop() ?? result.filePath
+          const title = fileName.replace(/\.erd$/i, '')
+          setTabs((prev) =>
+            prev.map((t) =>
+              t.id === activeTabId && t.kind === 'erd'
+                ? { ...t, filePath: result.filePath, title }
+                : t
+            )
+          )
+          await window.api.connections.addErdFile(activeTab.connectionId, activeTab.databaseName, result.filePath)
+        }
+      }
+      const updatedConns = await window.api.connections.getAll()
+      setConnections(updatedConns)
+    }
+  }
+
+  async function handleOpen(): Promise<void> {
+    const activeTab = tabs.find((t) => t.id === activeTabId)
+    if (activeTab?.kind === 'erd') {
+      const result = await window.api.file.openErdDialog()
+      if (result.status !== 'ok') return
+      const parsed = JSON.parse(result.content) as ErdFileContent
+      const fileName = result.filePath.split(/[\\/]/).pop() ?? result.filePath
+      const title = fileName.replace(/\.erd$/i, '')
+      tabCounter += 1
+      const id = `tab-${tabCounter}`
+      const newTab: ErdTab = {
+        id,
+        kind: 'erd',
+        title,
+        connectionId: parsed.connectionId,
+        databaseName: parsed.databaseName,
+        loadState: 'loaded',
+        background: parsed.background,
+        filePath: result.filePath,
+        initialNodes: parsed.nodes as Node[],
+        initialEdges: parsed.edges as Edge[],
+        initialCurveType: parsed.curveType,
+        initialViewport: parsed.viewport
+      }
+      setTabs((prev) => [...prev, newTab])
+      setActiveTabId(id)
+      return
+    }
+    const result = await window.api.file.openDialog()
+    if (result.status !== 'ok') return
+    const fileName = result.filePath.split(/[\\/]/).pop() ?? result.filePath
+
+    // If an ERD file was chosen from the open dialog, open it as an ERD tab
+    if (/\.erd$/i.test(result.filePath)) {
+      const parsed = JSON.parse(result.content) as ErdFileContent
+      const title = fileName.replace(/\.erd$/i, '')
+      tabCounter += 1
+      const id = `tab-${tabCounter}`
+      const newTab: ErdTab = {
+        id,
+        kind: 'erd',
+        title,
+        connectionId: parsed.connectionId,
+        databaseName: parsed.databaseName,
+        loadState: 'loaded',
+        background: parsed.background,
+        filePath: result.filePath,
+        initialNodes: parsed.nodes as Node[],
+        initialEdges: parsed.edges as Edge[],
+        initialCurveType: parsed.curveType,
+        initialViewport: parsed.viewport
+      }
+      setTabs((prev) => [...prev, newTab])
+      setActiveTabId(id)
+      return
+    }
+
+    tabCounter += 1
+    const id = `tab-${tabCounter}`
+    const newTab: QueryTab = {
+      id,
+      kind: 'query',
+      title: fileName,
+      filePath: result.filePath,
+      content: result.content,
+      isDirty: false
+    }
+    setTabs((prev) => [...prev, newTab])
+    setActiveTabId(id)
+  }
+
+  async function handleSaveAs(): Promise<void> {
+    if (!activeTabId) return
+    const activeTab = tabs.find((t) => t.id === activeTabId)
+    if (!activeTab || activeTab.kind !== 'query') return
+    const result = await window.api.file.saveDialog(activeTab.content)
+    if (result.status === 'ok') {
+      const fileName = result.filePath.split(/[\\/]/).pop() ?? result.filePath
+      setTabs((prev) =>
+        prev.map((t) =>
+          t.id === activeTabId
+            ? { ...t, filePath: result.filePath, title: fileName, isDirty: false }
+            : t
+        )
+      )
+    }
+  }
+
+  async function handleSaveAll(): Promise<void> {
+    const dirtyTabs = tabs.filter((t): t is QueryTab => t.kind === 'query' && t.isDirty)
+    for (const tab of dirtyTabs) {
+      if (tab.filePath) {
+        await window.api.file.save(tab.filePath, tab.content)
+        setTabs((prev) => prev.map((t) => (t.id === tab.id ? { ...t, isDirty: false } : t)))
+      } else {
+        const result = await window.api.file.saveDialog(tab.content)
+        if (result.status === 'ok') {
+          const fileName = result.filePath.split(/[\\/]/).pop() ?? result.filePath
+          setTabs((prev) =>
+            prev.map((t) =>
+              t.id === tab.id
+                ? { ...t, filePath: result.filePath, title: fileName, isDirty: false }
+                : t
+            )
+          )
+        }
+      }
+    }
+  }
+
+  function removeTab(tabId: string): void {
+    queryEditorRefs.current.delete(tabId)
+    setTabs((prev) => {
+      const next = prev.filter((t) => t.id !== tabId)
+      if (activeTabId === tabId) {
+        const idx = prev.findIndex((t) => t.id === tabId)
+        const sibling = prev[idx - 1] ?? prev[idx + 1]
+        setActiveTabId(sibling?.id ?? null)
+      }
+      return next
+    })
+    // Clean up row selection and delete errors for the closed tab
+    setSelectedRowsMap((prev) => {
+      const next = new Map(prev)
+      for (const key of next.keys()) {
+        if (key.startsWith(`${tabId}:`)) next.delete(key)
+      }
+      return next
+    })
+    setDeleteErrors((prev) => {
+      const next = new Map(prev)
+      for (const key of next.keys()) {
+        if (key.startsWith(`${tabId}:`)) next.delete(key)
+      }
+      return next
+    })
+  }
+
+  function closeActiveTab(): void {
+    if (!activeTabId) return
+    const tab = tabs.find((t) => t.id === activeTabId)
+    if (tab?.kind === 'query' && tab.isDirty) {
+      setUnsavedCloseDialog({ tabId: activeTabId })
+      return
+    }
+    removeTab(activeTabId)
+  }
+
+  function handleRowSelect(tabId: string, rsIndex: number, rowIndex: number, selected: boolean): void {
+    const key = `${tabId}:${rsIndex}`
+    setSelectedRowsMap((prev) => {
+      const next = new Map(prev)
+      const current = new Set(prev.get(key) ?? [])
+      if (selected) {
+        current.add(rowIndex)
+      } else {
+        current.delete(rowIndex)
+      }
+      next.set(key, current)
+      return next
+    })
+  }
+
+  function handleSelectAll(tabId: string, rsIndex: number, totalRows: number, selected: boolean): void {
+    const key = `${tabId}:${rsIndex}`
+    setSelectedRowsMap((prev) => {
+      const next = new Map(prev)
+      if (selected) {
+        next.set(key, new Set(Array.from({ length: totalRows }, (_, i) => i)))
+      } else {
+        next.set(key, new Set())
+      }
+      return next
+    })
+  }
+
+  function handleDeleteRows(
+    tabId: string,
+    rsIndex: number,
+    rs: QueryResultSet,
+    connectionId: string,
+    databaseName: string | undefined
+  ): void {
+    if (!databaseName || !rs.sourceTable) return
+    const key = `${tabId}:${rsIndex}`
+    const selectedIndices = selectedRowsMap.get(key) ?? new Set<number>()
+    if (selectedIndices.size === 0) return
+
+    const pkColumns = rs.columnKeyMeta
+      ? rs.columns.filter((_, i) => rs.columnKeyMeta![i]?.isPrimaryKey)
+      : []
+
+    if (pkColumns.length === 0) {
+      setDeleteErrors((prev) => {
+        const next = new Map(prev)
+        next.set(key, 'Cannot delete: no primary key columns are identified for this result set.')
+        return next
+      })
+      return
+    }
+
+    const selectedRows = [...selectedIndices].map((i) => rs.rows[i])
+
+    setDeleteConfirmState({
+      tabId,
+      rsIndex,
+      connectionId,
+      databaseName,
+      sourceTable: rs.sourceTable,
+      pkColumns,
+      selectedRows
+    })
+  }
+
+  async function executeDelete(): Promise<void> {
+    if (!deleteConfirmState) return
+    const { tabId, rsIndex, connectionId, databaseName, sourceTable, pkColumns, selectedRows } = deleteConfirmState
+    const key = `${tabId}:${rsIndex}`
+    setIsDeleting(true)
+    try {
+      const sql = buildDeleteSql(selectedRows, sourceTable, pkColumns)
+      const result = await window.api.database.executeQuery(connectionId, sql, false, false, databaseName)
+      if (result.status === 'error') {
+        setDeleteErrors((prev) => {
+          const next = new Map(prev)
+          next.set(key, result.message)
+          return next
+        })
+      } else {
+        setSelectedRowsMap((prev) => {
+          const next = new Map(prev)
+          for (const k of next.keys()) {
+            if (k.startsWith(`${tabId}:`)) next.delete(k)
+          }
+          return next
+        })
+        const tab = tabs.find((t) => t.id === tabId && t.kind === 'query') as QueryTab | undefined
+        if (tab) void executeQueryForTabWithSql(tab, tab.content)
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      setDeleteErrors((prev) => {
+        const next = new Map(prev)
+        next.set(key, message)
+        return next
+      })
+    } finally {
+      setIsDeleting(false)
+      setDeleteConfirmState(null)
+    }
+  }
+
+  function handleOpenAddRecord(
+    connectionId: string,
+    databaseName: string | undefined,
+    provider: string,
+    sourceTable: { schema: string; table: string },
+    pkColumns: string[]
+  ): void {
+    setRecordDialogState({ mode: 'add', connectionId, databaseName, provider, sourceTable, pkColumns })
+  }
+
+  function handleOpenEditRecord(
+    connectionId: string,
+    databaseName: string | undefined,
+    provider: string,
+    sourceTable: { schema: string; table: string },
+    pkColumns: string[],
+    row: Record<string, unknown>
+  ): void {
+    setRecordDialogState({ mode: 'edit', connectionId, databaseName, provider, sourceTable, pkColumns, row })
+  }
+
+  async function handleBooleanToggle(
+    tab: QueryTab,
+    rsIndex: number,
+    sourceTable: { schema: string; table: string },
+    pkColumns: string[],
+    colName: string,
+    row: Record<string, unknown>,
+    rowIndex: number,
+    newValue: boolean | null
+  ): Promise<void> {
+    if (updatingCell !== null) return
+    const connectionId = tab.connectionId ?? activeConnectionId
+    if (!connectionId) return
+    const key = `${tab.id}:${rsIndex}`
+
+    if (pkColumns.length === 0) {
+      setUpdateErrors((prev) => {
+        const next = new Map(prev)
+        next.set(key, 'Cannot update: no primary key columns are identified for this result set.')
+        return next
+      })
+      return
+    }
+
+    setUpdatingCell({ tabId: tab.id, rsIndex, colName, rowIndex })
+    try {
+      const rawSql = buildUpdateBooleanSql(row, sourceTable, pkColumns, colName, newValue)
+      const sql = buildQuerySql(tab, rawSql)
+      const result = await window.api.database.executeQuery(connectionId, sql, false, false, getTabDatabaseName(tab))
+      if (result.status === 'error') {
+        setUpdateErrors((prev) => {
+          const next = new Map(prev)
+          next.set(key, result.message)
+          return next
+        })
+      } else {
+        void executeQueryForTabWithSql(tab, tab.content)
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      setUpdateErrors((prev) => {
+        const next = new Map(prev)
+        next.set(key, message)
+        return next
+      })
+    } finally {
+      setUpdatingCell(null)
+    }
+  }
+
+  function handleBooleanRightClick(
+    tab: QueryTab,
+    rsIndex: number,
+    rs: QueryResultSet,
+    colName: string,
+    row: Record<string, unknown>,
+    rowIndex: number,
+    pkColumns: string[],
+    position: { x: number; y: number }
+  ): void {
+    if (!rs.sourceTable) return
+    setBoolPillContextMenu({ columnName: colName, row, rowIndex, tab, rsIndex, sourceTable: rs.sourceTable, pkColumns, position })
+  }
+
+  function handleRowContextMenu(
+    tab: QueryTab,
+    rsIndex: number,
+    rs: QueryResultSet,
+    pkColumns: string[],
+    row: Record<string, unknown>,
+    rowIndex: number,
+    position: { x: number; y: number }
+  ): void {
+    if (!rs.sourceTable || !tab.databaseName) return
+    const connectionId = tab.connectionId ?? activeConnectionId
+    if (!connectionId) return
+    const provider = connections.find((c) => c.id === connectionId)?.provider ?? 'sqlserver'
+    setRowContextMenu({ row, rowIndex, tab, rsIndex, sourceTable: rs.sourceTable, pkColumns, connectionId, databaseName: tab.databaseName, provider, position })
+  }
+
+  menuFileActionRef.current = (action: string): void => {
+    if (action === 'new') handleNewQuery()
+    else if (action === 'open') handleOpenRef.current()
+    else if (action === 'save') handleSaveRef.current()
+    else if (action === 'save-as') handleSaveAs()
+    else if (action === 'save-all') handleSaveAll()
+    else if (action === 'close') closeActiveTab()
+    else if (action === 'quit') window.api.app.quit()
+  }
+
+  handleSaveRef.current = handleSave
+  handleOpenRef.current = handleOpen
+  handleNewQueryRef.current = handleNewQuery
+  handleCycleTabRef.current = (direction: 1 | -1): void => {
+    if (tabs.length < 2) return
+    const currentIndex = tabs.findIndex((t) => t.id === activeTabId)
+    if (currentIndex === -1) return
+    const nextIndex = (currentIndex + direction + tabs.length) % tabs.length
+    setActiveTabId(tabs[nextIndex].id)
+  }
+
+  function handleTabContentChange(tabId: string, content: string): void {
+    setTabs((prev) =>
+      prev.map((t) => (t.id === tabId && t.kind === 'query' ? { ...t, content, isDirty: true } : t))
+    )
+  }
+
+  function handleFormat(): void {
+    if (!activeTabId) return
+    const activeTab = tabs.find((t) => t.id === activeTabId)
+    if (!activeTab || activeTab.kind !== 'query') return
+    const formatted = formatSQL(activeTab.content, { language: 'sql', tabWidth: 2 })
+    handleTabContentChange(activeTabId, formatted)
+  }
+
+  async function executeQueryForTabWithSql(tab: QueryTab, newSql: string): Promise<void> {
+    const connectionId = tab.connectionId ?? activeConnectionId
+    if (!connectionId) return
+
+    setTabQueryStates((prev) => {
+      const next = new Map(prev)
+      next.set(tab.id, { status: 'running' })
+      return next
+    })
+
+    const withPlan = settings.autoIncludeExecutionPlan || false
+    const withStatistics = settings.autoIncludeClientStatistics || false
+    const sortIndicators = parseSqlOrderBy(newSql)
+    const filteredColumns = parseSqlWhere(newSql)
+
+    try {
+      const result = await window.api.database.executeQuery(
+        connectionId,
+        buildQuerySql(tab, newSql),
+        withPlan,
+        withStatistics,
+        getTabDatabaseName(tab)
+      )
+      if (result.status === 'ok' && (settings.showKeyIconsInResults || settings.useInteractiveTables)) {
+        await applyKeyMetaToResults(connectionId, tab.databaseName, newSql, result.resultSets)
+      }
+      setTabQueryStates((prev) => {
+        const next = new Map(prev)
+        if (result.status === 'ok') {
+          next.set(tab.id, {
+            status: 'ok',
+            resultSets: result.resultSets,
+            messages: result.messages,
+            durationMs: result.durationMs,
+            executionPlanXml: result.executionPlanXml,
+            clientStatistics: result.clientStatistics,
+            sortIndicators,
+            filteredColumns
+          })
+        } else {
+          next.set(tab.id, { status: 'error', message: result.message })
+        }
+        return next
+      })
+      setTabResultsViews((prev) => {
+        const next = new Map(prev)
+        next.set(tab.id, 'results')
+        return next
+      })
+      if (result.status === 'ok') {
+        refreshDdlNodes(connectionId, tab.databaseName, newSql)
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Query execution failed'
+      setTabQueryStates((prev) => {
+        const next = new Map(prev)
+        next.set(tab.id, { status: 'error', message })
+        return next
+      })
+    }
+  }
+
+  async function handleColumnSort(tab: QueryTab, columnName: string): Promise<void> {
+    const newSql = modifyOrderByInSql(tab.content, columnName, 'toggle')
+    setTabs((prev) =>
+      prev.map((t) => (t.id === tab.id && t.kind === 'query' ? { ...t, content: newSql, isDirty: true } : t))
+    )
+    await executeQueryForTabWithSql(tab, newSql)
+  }
+
+  async function handleColumnRemoveSort(tab: QueryTab, columnName: string): Promise<void> {
+    const newSql = modifyOrderByInSql(tab.content, columnName, 'remove')
+    setTabs((prev) =>
+      prev.map((t) => (t.id === tab.id && t.kind === 'query' ? { ...t, content: newSql, isDirty: true } : t))
+    )
+    await executeQueryForTabWithSql(tab, newSql)
+  }
+
+  async function handleExecuteQuery(): Promise<void> {
+    if (!activeTabId) return
+    const activeTab = tabs.find((t) => t.id === activeTabId)
+    if (!activeTab || activeTab.kind !== 'query') return
+
+    const connectionId = activeTab.connectionId ?? activeConnectionId
+    if (!connectionId) {
+      setTabQueryStates((prev) => {
+        const next = new Map(prev)
+        next.set(activeTabId, { status: 'error', message: 'No connection selected. Click a connection in the panel to select it.' })
+        return next
+      })
+      return
+    }
+
+    setTabQueryStates((prev) => {
+      const next = new Map(prev)
+      next.set(activeTabId, { status: 'running' })
+      return next
+    })
+
+    // Clear row selections and delete errors for this tab when a new query starts
+    setSelectedRowsMap((prev) => {
+      const next = new Map(prev)
+      for (const key of next.keys()) {
+        if (key.startsWith(`${activeTabId}:`)) next.delete(key)
+      }
+      return next
+    })
+    setDeleteErrors((prev) => {
+      const next = new Map(prev)
+      for (const key of next.keys()) {
+        if (key.startsWith(`${activeTabId}:`)) next.delete(key)
+      }
+      return next
+    })
+
+    const withPlan = settings.autoIncludeExecutionPlan || false
+    const withStatistics = settings.autoIncludeClientStatistics || false
+
+    const selectedText = getActiveEditorSelectedText()
+    const sortIndicators = parseSqlOrderBy(selectedText || activeTab.content)
+    const filteredColumns = parseSqlWhere(selectedText || activeTab.content)
+    try {
+      const result = await window.api.database.executeQuery(connectionId, buildQuerySql(activeTab, selectedText || undefined), withPlan, withStatistics, getTabDatabaseName(activeTab))
+      if (result.status === 'ok' && settings.showKeyIconsInResults) {
+        await applyKeyMetaToResults(connectionId, activeTab.databaseName, selectedText || activeTab.content, result.resultSets)
+      }
+      setTabQueryStates((prev) => {
+        const next = new Map(prev)
+        if (result.status === 'ok') {
+          next.set(activeTabId, {
+            status: 'ok',
+            resultSets: result.resultSets,
+            messages: result.messages,
+            durationMs: result.durationMs,
+            executionPlanXml: result.executionPlanXml,
+            clientStatistics: result.clientStatistics,
+            sortIndicators,
+            filteredColumns
+          })
+        } else {
+          next.set(activeTabId, { status: 'error', message: result.message })
+        }
+        return next
+      })
+      setTabResultsViews((prev) => {
+        const next = new Map(prev)
+        next.set(activeTabId, 'results')
+        return next
+      })
+      if (result.status === 'ok') {
+        refreshDdlNodes(connectionId, activeTab.databaseName, activeTab.content)
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Query execution failed'
+      setTabQueryStates((prev) => {
+        const next = new Map(prev)
+        next.set(activeTabId, { status: 'error', message })
+        return next
+      })
+    }
+  }
+
+  async function handleExecuteQueryWithPlan(): Promise<void> {
+    if (!activeTabId) return
+    const activeTab = tabs.find((t) => t.id === activeTabId)
+    if (!activeTab || activeTab.kind !== 'query') return
+
+    const connectionId = activeTab.connectionId ?? activeConnectionId
+    if (!connectionId) {
+      setTabQueryStates((prev) => {
+        const next = new Map(prev)
+        next.set(activeTabId, { status: 'error', message: 'No connection selected. Click a connection in the panel to select it.' })
+        return next
+      })
+      return
+    }
+
+    setTabQueryStates((prev) => {
+      const next = new Map(prev)
+      next.set(activeTabId, { status: 'running' })
+      return next
+    })
+
+    const selectedText = getActiveEditorSelectedText()
+    const sortIndicators = parseSqlOrderBy(selectedText || activeTab.content)
+    const filteredColumns = parseSqlWhere(selectedText || activeTab.content)
+    try {
+      const result = await window.api.database.executeQuery(connectionId, buildQuerySql(activeTab, selectedText || undefined), true, undefined, getTabDatabaseName(activeTab))
+      if (result.status === 'ok' && settings.showKeyIconsInResults) {
+        await applyKeyMetaToResults(connectionId, activeTab.databaseName, selectedText || activeTab.content, result.resultSets)
+      }
+      setTabQueryStates((prev) => {
+        const next = new Map(prev)
+        if (result.status === 'ok') {
+          next.set(activeTabId, {
+            status: 'ok',
+            resultSets: result.resultSets,
+            messages: result.messages,
+            durationMs: result.durationMs,
+            executionPlanXml: result.executionPlanXml,
+            clientStatistics: result.clientStatistics,
+            sortIndicators,
+            filteredColumns
+          })
+        } else {
+          next.set(activeTabId, { status: 'error', message: result.message })
+        }
+        return next
+      })
+      setTabResultsViews((prev) => {
+        const next = new Map(prev)
+        next.set(activeTabId, 'results')
+        return next
+      })
+      if (result.status === 'ok') {
+        refreshDdlNodes(connectionId, activeTab.databaseName, activeTab.content)
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Query execution failed'
+      setTabQueryStates((prev) => {
+        const next = new Map(prev)
+        next.set(activeTabId, { status: 'error', message })
+        return next
+      })
+    }
+  }
+
+  async function handleExecuteQueryWithStatistics(): Promise<void> {
+    if (!activeTabId) return
+    const activeTab = tabs.find((t) => t.id === activeTabId)
+    if (!activeTab || activeTab.kind !== 'query') return
+
+    const connectionId = activeTab.connectionId ?? activeConnectionId
+    if (!connectionId) {
+      setTabQueryStates((prev) => {
+        const next = new Map(prev)
+        next.set(activeTabId, { status: 'error', message: 'No connection selected. Click a connection in the panel to select it.' })
+        return next
+      })
+      return
+    }
+
+    setTabQueryStates((prev) => {
+      const next = new Map(prev)
+      next.set(activeTabId, { status: 'running' })
+      return next
+    })
+
+    const selectedText = getActiveEditorSelectedText()
+    const sortIndicators = parseSqlOrderBy(selectedText || activeTab.content)
+    const filteredColumns = parseSqlWhere(selectedText || activeTab.content)
+    try {
+      const result = await window.api.database.executeQuery(connectionId, buildQuerySql(activeTab, selectedText || undefined), false, true, getTabDatabaseName(activeTab))
+      if (result.status === 'ok' && settings.showKeyIconsInResults) {
+        await applyKeyMetaToResults(connectionId, activeTab.databaseName, selectedText || activeTab.content, result.resultSets)
+      }
+      setTabQueryStates((prev) => {
+        const next = new Map(prev)
+        if (result.status === 'ok') {
+          next.set(activeTabId, {
+            status: 'ok',
+            resultSets: result.resultSets,
+            messages: result.messages,
+            durationMs: result.durationMs,
+            executionPlanXml: result.executionPlanXml,
+            clientStatistics: result.clientStatistics,
+            sortIndicators,
+            filteredColumns
+          })
+        } else {
+          next.set(activeTabId, { status: 'error', message: result.message })
+        }
+        return next
+      })
+      setTabResultsViews((prev) => {
+        const next = new Map(prev)
+        next.set(activeTabId, 'results')
+        return next
+      })
+      if (result.status === 'ok') {
+        refreshDdlNodes(connectionId, activeTab.databaseName, activeTab.content)
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Query execution failed'
+      setTabQueryStates((prev) => {
+        const next = new Map(prev)
+        next.set(activeTabId, { status: 'error', message })
+        return next
+      })
+    }
+  }
+
+  function closeTab(e: React.MouseEvent, tabId: string): void {
+    e.stopPropagation()
+    const tab = tabs.find((t) => t.id === tabId)
+    if (tab?.kind === 'query' && tab.isDirty) {
+      setUnsavedCloseDialog({ tabId })
+      return
+    }
+    removeTab(tabId)
+  }
+
+  async function handleSaveAndClose(tabId: string): Promise<void> {
+    const tab = tabs.find((t) => t.id === tabId)
+    if (!tab || tab.kind !== 'query') {
+      setUnsavedCloseDialog(null)
+      removeTab(tabId)
+      return
+    }
+    if (tab.filePath) {
+      await window.api.file.save(tab.filePath, tab.content)
+      setUnsavedCloseDialog(null)
+      removeTab(tabId)
+    } else {
+      const result = await window.api.file.saveDialog(tab.content)
+      if (result.status === 'ok') {
+        setUnsavedCloseDialog(null)
+        removeTab(tabId)
+      }
+      // If cancelled, leave the dialog open so the user can reconsider
+    }
+  }
+
+  async function handleCreateErd(connectionId: string, databaseName: string): Promise<void> {
+    tabCounter += 1
+    const id = `tab-${tabCounter}`
+    const newTab: ErdTab = {
+      id,
+      kind: 'erd',
+      title: `ERD · ${databaseName}`,
+      connectionId,
+      databaseName,
+      loadState: 'loading',
+      background: settings.defaultErdBackground ?? 'dots'
+    }
+    setTabs((prev) => [...prev, newTab])
+    setActiveTabId(id)
+    try {
+      const result = await window.api.database.getErdSchema(connectionId, databaseName)
+      setTabs((prev) =>
+        prev.map((t) => {
+          if (t.id !== id || t.kind !== 'erd') return t
+          if (result.status === 'ok') {
+            return { ...t, loadState: 'loaded', schema: result.schema as ErdSchema }
+          }
+          return { ...t, loadState: 'error', error: result.message }
+        })
+      )
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to load ERD schema'
+      setTabs((prev) =>
+        prev.map((t) =>
+          t.id === id && t.kind === 'erd' ? { ...t, loadState: 'error', error: message } : t
+        )
+      )
+    }
+  }
+
+  function handleErdBackgroundChange(tabId: string, bg: ErdBackground): void {
+    setTabs((prev) =>
+      prev.map((t) => (t.id === tabId && t.kind === 'erd' ? { ...t, background: bg } : t))
+    )
+  }
+
+  async function handleOpenErdFromTree(connectionId: string, filePath: string): Promise<void> {
+    // Switch to tab if already open
+    const existing = tabs.find((t) => t.kind === 'erd' && t.filePath === filePath)
+    if (existing) {
+      setActiveTabId(existing.id)
+      return
+    }
+    const result = await window.api.file.read(filePath)
+    if (result.status !== 'ok') return
+    const parsed = JSON.parse(result.content) as ErdFileContent
+    const fileName = filePath.split(/[\\/]/).pop() ?? filePath
+    const title = fileName.replace(/\.erd$/i, '')
+    tabCounter += 1
+    const id = `tab-${tabCounter}`
+    const newTab: ErdTab = {
+      id,
+      kind: 'erd',
+      title,
+      connectionId,
+      databaseName: parsed.databaseName,
+      loadState: 'loaded',
+      background: parsed.background,
+      filePath,
+      initialNodes: parsed.nodes as Node[],
+      initialEdges: parsed.edges as Edge[],
+      initialCurveType: parsed.curveType,
+      initialViewport: parsed.viewport
+    }
+    setTabs((prev) => [...prev, newTab])
+    setActiveTabId(id)
+  }
+
+  function handleDatabasesNodeContextMenu(
+    e: React.MouseEvent,
+    connectionId: string
+  ): void {
+    e.preventDefault()
+    e.stopPropagation()
+    setContextMenu({
+      items: [
+        {
+          id: 'refresh-databases',
+          label: t('explorer.createDatabase.refreshContextMenuLabel'),
+          icon: <RefreshCw size={13} />,
+          onClick: () => {
+            void window.api.database.invalidateCache(connectionId, 'databases').then(() => {
+              loadNodeChildren(connectionId, 'databases')
+            })
+          }
+        },
+        {
+          id: 'create-database',
+          label: t('explorer.createDatabase.contextMenuLabel'),
+          icon: <DatabaseZap size={13} />,
+          onClick: () => setCreateDbDialog({ connectionId })
+        }
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  async function handleCreateDatabaseSubmit(name: string): Promise<void> {
+    if (!createDbDialog) return
+    const { connectionId } = createDbDialog
+    const result = await window.api.database.createDatabase(connectionId, name)
+    if (result.status === 'error') {
+      throw new Error(result.message)
+    }
+    setCreateDbDialog(null)
+    loadNodeChildren(connectionId, 'databases')
+  }
+
+  function handleTablesFolderContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    e.preventDefault()
+    e.stopPropagation()
+    // node.id format: "db:{dbName}:tables"
+    const match = node.id.match(/^db:([^:]+):tables$/)
+    if (!match) return
+    const databaseName = match[1]
+    const conn = connections.find((c) => c.id === connectionId)
+    if (!conn) return
+    setContextMenu({
+      items: [
+        {
+          id: 'new-query',
+          label: t('explorer.newQuery'),
+          icon: <FilePlus size={13} />,
+          onClick: () => {
+            tabCounter += 1
+            const id = `tab-${tabCounter}`
+            const newTab: QueryTab = { id, kind: 'query', title: 'Unnamed', content: '', isDirty: false, connectionId, databaseName }
+            setTabs((prev) => [...prev, newTab])
+            setActiveTabId(id)
+            setActiveConnectionId(connectionId)
+          }
+        },
+        { id: 'sep', separator: true },
+        {
+          id: 'refresh-tables',
+          label: t('explorer.createTable.refreshContextMenuLabel'),
+          icon: <RefreshCw size={13} />,
+          onClick: () => {
+            void window.api.database.invalidateCache(connectionId, node.id).then(() => {
+              loadNodeChildren(connectionId, node.id)
+            })
+          }
+        },
+        ...(getConnectionCapabilities(connectionId).hasCreateTable ? [{
+          id: 'create-table',
+          label: t('explorer.createTable.contextMenuLabel'),
+          icon: <TableProperties size={13} />,
+          onClick: () =>
+            setCreateTableDialog({
+              connectionId,
+              databaseName,
+              provider: conn.provider
+            })
+        }] : [])
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleDatabaseNodeContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    e.preventDefault()
+    e.stopPropagation()
+    // node.id format: "db:{databaseName}"
+    const match = node.id.match(/^db:([^:]+)$/)
+    if (!match) return
+    const databaseName = match[1]
+    setContextMenu({
+      items: [
+        {
+          id: 'new-query',
+          label: t('explorer.newQuery'),
+          icon: <FilePlus size={13} />,
+          onClick: () => {
+            tabCounter += 1
+            const id = `tab-${tabCounter}`
+            const newTab: QueryTab = { id, kind: 'query', title: 'Unnamed', content: '', isDirty: false, connectionId, databaseName }
+            setTabs((prev) => [...prev, newTab])
+            setActiveTabId(id)
+            setActiveConnectionId(connectionId)
+          }
+        },
+        {
+          id: 'create-erd',
+          label: t('explorer.createErd.contextMenuLabel'),
+          icon: <Network size={13} />,
+          onClick: () => handleCreateErd(connectionId, databaseName)
+        },
+        ...(getConnectionCapabilities(connectionId).hasProfiler ? [{
+          id: 'profile',
+          label: t('explorer.profile'),
+          icon: <Activity size={13} />,
+          onClick: () => {
+            const conn = connections.find((c) => c.id === connectionId)
+            setProfilerDialog({
+              connectionId,
+              connectionName: conn?.name ?? connectionId,
+              databaseName
+            })
+          }
+        }] : []),
+        { id: 'sep-danger', separator: true },
+        {
+          id: 'delete-database',
+          label: t('explorer.dropDatabase.contextMenuLabel'),
+          icon: <Trash2 size={13} />,
+          onClick: () => handleDropDatabase(connectionId, databaseName)
+        }
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleTableNodeContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    e.preventDefault()
+    e.stopPropagation()
+    // node.id format: "db:{dbName}:tables:{schema}.{tableName}"
+    const match = node.id.match(/^db:([^:]+):tables:([^.]+)\.(.+)$/)
+    if (!match) return
+    const [, databaseName, schema, tableName] = match
+    const conn = connections.find((c) => c.id === connectionId)
+    if (!conn) return
+    setContextMenu({
+      items: [
+        {
+          id: 'new-query',
+          label: t('explorer.newQuery'),
+          icon: <FilePlus size={13} />,
+          onClick: () => {
+            tabCounter += 1
+            const id = `tab-${tabCounter}`
+            const newTab: QueryTab = { id, kind: 'query', title: 'Unnamed', content: '', isDirty: false, connectionId, databaseName }
+            setTabs((prev) => [...prev, newTab])
+            setActiveTabId(id)
+            setActiveConnectionId(connectionId)
+          }
+        },
+        { id: 'sep', separator: true },
+        {
+          id: 'refresh-table',
+          label: t('explorer.createTable.refreshContextMenuLabel'),
+          icon: <RefreshCw size={13} />,
+          onClick: () => {
+            void window.api.database.invalidateCache(connectionId, node.id).then(() => {
+              loadNodeChildren(connectionId, node.id)
+            })
+          }
+        },
+        { id: 'sep-2', separator: true },
+        {
+          id: 'select-top-rows',
+          label: t('explorer.selectTopRows', { count: settings.selectTopRowsCount }),
+          icon: <List size={13} />,
+          onClick: () => handleSelectTopRows(connectionId, databaseName, schema, tableName)
+        },
+        {
+          id: 'create-script',
+          label: 'Script...',
+          icon: <ScrollText size={13} />,
+          items: [
+            {
+              id: 'create-script-create',
+              label: 'Create',
+              onClick: () => {
+                void (async () => {
+                  const result = await window.api.database.scriptTableCreate(connectionId, databaseName, schema, tableName)
+                  if (result.status !== 'ok') return
+                  tabCounter += 1
+                  const tabId = `tab-${tabCounter}`
+                  const newTab: QueryTab = { id: tabId, kind: 'query', title: `Create — ${tableName}`, content: result.script, isDirty: false, connectionId, databaseName }
+                  setTabs((prev) => [...prev, newTab])
+                  setActiveTabId(tabId)
+                  setActiveConnectionId(connectionId)
+                })()
+              }
+            },
+            {
+              id: 'create-script-update',
+              label: 'Update',
+              onClick: () => {
+                void (async () => {
+                  const result = await window.api.database.scriptTableAlter(connectionId, databaseName, schema, tableName)
+                  if (result.status !== 'ok') return
+                  tabCounter += 1
+                  const tabId = `tab-${tabCounter}`
+                  const newTab: QueryTab = { id: tabId, kind: 'query', title: `Alter — ${tableName}`, content: result.script, isDirty: false, connectionId, databaseName }
+                  setTabs((prev) => [...prev, newTab])
+                  setActiveTabId(tabId)
+                  setActiveConnectionId(connectionId)
+                })()
+              }
+            },
+            {
+              id: 'create-script-drop',
+              label: 'Drop',
+              onClick: () => {
+                void (async () => {
+                  const result = await window.api.database.scriptTableDrop(connectionId, databaseName, schema, tableName)
+                  if (result.status !== 'ok') return
+                  tabCounter += 1
+                  const tabId = `tab-${tabCounter}`
+                  const newTab: QueryTab = { id: tabId, kind: 'query', title: `Drop — ${tableName}`, content: result.script, isDirty: false, connectionId, databaseName }
+                  setTabs((prev) => [...prev, newTab])
+                  setActiveTabId(tabId)
+                  setActiveConnectionId(connectionId)
+                })()
+              }
+            }
+          ]
+        },
+        {
+          id: 'edit-table',
+          label: t('explorer.editTable.contextMenuLabel'),
+          icon: <Pencil size={13} />,
+          onClick: () =>
+            setCreateTableDialog({
+              connectionId,
+              databaseName,
+              provider: conn.provider,
+              editTable: { schema, tableName }
+            })
+        },
+        { id: 'sep-3', separator: true },
+        {
+          id: 'delete-table',
+          label: t('explorer.dropTable.contextMenuLabel'),
+          icon: <Trash2 size={13} />,
+          onClick: () => handleDropTable(connectionId, databaseName, schema, tableName)
+        }
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleTableSubFolderContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    e.preventDefault()
+    e.stopPropagation()
+    // node.id format: "db:{dbName}:tables:{schema}.{tableName}:{type}"
+    const match = node.id.match(
+      /^db:([^:]+):tables:([^.]+)\.(.+):(columns|keys|constraints|triggers|indexes|statistics)$/
+    )
+    if (!match) return
+    const [, databaseName, schema, tableName] = match
+    const conn = connections.find((c) => c.id === connectionId)
+    if (!conn) return
+    const items: MenuItem[] = [
+      {
+        id: 'refresh',
+        label: t('explorer.createTable.refreshContextMenuLabel'),
+        icon: <RefreshCw size={13} />,
+        onClick: () => {
+          void window.api.database.invalidateCache(connectionId, node.id).then(() => {
+            loadNodeChildren(connectionId, node.id)
+          })
+        }
+      },
+      {
+        id: 'edit-table',
+        label: t('explorer.editTable.contextMenuLabel'),
+        icon: <Pencil size={13} />,
+        onClick: () =>
+          setCreateTableDialog({
+            connectionId,
+            databaseName,
+            provider: conn.provider,
+            editTable: { schema, tableName }
+          })
+      }
+    ]
+    if (node.kind === 'table-keys-folder') {
+      items.push(
+        { id: 'sep-fk', separator: true },
+        {
+          id: 'add-foreign-key',
+          label: t('explorer.foreignKeys.addContextMenuLabel', 'Add Foreign Key'),
+          icon: <Key size={13} />,
+          onClick: () => setManageForeignKeysDialog({ connectionId, databaseName, schema, tableName })
+        }
+      )
+    }
+    if (node.kind === 'table-constraints-folder') {
+      items.push(
+        { id: 'sep-cc', separator: true },
+        {
+          id: 'add-constraint',
+          label: t('explorer.checkConstraints.addContextMenuLabel', 'Add Constraint'),
+          icon: <Lock size={13} />,
+          onClick: () => setManageConstraintsDialog({ connectionId, databaseName, schema, tableName, openAddNew: true })
+        }
+      )
+    }
+    if (node.kind === 'table-triggers-folder') {
+      items.push(
+        { id: 'sep-tr', separator: true },
+        {
+          id: 'create-trigger',
+          label: t('explorer.manageTriggers.createContextMenuLabel'),
+          icon: <Bell size={13} />,
+          onClick: () =>
+            setManageTriggersDialog({ connectionId, databaseName, schema, tableName, openOnNew: true })
+        }
+      )
+    }
+    if (node.kind === 'table-indexes-folder') {
+      items.push(
+        { id: 'sep-idx', separator: true },
+        {
+          id: 'create-index',
+          label: t('explorer.manageIndexes.createContextMenuLabel'),
+          icon: <ListOrdered size={13} />,
+          onClick: () =>
+            setManageIndexesDialog({ connectionId, databaseName, schema, tableName, openOnNew: true })
+        }
+      )
+    }
+    setContextMenu({
+      items,
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleKeyNodeContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    // node.id format: "db:{dbName}:tables:{schema}.{tableName}:keys:{constraintName}"
+    // node.label format: "{constraintName} (FOREIGN KEY)" or similar
+    if (!node.label.includes('(FOREIGN KEY)')) return
+    e.preventDefault()
+    e.stopPropagation()
+    const match = node.id.match(/^db:([^:]+):tables:([^.]+)\.(.+):keys:(.+)$/)
+    if (!match) return
+    const [, databaseName, schema, tableName, constraintName] = match
+    setContextMenu({
+      items: [
+        {
+          id: 'edit-foreign-key',
+          label: t('explorer.foreignKeys.editContextMenuLabel', 'Edit Foreign Key'),
+          icon: <Key size={13} />,
+          onClick: () =>
+            setManageForeignKeysDialog({ connectionId, databaseName, schema, tableName, initialFkName: constraintName })
+        }
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleConstraintNodeContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    // Only CHECK constraints are editable via this dialog
+    if (!node.label.includes('(CHECK)')) return
+    e.preventDefault()
+    e.stopPropagation()
+    // node.id format: "db:{dbName}:tables:{schema}.{tableName}:constraints:{constraintName}"
+    const match = node.id.match(/^db:([^:]+):tables:([^.]+)\.(.+):constraints:(.+)$/)
+    if (!match) return
+    const [, databaseName, schema, tableName, constraintName] = match
+    setContextMenu({
+      items: [
+        {
+          id: 'edit-constraint',
+          label: t('explorer.checkConstraints.editContextMenuLabel', 'Edit Constraint'),
+          icon: <Lock size={13} />,
+          onClick: () =>
+            setManageConstraintsDialog({
+              connectionId,
+              databaseName,
+              schema,
+              tableName,
+              initialConstraintName: constraintName
+            })
+        }
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleTriggerNodeContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    e.preventDefault()
+    e.stopPropagation()
+    // node.id format: "db:{dbName}:tables:{schema}.{tableName}:triggers:{triggerName}"
+    const match = node.id.match(/^db:([^:]+):tables:([^.]+)\.(.+):triggers:(.+)$/)
+    if (!match) return
+    const [, databaseName, schema, tableName, triggerName] = match
+    setContextMenu({
+      items: [
+        {
+          id: 'edit-trigger',
+          label: t('explorer.manageTriggers.editContextMenuLabel'),
+          icon: <Bell size={13} />,
+          onClick: () =>
+            setManageTriggersDialog({
+              connectionId,
+              databaseName,
+              schema,
+              tableName,
+              initialTriggerName: triggerName
+            })
+        }
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleIndexNodeContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    e.preventDefault()
+    e.stopPropagation()
+    // node.id format: "db:{dbName}:tables:{schema}.{tableName}:indexes:{indexName}"
+    const match = node.id.match(/^db:([^:]+):tables:([^.]+)\.(.+):indexes:(.+)$/)
+    if (!match) return
+    const [, databaseName, schema, tableName, indexName] = match
+    setContextMenu({
+      items: [
+        {
+          id: 'edit-index',
+          label: t('explorer.manageIndexes.editContextMenuLabel'),
+          icon: <ListOrdered size={13} />,
+          onClick: () =>
+            setManageIndexesDialog({
+              connectionId,
+              databaseName,
+              schema,
+              tableName,
+              initialIndexName: indexName
+            })
+        },
+        { id: 'sep-idx-ops', separator: true },
+        ...(getConnectionCapabilities(connectionId).hasIndexRebuild ? [{
+          id: 'rebuild-index',
+          label: t('explorer.manageIndexes.rebuild'),
+          icon: <ListOrdered size={13} />,
+          onClick: () => {
+            void window.api.database
+              .rebuildIndex(connectionId, databaseName, indexName, schema, tableName)
+              .then((result) => {
+                if (result.status === 'error') {
+                  console.error('Rebuild failed:', result.message)
+                } else {
+                  void window.api.database.invalidateCache(
+                    connectionId,
+                    `db:${databaseName}:tables:${schema}.${tableName}:indexes`
+                  ).then(() => {
+                    loadNodeChildren(
+                      connectionId,
+                      `db:${databaseName}:tables:${schema}.${tableName}:indexes`
+                    )
+                  })
+                }
+              })
+          }
+        }] : []),
+        ...(getConnectionCapabilities(connectionId).hasIndexReorganize ? [{
+          id: 'reorganize-index',
+          label: t('explorer.manageIndexes.reorganize'),
+          icon: <ListOrdered size={13} />,
+          onClick: () => {
+            void window.api.database
+              .reorganizeIndex(connectionId, databaseName, indexName, schema, tableName)
+              .then((result) => {
+                if (result.status === 'error') {
+                  console.error('Reorganize failed:', result.message)
+                } else {
+                  void window.api.database.invalidateCache(
+                    connectionId,
+                    `db:${databaseName}:tables:${schema}.${tableName}:indexes`
+                  ).then(() => {
+                    loadNodeChildren(
+                      connectionId,
+                      `db:${databaseName}:tables:${schema}.${tableName}:indexes`
+                    )
+                  })
+                }
+              })
+          }
+        }] : []),
+        ...(getConnectionCapabilities(connectionId).hasIndexDisable ? [{
+          id: 'disable-index',
+          label: t('explorer.manageIndexes.disable'),
+          icon: <ListOrdered size={13} />,
+          onClick: () => {
+            void window.api.database
+              .disableIndex(connectionId, databaseName, indexName, schema, tableName)
+              .then((result) => {
+                if (result.status === 'error') {
+                  console.error('Disable failed:', result.message)
+                } else {
+                  void window.api.database.invalidateCache(
+                    connectionId,
+                    `db:${databaseName}:tables:${schema}.${tableName}:indexes`
+                  ).then(() => {
+                    loadNodeChildren(
+                      connectionId,
+                      `db:${databaseName}:tables:${schema}.${tableName}:indexes`
+                    )
+                  })
+                }
+              })
+          }
+        }] : [])
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleViewsFolderContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    e.preventDefault()
+    e.stopPropagation()
+    // node.id format: "db:{dbName}:views"
+    const match = node.id.match(/^db:([^:]+):views$/)
+    if (!match) return
+    const databaseName = match[1]
+    setContextMenu({
+      items: [
+        {
+          id: 'refresh-views',
+          label: t('explorer.manageViews.refreshContextMenuLabel'),
+          icon: <RefreshCw size={13} />,
+          onClick: () => {
+            void window.api.database.invalidateCache(connectionId, node.id).then(() => {
+              loadNodeChildren(connectionId, node.id)
+            })
+          }
+        },
+        {
+          id: 'create-view',
+          label: t('explorer.manageViews.createContextMenuLabel'),
+          icon: <Eye size={13} />,
+          onClick: () => setManageViewsDialog({ connectionId, databaseName, openOnNew: true })
+        }
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleViewNodeContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    e.preventDefault()
+    e.stopPropagation()
+    // node.id format: "db:{dbName}:views:{schema}.{viewName}"
+    const match = node.id.match(/^db:([^:]+):views:([^.]+)\.(.+)$/)
+    if (!match) return
+    const [, databaseName, schema, viewName] = match
+    setContextMenu({
+      items: [
+        {
+          id: 'edit-view',
+          label: t('explorer.manageViews.editContextMenuLabel'),
+          icon: <Eye size={13} />,
+          onClick: () => setManageViewsDialog({ connectionId, databaseName, initialViewName: viewName })
+        },
+        { id: 'sep-view-script', separator: true },
+        {
+          id: 'view-script',
+          label: 'Script...',
+          icon: <ScrollText size={13} />,
+          items: [
+            {
+              id: 'view-script-create',
+              label: 'Create',
+              onClick: () => {
+                void (async () => {
+                  const result = await window.api.database.scriptViewCreate(connectionId, databaseName, schema, viewName)
+                  if (result.status !== 'ok') return
+                  tabCounter += 1
+                  const tabId = `tab-${tabCounter}`
+                  const newTab: QueryTab = { id: tabId, kind: 'query', title: `Create — ${viewName}`, content: result.script, isDirty: false, connectionId, databaseName }
+                  setTabs((prev) => [...prev, newTab])
+                  setActiveTabId(tabId)
+                  setActiveConnectionId(connectionId)
+                })()
+              }
+            },
+            {
+              id: 'view-script-update',
+              label: 'Update',
+              onClick: () => {
+                void (async () => {
+                  const result = await window.api.database.scriptViewAlter(connectionId, databaseName, schema, viewName)
+                  if (result.status !== 'ok') return
+                  tabCounter += 1
+                  const tabId = `tab-${tabCounter}`
+                  const newTab: QueryTab = { id: tabId, kind: 'query', title: `Alter — ${viewName}`, content: result.script, isDirty: false, connectionId, databaseName }
+                  setTabs((prev) => [...prev, newTab])
+                  setActiveTabId(tabId)
+                  setActiveConnectionId(connectionId)
+                })()
+              }
+            },
+            {
+              id: 'view-script-drop',
+              label: 'Delete',
+              onClick: () => {
+                void (async () => {
+                  const result = await window.api.database.scriptViewDrop(connectionId, databaseName, schema, viewName)
+                  if (result.status !== 'ok') return
+                  tabCounter += 1
+                  const tabId = `tab-${tabCounter}`
+                  const newTab: QueryTab = { id: tabId, kind: 'query', title: `Drop — ${viewName}`, content: result.script, isDirty: false, connectionId, databaseName }
+                  setTabs((prev) => [...prev, newTab])
+                  setActiveTabId(tabId)
+                  setActiveConnectionId(connectionId)
+                })()
+              }
+            }
+          ]
+        }
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleStoredProceduresFolderContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    e.preventDefault()
+    e.stopPropagation()
+    // node.id format: "db:{dbName}:stored-procedures"
+    const match = node.id.match(/^db:([^:]+):stored-procedures$/)
+    if (!match) return
+    const databaseName = match[1]
+    setContextMenu({
+      items: [
+        {
+          id: 'refresh-stored-procedures',
+          label: t('explorer.manageStoredProcedures.refreshContextMenuLabel'),
+          icon: <RefreshCw size={13} />,
+          onClick: () => {
+            void window.api.database.invalidateCache(connectionId, node.id).then(() => {
+              loadNodeChildren(connectionId, node.id)
+            })
+          }
+        },
+        {
+          id: 'create-stored-procedure',
+          label: t('explorer.manageStoredProcedures.createContextMenuLabel'),
+          icon: <Code size={13} />,
+          onClick: () => setManageStoredProceduresDialog({ connectionId, databaseName, openOnNew: true })
+        }
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleStoredProcedureNodeContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    e.preventDefault()
+    e.stopPropagation()
+    // node.id format: "db:{dbName}:stored-procedures:{schema}.{procedureName}"
+    const match = node.id.match(/^db:([^:]+):stored-procedures:([^.]+)\.(.+)$/)
+    if (!match) return
+    const [, databaseName, schema, procedureName] = match
+    setContextMenu({
+      items: [
+        {
+          id: 'edit-stored-procedure',
+          label: t('explorer.manageStoredProcedures.editContextMenuLabel'),
+          icon: <Code size={13} />,
+          onClick: () => setManageStoredProceduresDialog({ connectionId, databaseName, initialProcedureName: procedureName })
+        },
+        { id: 'sep-sp-script', separator: true },
+        {
+          id: 'sp-script',
+          label: 'Script...',
+          icon: <ScrollText size={13} />,
+          items: [
+            {
+              id: 'sp-script-create',
+              label: 'Create',
+              onClick: () => {
+                void (async () => {
+                  const result = await window.api.database.scriptStoredProcedureCreate(connectionId, databaseName, schema, procedureName)
+                  if (result.status !== 'ok') return
+                  tabCounter += 1
+                  const tabId = `tab-${tabCounter}`
+                  const newTab: QueryTab = { id: tabId, kind: 'query', title: `Create — ${procedureName}`, content: result.script, isDirty: false, connectionId, databaseName }
+                  setTabs((prev) => [...prev, newTab])
+                  setActiveTabId(tabId)
+                  setActiveConnectionId(connectionId)
+                })()
+              }
+            },
+            {
+              id: 'sp-script-update',
+              label: 'Update',
+              onClick: () => {
+                void (async () => {
+                  const result = await window.api.database.scriptStoredProcedureAlter(connectionId, databaseName, schema, procedureName)
+                  if (result.status !== 'ok') return
+                  tabCounter += 1
+                  const tabId = `tab-${tabCounter}`
+                  const newTab: QueryTab = { id: tabId, kind: 'query', title: `Alter — ${procedureName}`, content: result.script, isDirty: false, connectionId, databaseName }
+                  setTabs((prev) => [...prev, newTab])
+                  setActiveTabId(tabId)
+                  setActiveConnectionId(connectionId)
+                })()
+              }
+            },
+            {
+              id: 'sp-script-drop',
+              label: 'Delete',
+              onClick: () => {
+                void (async () => {
+                  const result = await window.api.database.scriptStoredProcedureDrop(connectionId, databaseName, schema, procedureName)
+                  if (result.status !== 'ok') return
+                  tabCounter += 1
+                  const tabId = `tab-${tabCounter}`
+                  const newTab: QueryTab = { id: tabId, kind: 'query', title: `Drop — ${procedureName}`, content: result.script, isDirty: false, connectionId, databaseName }
+                  setTabs((prev) => [...prev, newTab])
+                  setActiveTabId(tabId)
+                  setActiveConnectionId(connectionId)
+                })()
+              }
+            }
+          ]
+        }
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleTypeDataTypesFolderContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    e.preventDefault()
+    e.stopPropagation()
+    // node.id format: "db:{dbName}:types:data-types"
+    const match = node.id.match(/^db:([^:]+):types:data-types$/)
+    if (!match) return
+    const databaseName = match[1]
+    setContextMenu({
+      items: [
+        {
+          id: 'refresh-data-types',
+          label: t('explorer.manageDataTypes.refreshContextMenuLabel'),
+          icon: <RefreshCw size={13} />,
+          onClick: () => {
+            void window.api.database.invalidateCache(connectionId, node.id).then(() => {
+              loadNodeChildren(connectionId, node.id)
+            })
+          }
+        },
+        {
+          id: 'create-data-type',
+          label: t('explorer.manageDataTypes.createContextMenuLabel'),
+          icon: <Tag size={13} />,
+          onClick: () => setManageDataTypesDialog({ connectionId, databaseName, openOnNew: true })
+        }
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleDataTypeNodeContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    e.preventDefault()
+    e.stopPropagation()
+    // node.id format: "db:{dbName}:types:data-types:{schema}.{typeName}"
+    const match = node.id.match(/^db:([^:]+):types:data-types:(.+)$/)
+    if (!match) return
+    const [, databaseName, typeIdentifier] = match
+    setContextMenu({
+      items: [
+        {
+          id: 'edit-data-type',
+          label: t('explorer.manageDataTypes.editContextMenuLabel'),
+          icon: <Tag size={13} />,
+          onClick: () => setManageDataTypesDialog({ connectionId, databaseName, initialTypeName: typeIdentifier })
+        }
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleTypeTablesFolderContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    e.preventDefault()
+    e.stopPropagation()
+    // node.id format: "db:{dbName}:types:tables"
+    const match = node.id.match(/^db:([^:]+):types:tables$/)
+    if (!match) return
+    const databaseName = match[1]
+    setContextMenu({
+      items: [
+        {
+          id: 'refresh-table-types',
+          label: t('explorer.manageTableTypes.refreshContextMenuLabel'),
+          icon: <RefreshCw size={13} />,
+          onClick: () => {
+            void window.api.database.invalidateCache(connectionId, node.id).then(() => {
+              loadNodeChildren(connectionId, node.id)
+            })
+          }
+        },
+        {
+          id: 'create-table-type',
+          label: t('explorer.manageTableTypes.createContextMenuLabel'),
+          icon: <Tag size={13} />,
+          onClick: () => setManageTableTypesDialog({ connectionId, databaseName, openOnNew: true })
+        }
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleTableTypeNodeContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    e.preventDefault()
+    e.stopPropagation()
+    // node.id format: "db:{dbName}:types:tables:{schema}.{typeName}"
+    const match = node.id.match(/^db:([^:]+):types:tables:(.+)$/)
+    if (!match) return
+    const [, databaseName, typeIdentifier] = match
+    setContextMenu({
+      items: [
+        {
+          id: 'edit-table-type',
+          label: t('explorer.manageTableTypes.editContextMenuLabel'),
+          icon: <Tag size={13} />,
+          onClick: () => setManageTableTypesDialog({ connectionId, databaseName, initialTypeName: typeIdentifier })
+        }
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleTypeMemoryOptimizedTablesFolderContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    e.preventDefault()
+    e.stopPropagation()
+    // node.id format: "db:{dbName}:types:memory-optimized-tables"
+    const match = node.id.match(/^db:([^:]+):types:memory-optimized-tables$/)
+    if (!match) return
+    const databaseName = match[1]
+    setContextMenu({
+      items: [
+        {
+          id: 'refresh-memory-optimized-table-types',
+          label: t('explorer.manageMemoryOptimizedTableTypes.refreshContextMenuLabel'),
+          icon: <RefreshCw size={13} />,
+          onClick: () => {
+            void window.api.database.invalidateCache(connectionId, node.id).then(() => {
+              loadNodeChildren(connectionId, node.id)
+            })
+          }
+        },
+        {
+          id: 'create-memory-optimized-table-type',
+          label: t('explorer.manageMemoryOptimizedTableTypes.createContextMenuLabel'),
+          icon: <Tag size={13} />,
+          onClick: () => setManageMemoryOptimizedTableTypesDialog({ connectionId, databaseName, openOnNew: true })
+        }
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleMemoryOptimizedTableTypeNodeContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    e.preventDefault()
+    e.stopPropagation()
+    // node.id format: "db:{dbName}:types:memory-optimized-tables:{schema}.{typeName}"
+    const match = node.id.match(/^db:([^:]+):types:memory-optimized-tables:(.+)$/)
+    if (!match) return
+    const [, databaseName, typeIdentifier] = match
+    setContextMenu({
+      items: [
+        {
+          id: 'edit-memory-optimized-table-type',
+          label: t('explorer.manageMemoryOptimizedTableTypes.editContextMenuLabel'),
+          icon: <Tag size={13} />,
+          onClick: () => setManageMemoryOptimizedTableTypesDialog({ connectionId, databaseName, initialTypeName: typeIdentifier })
+        }
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleTypeEnumsFolderContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    e.preventDefault()
+    e.stopPropagation()
+    // node.id format: "db:{dbName}:types:enums"
+    const match = node.id.match(/^db:([^:]+):types:enums$/)
+    if (!match) return
+    const databaseName = match[1]
+    setContextMenu({
+      items: [
+        {
+          id: 'refresh-enums',
+          label: t('explorer.manageDataTypes.refreshContextMenuLabel'),
+          icon: <RefreshCw size={13} />,
+          onClick: () => {
+            void window.api.database.invalidateCache(connectionId, node.id).then(() => {
+              loadNodeChildren(connectionId, node.id)
+            })
+          }
+        },
+        {
+          id: 'create-enum',
+          label: t('explorer.manageDataTypes.createContextMenuLabel'),
+          icon: <Tag size={13} />,
+          onClick: () => setManageDataTypesDialog({ connectionId, databaseName, openOnNew: true })
+        }
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleTypeCompositesFolderContextMenu(
+    e: React.MouseEvent,
+    connectionId: string,
+    node: ExplorerNode
+  ): void {
+    e.preventDefault()
+    e.stopPropagation()
+    // node.id format: "db:{dbName}:types:composites"
+    const match = node.id.match(/^db:([^:]+):types:composites$/)
+    if (!match) return
+    const databaseName = match[1]
+    setContextMenu({
+      items: [
+        {
+          id: 'refresh-composites',
+          label: t('explorer.manageTableTypes.refreshContextMenuLabel'),
+          icon: <RefreshCw size={13} />,
+          onClick: () => {
+            void window.api.database.invalidateCache(connectionId, node.id).then(() => {
+              loadNodeChildren(connectionId, node.id)
+            })
+          }
+        },
+        {
+          id: 'create-composite',
+          label: t('explorer.manageTableTypes.createContextMenuLabel'),
+          icon: <Tag size={13} />,
+          onClick: () => setManageTableTypesDialog({ connectionId, databaseName, openOnNew: true })
+        }
+      ],
+      position: { x: e.clientX, y: e.clientY }
+    })
+  }
+
+  function handleConnectionContextMenu(
+    e: React.MouseEvent,
+    conn: ConnectionRecord
+  ): void {
+    e.preventDefault()
+    const state = getRuntimeState(conn.id)
+    const items: MenuItem[] = [
+      {
+        id: 'edit',
+        label: t('explorer.contextMenu.edit'),
+        icon: <Pencil size={13} />,
+        onClick: () => handleEditAction(conn.id)
+      }
+    ]
+    if (state.status === 'connected') {
+      items.push({
+        id: 'disconnect',
+        label: t('explorer.contextMenu.disconnect'),
+        icon: <PlugZap size={13} />,
+        onClick: () => handleDisconnectAction(conn.id)
+      })
+    } else if (state.status === 'disconnected' || state.status === 'error') {
+      items.push({
+        id: 'connect',
+        label: t('explorer.contextMenu.connect'),
+        icon: <Plug size={13} />,
+        onClick: () => handleConnectAction(conn.id)
+      })
+    }
+    items.push({ id: 'sep', separator: true })
+    items.push({
+      id: 'delete',
+      label: t('explorer.contextMenu.delete'),
+      icon: <Trash2 size={13} />,
+      onClick: () => handleDeleteAction(conn.id)
+    })
+    setContextMenu({ items, position: { x: e.clientX, y: e.clientY } })
+  }
+
+  function renderNodeLoadState(
+    connectionId: string,
+    parentNode: ExplorerNode,
+    state: NodeLoadState | undefined
+  ): React.JSX.Element {
+    if (!state || state.status === 'loading') {
+      return (
+        <div className="conn__connecting-row" aria-live="polite">
+          <span className="conn__spinner" aria-hidden="true" />
+          <span className="conn__connecting-label">{t('explorer.loading')}</span>
+        </div>
+      )
+    }
+
+    if (state.status === 'error') {
+      return (
+        <div
+          className="conn__error-row"
+          onClick={() => loadNodeChildren(connectionId, parentNode.id)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') loadNodeChildren(connectionId, parentNode.id)
+          }}
+          title={t('explorer.retryConnection')}
+        >
+          <AlertCircle className="conn__error-icon" />
+          <span className="conn__error-message">
+            {state.errorMessage ?? t('explorer.connectionError')}
+          </span>
+        </div>
+      )
+    }
+
+    if (state.status === 'loaded') {
+      if (!state.children || state.children.length === 0) {
+        return <div className="tree-empty-row">{t('explorer.noItems')}</div>
+      }
+      return (
+        <>
+          {state.children.map((child) => renderExplorerNode(connectionId, child))}
+        </>
+      )
+    }
+
+    return <></>
+  }
+
+  function renderExplorerNode(connectionId: string, node: ExplorerNode): React.JSX.Element {
+    const nodeKey = `${connectionId}/${node.id}`
+    const isExpandable = EXPANDABLE_KINDS.has(node.kind)
+    const isExpanded = isExpandable && expandedNodes.has(nodeKey)
+    const nodeState = nodeStates.get(nodeKey)
+    const label = FOLDER_I18N_KEYS[node.kind] ? t(FOLDER_I18N_KEYS[node.kind]!) : node.label
+    const Icon = NODE_ICONS[node.kind]
+    const dragText = getNodeDragText(node)
+
+    return (
+      <div key={nodeKey}>
+        <div
+          className={`${isExpandable ? 'tree-section__header' : 'tree-leaf'}${selectedKey === nodeKey ? ' tree-node--selected' : ''}`}
+          draggable={dragText !== null}
+          onDragStart={
+            dragText !== null
+              ? (e) => {
+                  e.dataTransfer.setData('text/plain', dragText)
+                  e.dataTransfer.effectAllowed = 'copy'
+                }
+              : undefined
+          }
+          onClick={() => {
+            setSelectedKey(nodeKey)
+            if (isExpandable) toggleNode(connectionId, node)
+          }}
+          onContextMenu={
+            node.kind === 'databases-folder'
+              ? (e) => handleDatabasesNodeContextMenu(e, connectionId)
+              : node.kind === 'database'
+                ? (e) => handleDatabaseNodeContextMenu(e, connectionId, node)
+                : node.kind === 'tables-folder'
+                  ? (e) => handleTablesFolderContextMenu(e, connectionId, node)
+                  : node.kind === 'table'
+                    ? (e) => handleTableNodeContextMenu(e, connectionId, node)
+                    : node.kind === 'table-columns-folder' ||
+                        node.kind === 'table-keys-folder' ||
+                        node.kind === 'table-constraints-folder' ||
+                        node.kind === 'table-triggers-folder' ||
+                        node.kind === 'table-indexes-folder' ||
+                        node.kind === 'table-statistics-folder'
+                      ? (e) => handleTableSubFolderContextMenu(e, connectionId, node)
+                      : node.kind === 'key'
+                        ? (e) => handleKeyNodeContextMenu(e, connectionId, node)
+                        : node.kind === 'constraint'
+                          ? (e) => handleConstraintNodeContextMenu(e, connectionId, node)
+                          : node.kind === 'trigger'
+                            ? (e) => handleTriggerNodeContextMenu(e, connectionId, node)
+                            : node.kind === 'index'
+                              ? (e) => handleIndexNodeContextMenu(e, connectionId, node)
+                              : node.kind === 'views-folder'
+                                ? (e) => handleViewsFolderContextMenu(e, connectionId, node)
+                                : node.kind === 'view'
+                                  ? (e) => handleViewNodeContextMenu(e, connectionId, node)
+                                  : node.kind === 'stored-procedures-folder'
+                                    ? (e) => handleStoredProceduresFolderContextMenu(e, connectionId, node)
+                                    : node.kind === 'stored-procedure'
+                                      ? (e) => handleStoredProcedureNodeContextMenu(e, connectionId, node)
+                                      : node.kind === 'type-data-types-folder'
+                                        ? (e) => handleTypeDataTypesFolderContextMenu(e, connectionId, node)
+                                          : node.kind === 'type' && node.id.includes(':types:data-types:')
+                                            ? (e) => handleDataTypeNodeContextMenu(e, connectionId, node)
+                                            : node.kind === 'type-tables-folder'
+                                              ? (e) => handleTypeTablesFolderContextMenu(e, connectionId, node)
+                                              : node.kind === 'type' && node.id.includes(':types:tables:')
+                                                ? (e) => handleTableTypeNodeContextMenu(e, connectionId, node)
+                                                : node.kind === 'type-memory-optimized-tables-folder'
+                                                  ? (e) => handleTypeMemoryOptimizedTablesFolderContextMenu(e, connectionId, node)
+                                                  : node.kind === 'type' && node.id.includes(':types:memory-optimized-tables:')
+                                                    ? (e) => handleMemoryOptimizedTableTypeNodeContextMenu(e, connectionId, node)
+                                                    : node.kind === 'type-enums-folder'
+                                                      ? (e) => handleTypeEnumsFolderContextMenu(e, connectionId, node)
+                                                      : node.kind === 'type-composites-folder'
+                                                        ? (e) => handleTypeCompositesFolderContextMenu(e, connectionId, node)
+                                                        : node.kind === 'type' && node.id.includes(':types:enums:')
+                                                          ? (e) => handleDataTypeNodeContextMenu(e, connectionId, node)
+                                                          : node.kind === 'type' && node.id.includes(':types:composites:')
+                                                            ? (e) => handleTableTypeNodeContextMenu(e, connectionId, node)
+                                                            : undefined
+          }
+          role={isExpandable ? 'button' : undefined}
+          tabIndex={isExpandable ? 0 : undefined}
+          onKeyDown={
+            isExpandable
+              ? (e) => {
+                  if (e.key === 'Enter' || e.key === ' ') toggleNode(connectionId, node)
+                }
+              : undefined
+          }
+        >
+          {isExpandable ? (
+            isExpanded ? (
+              <ChevronDown className="tree-section__chevron" />
+            ) : (
+              <ChevronRight className="tree-section__chevron" />
+            )
+          ) : (
+            <span className="tree-section__spacer" />
+          )}
+          <Icon className="tree-section__icon" strokeWidth={1.5} />
+          <span>{label}</span>
+        </div>
+        {isExpandable && isExpanded && (
+          <div className="conn__children">
+            {renderNodeLoadState(connectionId, node, nodeState)}
+            {node.kind === 'database' && renderErdFilesFolder(connectionId, node)}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  function renderErdFilesFolder(connectionId: string, dbNode: ExplorerNode): React.JSX.Element {
+    const match = dbNode.id.match(/^db:([^:]+)$/)
+    if (!match) return <></>
+    const databaseName = match[1]
+    const conn = connections.find((c) => c.id === connectionId)
+    const erdFiles = (conn?.erdFiles ?? []).filter((f) => f.databaseName === databaseName)
+    if (erdFiles.length === 0) return <></>
+
+    const folderKey = `${connectionId}/erd-files/${databaseName}`
+    const isExpanded = expandedErdFolders.has(folderKey)
+
+    function toggleFolder(): void {
+      setExpandedErdFolders((prev) => {
+        const next = new Set(prev)
+        if (isExpanded) next.delete(folderKey)
+        else next.add(folderKey)
+        return next
+      })
+    }
+
+    return (
+      <div>
+        <div
+          className="tree-section__header"
+          onClick={toggleFolder}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleFolder() }}
+        >
+          {isExpanded ? (
+            <ChevronDown className="tree-section__chevron" />
+          ) : (
+            <ChevronRight className="tree-section__chevron" />
+          )}
+          <Network className="tree-section__icon" strokeWidth={1.5} />
+          <span>{t('explorer.erdFilesFolder')}</span>
+        </div>
+        {isExpanded && (
+          <div className="conn__children">
+            {erdFiles.map((f) => {
+              const fileName = f.filePath.split(/[\\/]/).pop() ?? f.filePath
+              const title = fileName.replace(/\.erd$/i, '')
+              return (
+                <div
+                  key={f.filePath}
+                  className="tree-leaf"
+                  onClick={() => handleOpenErdFromTree(connectionId, f.filePath)}
+                  onContextMenu={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setContextMenu({
+                      items: [
+                        {
+                          id: 'remove-erd-file',
+                          label: t('explorer.erdFile.remove'),
+                          icon: <Trash2 size={13} />,
+                          onClick: async () => {
+                            await window.api.connections.removeErdFile(connectionId, f.filePath)
+                            const updatedConns = await window.api.connections.getAll()
+                            setConnections(updatedConns)
+                          }
+                        }
+                      ],
+                      position: { x: e.clientX, y: e.clientY }
+                    })
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') handleOpenErdFromTree(connectionId, f.filePath)
+                  }}
+                >
+                  <span className="tree-section__spacer" />
+                  <FileText className="tree-section__icon" strokeWidth={1.5} />
+                  <span>{title}</span>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  function renderConnChildren(conn: ConnectionRecord): React.JSX.Element {
+    const state = getRuntimeState(conn.id)
+
+    if (state.status === 'connecting') {
+      return (
+        <div className="conn__connecting-row" aria-live="polite">
+          <span className="conn__spinner" aria-hidden="true" />
+          <span className="conn__connecting-label">{t('explorer.connecting')}</span>
+        </div>
+      )
+    }
+
+    if (state.status === 'error') {
+      return (
+        <div
+          className="conn__error-row"
+          onClick={() => connectToDatabase(conn.id)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') connectToDatabase(conn.id)
+          }}
+          title={t('explorer.retryConnection')}
+        >
+          <AlertCircle className="conn__error-icon" />
+          <span className="conn__error-message">
+            {state.errorMessage ?? t('explorer.connectionError')}
+          </span>
+        </div>
+      )
+    }
+
+    if (state.status === 'connected') {
+      return renderExplorerNode(conn.id, DATABASES_NODE)
+    }
+
+    return <></>
+  }
+
+  return (
+    <div className="explorer">
+      <aside ref={panelRef} className="explorer__panel">
+        <div className="explorer__resize-handle" onMouseDown={onResizeStart} />
+        <div className="explorer__panel-header">
+          <button className="explorer__new-btn" onClick={() => setIsDialogOpen(true)}>
+            <Plus size={13} />
+            {t('explorer.newConnection')}
+          </button>
+        </div>
+
+        <div className="explorer__tree">
+          {connections.length === 0 ? (
+            <p className="explorer__empty">{t('explorer.emptyState')}</p>
+          ) : (
+            connections.map((conn) => {
+              const isExpanded = expandedConns.has(conn.id)
+              const state = getRuntimeState(conn.id)
+              const iconColor = conn.color || PROVIDER_METADATA[conn.provider].color
+
+              return (
+                <div key={conn.id} className="conn">
+                <div
+                  className={`conn__header${selectedKey === `conn:${conn.id}` ? ' conn__header--selected' : ''}`}
+                  onClick={() => toggleConn(conn.id)}
+                  onContextMenu={(e) => handleConnectionContextMenu(e, conn)}
+                >
+                    {isExpanded ? (
+                      <ChevronDown className="conn__chevron" />
+                    ) : (
+                      <ChevronRight className="conn__chevron" />
+                    )}
+                    <Database
+                      className="conn__db-icon"
+                      style={{ color: iconColor }}
+                      strokeWidth={1.5}
+                    />
+                    <span className="conn__name">{conn.name}</span>
+                    {eagerLoadStates.get(conn.id) === 'loading' && (
+                      <span className="conn__eager-spinner" aria-label={t('explorer.eagerLoading')} />
+                    )}
+                    <span
+                      className={`conn__status conn__status--${state.status}`}
+                      aria-label={t(`explorer.statusLabel.${state.status}`)}
+                    />
+                  </div>
+
+                  {isExpanded && (
+                    <div className="conn__children">{renderConnChildren(conn)}</div>
+                  )}
+                </div>
+              )
+            })
+          )}
+        </div>
+      </aside>
+
+      <div className="explorer__content">
+        <div className="explorer__content-header">
+          <div className="explorer__tabs" role="tablist" aria-label="Query tabs">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                role="tab"
+                aria-selected={tab.id === activeTabId}
+                className={`explorer__tab${tab.id === activeTabId ? ' explorer__tab--active' : ''}`}
+                onClick={() => setActiveTabId(tab.id)}
+              >
+                {tab.id === activeTabId && (
+                  tab.kind === 'query'
+                    ? <FileText size={12} className="explorer__tab-icon" />
+                    : <Network size={12} className="explorer__tab-icon" />
+                )}
+                {tab.title}
+                {tab.kind === 'query' && tab.isDirty && <span className="explorer__tab-unsaved" aria-label="Unsaved changes" />}
+                <span
+                  className="explorer__tab-close"
+                  aria-label={`Close ${tab.title}`}
+                  onClick={(e) => closeTab(e, tab.id)}
+                >
+                  <X size={11} />
+                </span>
+              </button>
+            ))}
+          </div>
+          <div className="explorer__content-header-actions">
+            {activeTabId !== null && tabs.find((t) => t.id === activeTabId)?.kind === 'query' && (
+              <>
+                <button
+                  className="explorer__toolbar-btn explorer__toolbar-btn--execute"
+                  title="Execute Query"
+                  onClick={handleExecuteQuery}
+                  disabled={tabQueryStates.get(activeTabId)?.status === 'running'}
+                >
+                  {tabQueryStates.get(activeTabId)?.status === 'running'
+                    ? <Loader2 size={15} className="explorer__toolbar-btn-spinner" />
+                    : <Play size={15} />}
+                  <span>Execute Query</span>
+                </button>
+                <button className="explorer__toolbar-btn" title="Format" onClick={handleFormat}>
+                  <AlignLeft size={15} />
+                  <span>Format</span>
+                </button>
+                {(() => {
+                  const activeTab = tabs.find((t) => t.id === activeTabId)
+                  const tabConnId = activeTab?.kind === 'query' ? activeTab.connectionId : undefined
+                  const caps = tabConnId ? getConnectionCapabilities(tabConnId) : null
+                  return (
+                    <>
+                      {caps && caps.executionPlan.kind !== 'none' && (
+                        <button
+                          className="explorer__toolbar-btn"
+                          title={caps.executionPlan.buttonLabel}
+                          onClick={handleExecuteQueryWithPlan}
+                          disabled={tabQueryStates.get(activeTabId)?.status === 'running'}
+                        >
+                          <Network size={15} />
+                          <span>{caps.executionPlan.buttonLabel}</span>
+                        </button>
+                      )}
+                      {caps && caps.clientStatistics.kind !== 'none' && (
+                        <button
+                          className="explorer__toolbar-btn"
+                          title={caps.clientStatistics.buttonLabel}
+                          onClick={handleExecuteQueryWithStatistics}
+                          disabled={tabQueryStates.get(activeTabId)?.status === 'running'}
+                        >
+                          <BarChart2 size={15} />
+                          <span>{caps.clientStatistics.buttonLabel}</span>
+                        </button>
+                      )}
+                    </>
+                  )
+                })()}
+                <div className="explorer__toolbar-separator" />
+              </>
+            )}
+            {activeTabId !== null && tabs.find((t) => t.id === activeTabId)?.kind === 'erd' && (
+              <>
+                <button
+                  className="explorer__toolbar-btn"
+                  title="Export as PNG"
+                  onClick={() => setIsExportDialogOpen(true)}
+                >
+                  <Download size={15} />
+                  <span>Export</span>
+                </button>
+                <div className="explorer__toolbar-separator" />
+              </>
+            )}
+            <button className="explorer__toolbar-btn" title="New Query" onClick={handleNewQuery}>
+              <FilePlus size={15} />
+              <span>New Query</span>
+            </button>
+            <button className="explorer__toolbar-btn" title="Save (Ctrl+S)" onClick={handleSave}>
+              <Save size={15} />
+            </button>
+            <button className="explorer__toolbar-btn" title="Open (Ctrl+O)" onClick={handleOpen}>
+              <FolderOpen size={15} />
+            </button>
+          </div>
+        </div>
+        <div className="explorer__editor-area" ref={editorAreaRef}>
+          {tabs.map((tab) =>
+            tab.kind === 'query' ? (
+              <QueryEditor
+                key={tab.id}
+                ref={getOrCreateQueryEditorRef(tab.id)}
+                value={tab.content}
+                onChange={(content) => handleTabContentChange(tab.id, content)}
+                visible={tab.id === activeTabId}
+                onExecute={handleExecuteQuery}
+                onToggleResults={handleToggleResults}
+              />
+            ) : (
+              <div
+                key={tab.id}
+                className="explorer__erd-pane"
+                style={{ display: tab.id === activeTabId ? 'flex' : 'none' }}
+              >
+                <ErdCanvas
+                  loadState={tab.loadState}
+                  schema={tab.schema}
+                  error={tab.error}
+                  databaseName={tab.databaseName}
+                  background={tab.background}
+                  onBackgroundChange={(bg) => handleErdBackgroundChange(tab.id, bg)}
+                  exportTrigger={tab.id === activeTabId ? pendingExportTrigger : null}
+                  onExportComplete={() => setPendingExportTrigger(null)}
+                  initialNodes={tab.initialNodes}
+                  initialEdges={tab.initialEdges}
+                  initialCurveType={tab.initialCurveType}
+                  initialViewport={tab.initialViewport}
+                  saveTrigger={tab.id === activeTabId ? pendingSaveTrigger : false}
+                  onSaveComplete={(state) => {
+                    setPendingSaveTrigger(false)
+                    pendingSaveResolveRef.current?.(state)
+                    pendingSaveResolveRef.current = null
+                  }}
+                />
+              </div>
+            )
+          )}
+          {tabs.length === 0 && (
+            <div className="explorer__editor-empty">
+              <span>Open a new query to get started</span>
+            </div>
+          )}
+          {activeTabId !== null && tabs.find((t) => t.id === activeTabId)?.kind === 'query' && (() => {
+            const activeQueryTab = tabs.find((t) => t.id === activeTabId) as QueryTab
+            const qState = tabQueryStates.get(activeTabId)
+            if (!qState || qState.status === 'idle') return null
+
+            const resultsView = tabResultsViews.get(activeTabId) ?? 'results'
+
+            const totalRows = qState.status === 'ok'
+              ? qState.resultSets.reduce((sum, rs) => sum + rs.rowCount, 0)
+              : 0
+
+            const badgeText = qState.status === 'ok'
+              ? qState.resultSets.length > 1
+                ? `${qState.resultSets.length} result sets · ${totalRows} ${totalRows === 1 ? 'row' : 'rows'} · ${qState.durationMs}ms`
+                : `${totalRows} ${totalRows === 1 ? 'row' : 'rows'} · ${qState.durationMs}ms`
+              : null
+
+            function setResultsView(view: ResultsView): void {
+              setTabResultsViews((prev) => {
+                const next = new Map(prev)
+                next.set(activeTabId, view)
+                return next
+              })
+            }
+
+            function exportCsv(rs: QueryResultSet, index: number): void {
+              const header = rs.columns.join(',')
+              const body = rs.rows
+                .map((row) => rs.columns.map((c) => JSON.stringify(row[c] ?? '')).join(','))
+                .join('\n')
+              const blob = new Blob([`${header}\n${body}`], { type: 'text/csv' })
+              const url = URL.createObjectURL(blob)
+              const a = document.createElement('a')
+              a.href = url
+              a.download = `query-results${qState.status === 'ok' && qState.resultSets.length > 1 ? `-${index + 1}` : ''}.csv`
+              a.click()
+              URL.revokeObjectURL(url)
+            }
+
+            return (
+              <div className={`query-results${resultsVisible ? '' : ' query-results--hidden'}`}>
+                <div className="query-results__resize-handle" onMouseDown={onResultsResizeStart} />
+                <div className="query-results__header">
+                  <div className="query-results__header-left">
+                    <TableProperties size={14} className="query-results__header-icon" />
+                    <span className="query-results__title">Query Results</span>
+                    {badgeText && (
+                      <span className="query-results__badge">{badgeText}</span>
+                    )}
+                  </div>
+                  <div className="query-results__header-right">
+                    {settings.useInteractiveTables && (
+                      <span className="query-results__interactive-mode-label">
+                        Interactive Table Mode: <span className="query-results__interactive-mode-on">On</span>
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {qState.status === 'ok' && (
+                  <div className="query-results__tabs">
+                    <button
+                      className={`query-results__tab${resultsView === 'results' ? ' query-results__tab--active' : ''}`}
+                      onClick={() => setResultsView('results')}
+                    >
+                      Results
+                      {qState.resultSets.length > 0 && (
+                        <span className="query-results__tab-badge">{qState.resultSets.length}</span>
+                      )}
+                    </button>
+                    <button
+                      className={`query-results__tab${resultsView === 'messages' ? ' query-results__tab--active' : ''}`}
+                      onClick={() => setResultsView('messages')}
+                    >
+                      Messages
+                      {qState.messages.length > 0 && (
+                        <span className="query-results__tab-badge">{qState.messages.length}</span>
+                      )}
+                    </button>
+                    {qState.executionPlanXml && (
+                      <button
+                        className={`query-results__tab${resultsView === 'execution-plan' ? ' query-results__tab--active' : ''}`}
+                        onClick={() => setResultsView('execution-plan')}
+                      >
+                        Execution Plan
+                      </button>
+                    )}
+                    {qState.clientStatistics && (
+                      <button
+                        className={`query-results__tab${resultsView === 'client-statistics' ? ' query-results__tab--active' : ''}`}
+                        onClick={() => setResultsView('client-statistics')}
+                      >
+                        Client Statistics
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {qState.status === 'running' && (
+                  <div className="query-results__loading">
+                    <Loader2 size={16} className="query-results__loading-spinner" />
+                    <span>Executing query…</span>
+                  </div>
+                )}
+
+                {qState.status === 'error' && (
+                  <div className="query-results__error" style={{ userSelect: 'text', WebkitUserSelect: 'text', cursor: 'text' } as React.CSSProperties}>
+                    <AlertCircle size={14} className="query-results__error-icon" />
+                    <span>{qState.message}</span>
+                  </div>
+                )}
+
+                {qState.status === 'ok' && resultsView === 'results' && (
+                  <div className="query-results__table-wrap">
+                    {qState.resultSets.length === 0 ? (
+                      <div className="query-results__empty">Query executed successfully. No rows returned.</div>
+                    ) : (
+                      qState.resultSets.map((rs, rsIndex) => {
+                        const selectionKey = `${activeQueryTab.id}:${rsIndex}`
+                        const selectedIndices = selectedRowsMap.get(selectionKey) ?? new Set<number>()
+                        const selectedCount = selectedIndices.size
+                        const deleteError = deleteErrors.get(selectionKey)
+                        const updateError = updateErrors.get(selectionKey)
+                        const canShowCheckboxes = settings.useInteractiveTables && !!rs.sourceTable
+                        const pkColumns = rs.columnKeyMeta
+                          ? rs.columns.filter((_, i) => rs.columnKeyMeta![i]?.isPrimaryKey)
+                          : []
+                        const canToggleBooleans = settings.useInteractiveTables && !!rs.sourceTable && pkColumns.length > 0
+                        const loadingBoolCell =
+                          updatingCell?.tabId === activeQueryTab.id && updatingCell?.rsIndex === rsIndex
+                            ? { colName: updatingCell.colName, rowIndex: updatingCell.rowIndex }
+                            : undefined
+                        return (
+                          <div key={rsIndex} className="query-results__result-set">
+                            <div className="query-results__result-set-header">
+                              {qState.resultSets.length > 1 && (
+                                <span className="query-results__result-set-label">
+                                  Result {rsIndex + 1} · {rs.rowCount} {rs.rowCount === 1 ? 'row' : 'rows'}
+                                </span>
+                              )}
+                              {rs.columns.length > 0 && (
+                                <button
+                                  className="query-results__action-btn"
+                                  title="Export CSV"
+                                  onClick={() => exportCsv(rs, rsIndex)}
+                                >
+                                  <Download size={13} />
+                                  <span>Export CSV</span>
+                                </button>
+                              )}
+                              {canToggleBooleans && rs.sourceTable && (
+                                <button
+                                  className="query-results__action-btn"
+                                  title="Add a new record to the table"
+                                  onClick={() => handleOpenAddRecord(
+                                    activeQueryTab.connectionId ?? activeConnectionId ?? '',
+                                    activeQueryTab.databaseName,
+                                    connections.find((c) => c.id === (activeQueryTab.connectionId ?? activeConnectionId))?.provider ?? 'sqlserver',
+                                    rs.sourceTable!,
+                                    pkColumns
+                                  )}
+                                >
+                                  <Plus size={13} />
+                                  <span>Add Record</span>
+                                </button>
+                              )}
+                              {canShowCheckboxes && selectedCount > 0 && (
+                                <button
+                                  className="query-results__action-btn query-results__action-btn--danger"
+                                  title={`Delete ${selectedCount} selected ${selectedCount === 1 ? 'row' : 'rows'}`}
+                                  onClick={() => handleDeleteRows(activeQueryTab.id, rsIndex, rs, activeQueryTab.connectionId ?? activeConnectionId ?? '', activeQueryTab.databaseName)}
+                                >
+                                  <Trash2 size={13} />
+                                  <span>Delete ({selectedCount})</span>
+                                </button>
+                              )}
+                            </div>
+                            {deleteError && (
+                              <div className="query-results__delete-error">
+                                <AlertCircle size={12} />
+                                <span>{deleteError}</span>
+                                <button
+                                  className="query-results__delete-error-dismiss"
+                                  aria-label="Dismiss error"
+                                  onClick={() => setDeleteErrors((prev) => {
+                                    const next = new Map(prev)
+                                    next.delete(selectionKey)
+                                    return next
+                                  })}
+                                >
+                                  <X size={11} />
+                                </button>
+                              </div>
+                            )}
+                            {updateError && (
+                              <div className="query-results__delete-error">
+                                <AlertCircle size={12} />
+                                <span>{updateError}</span>
+                                <button
+                                  className="query-results__delete-error-dismiss"
+                                  aria-label="Dismiss error"
+                                  onClick={() => setUpdateErrors((prev) => {
+                                    const next = new Map(prev)
+                                    next.delete(selectionKey)
+                                    return next
+                                  })}
+                                >
+                                  <X size={11} />
+                                </button>
+                              </div>
+                            )}
+                            {rs.columns.length === 0 ? (
+                              <div className="query-results__empty">Query executed successfully. No rows returned.</div>
+                            ) : (
+                              <VirtualResultsTable
+                                columns={rs.columns}
+                                rows={rs.rows}
+                                columnKeyMeta={rs.columnKeyMeta}
+                                sortIndicatorsMap={qState.sortIndicators ?? {}}
+                                sortedCount={Object.keys(qState.sortIndicators ?? {}).length}
+                                filteredColumns={qState.filteredColumns}
+                                uppercaseHeaders={settings.uppercaseColumnHeaders ?? false}
+                                useInteractiveTables={settings.useInteractiveTables ?? false}
+                                onColumnSort={settings.useInteractiveTables ? (colName) => handleColumnSort(activeQueryTab, colName) : undefined}
+                                onColumnContextMenu={settings.useInteractiveTables ? (colName, pos) => setColumnSortContextMenu({ tab: activeQueryTab, columnName: colName, position: pos }) : undefined}
+                                selectedRowIndices={canShowCheckboxes ? selectedIndices : undefined}
+                                onRowSelect={canShowCheckboxes ? (idx, sel) => handleRowSelect(activeQueryTab.id, rsIndex, idx, sel) : undefined}
+                                onSelectAll={canShowCheckboxes ? (sel) => handleSelectAll(activeQueryTab.id, rsIndex, rs.rows.length, sel) : undefined}
+                                onBooleanCellClick={canToggleBooleans ? (col, row, rowIdx) => {
+                                  const currentVal = row[col]
+                                  const newVal = currentVal === null || currentVal === undefined ? true : !currentVal
+                                  void handleBooleanToggle(activeQueryTab, rsIndex, rs.sourceTable!, pkColumns, col, row, rowIdx, newVal)
+                                } : undefined}
+                                onBooleanCellRightClick={canToggleBooleans ? (col, row, rowIdx, pos) => handleBooleanRightClick(activeQueryTab, rsIndex, rs, col, row, rowIdx, pkColumns, pos) : undefined}
+                                loadingBoolCell={loadingBoolCell}
+                                onRowDoubleClick={canToggleBooleans && rs.sourceTable ? (row) => handleOpenEditRecord(
+                                  activeQueryTab.connectionId ?? activeConnectionId ?? '',
+                                  activeQueryTab.databaseName,
+                                  connections.find((c) => c.id === (activeQueryTab.connectionId ?? activeConnectionId))?.provider ?? 'sqlserver',
+                                  rs.sourceTable!,
+                                  pkColumns,
+                                  row
+                                ) : undefined}
+                                onRowContextMenu={canToggleBooleans && rs.sourceTable ? (row, rowIdx, pos) => handleRowContextMenu(activeQueryTab, rsIndex, rs, pkColumns, row, rowIdx, pos) : undefined}
+                              />
+                            )}
+                          </div>
+                        )
+                      })
+                    )}
+                  </div>
+                )}
+
+                {qState.status === 'ok' && resultsView === 'messages' && (
+                  <div className="query-results__messages">
+                    {qState.messages.length === 0 ? (
+                      <div className="query-results__empty">No messages.</div>
+                    ) : (
+                      qState.messages.map((msg, i) => (
+                        <div
+                          key={i}
+                          className={`query-results__message${msg.type === 'error' ? ' query-results__message--error' : ''}`}
+                        >
+                          {msg.text}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+
+                {qState.status === 'ok' && resultsView === 'execution-plan' && qState.executionPlanXml && (
+                  <div className="query-results__execution-plan">
+                    <ExecutionPlanCanvas planXml={qState.executionPlanXml} />
+                  </div>
+                )}
+
+                {qState.status === 'ok' && resultsView === 'client-statistics' && qState.clientStatistics && (
+                  <ClientStatisticsView statistics={qState.clientStatistics} />
+                )}
+              </div>
+            )
+          })()}
+        </div>
+      </div>
+
+      {isDialogOpen && (
+        <NewConnectionDialog
+          onSave={editingConnection ? handleUpdateConnection : handleSaveConnection}
+          onCancel={closeDialog}
+          initialValues={editingConnection ?? undefined}
+        />
+      )}
+
+      {unsavedCloseDialog && (() => {
+        const tab = tabs.find((t) => t.id === unsavedCloseDialog.tabId)
+        const fileName = tab?.title ?? 'Untitled'
+        return (
+          <UnsavedChangesDialog
+            fileName={fileName}
+            onSave={() => { void handleSaveAndClose(unsavedCloseDialog.tabId) }}
+            onDiscard={() => {
+              setUnsavedCloseDialog(null)
+              removeTab(unsavedCloseDialog.tabId)
+            }}
+            onCancel={() => setUnsavedCloseDialog(null)}
+          />
+        )
+      })()}
+
+      {deleteConfirmState && (
+        <ConfirmDeleteDialog
+          rowCount={deleteConfirmState.selectedRows.length}
+          tableName={`[${deleteConfirmState.sourceTable.schema}].[${deleteConfirmState.sourceTable.table}]`}
+          isDeleting={isDeleting}
+          onConfirm={() => { void executeDelete() }}
+          onClose={() => setDeleteConfirmState(null)}
+        />
+      )}
+
+      {recordDialogState && (() => {
+        const activeTab = tabs.find((t) => t.kind === 'query' && (t.id === activeTabId)) as QueryTab | undefined
+        return (
+          <RecordDialog
+            mode={recordDialogState.mode}
+            connectionId={recordDialogState.connectionId}
+            databaseName={recordDialogState.databaseName}
+            provider={recordDialogState.provider}
+            sourceTable={recordDialogState.sourceTable}
+            pkColumns={recordDialogState.pkColumns}
+            row={recordDialogState.row}
+            onClose={() => setRecordDialogState(null)}
+            onSuccess={() => {
+              setRecordDialogState(null)
+              if (activeTab) void executeQueryForTabWithSql(activeTab, activeTab.content)
+            }}
+          />
+        )
+      })()}
+
+      {createDbDialog && (
+        <CreateDatabaseDialog
+          onSubmit={handleCreateDatabaseSubmit}
+          onClose={() => setCreateDbDialog(null)}
+        />
+      )}
+
+      {createTableDialog && (
+        <CreateTableDialog
+          connectionId={createTableDialog.connectionId}
+          databaseName={createTableDialog.databaseName}
+          provider={createTableDialog.provider}
+          editTable={createTableDialog.editTable}
+          onClose={() => setCreateTableDialog(null)}
+          onSuccess={() => {
+            const { connectionId, databaseName } = createTableDialog
+            setCreateTableDialog(null)
+            void window.api.database.invalidateCache(connectionId, `db:${databaseName}:tables`).then(() => {
+              loadNodeChildren(connectionId, `db:${databaseName}:tables`)
+            })
+          }}
+        />
+      )}
+
+      {manageForeignKeysDialog && (
+        <ManageForeignKeysDialog
+          connectionId={manageForeignKeysDialog.connectionId}
+          databaseName={manageForeignKeysDialog.databaseName}
+          schema={manageForeignKeysDialog.schema}
+          tableName={manageForeignKeysDialog.tableName}
+          initialFkName={manageForeignKeysDialog.initialFkName}
+          onClose={() => setManageForeignKeysDialog(null)}
+          onSuccess={() => {
+            const { connectionId, databaseName, schema, tableName } = manageForeignKeysDialog
+            const keysNodeId = `db:${databaseName}:tables:${schema}.${tableName}:keys`
+            void window.api.database.invalidateCache(connectionId, keysNodeId).then(() => {
+              loadNodeChildren(connectionId, keysNodeId)
+            })
+          }}
+        />
+      )}
+
+      {manageConstraintsDialog && (
+        <ManageConstraintsDialog
+          connectionId={manageConstraintsDialog.connectionId}
+          databaseName={manageConstraintsDialog.databaseName}
+          schema={manageConstraintsDialog.schema}
+          tableName={manageConstraintsDialog.tableName}
+          initialConstraintName={manageConstraintsDialog.initialConstraintName}
+          openAddNew={manageConstraintsDialog.openAddNew}
+          onClose={() => setManageConstraintsDialog(null)}
+          onSuccess={() => {
+            const { connectionId, databaseName, schema, tableName } = manageConstraintsDialog
+            const constraintsNodeId = `db:${databaseName}:tables:${schema}.${tableName}:constraints`
+            void window.api.database.invalidateCache(connectionId, constraintsNodeId).then(() => {
+              loadNodeChildren(connectionId, constraintsNodeId)
+            })
+          }}
+        />
+      )}
+
+      {manageTriggersDialog && (
+        <ManageTriggersDialog
+          connectionId={manageTriggersDialog.connectionId}
+          databaseName={manageTriggersDialog.databaseName}
+          schema={manageTriggersDialog.schema}
+          tableName={manageTriggersDialog.tableName}
+          initialTriggerName={manageTriggersDialog.initialTriggerName}
+          openOnNew={manageTriggersDialog.openOnNew}
+          onClose={() => setManageTriggersDialog(null)}
+          onSuccess={() => {
+            const { connectionId, databaseName, schema, tableName } = manageTriggersDialog
+            const triggersNodeId = `db:${databaseName}:tables:${schema}.${tableName}:triggers`
+            void window.api.database.invalidateCache(connectionId, triggersNodeId).then(() => {
+              loadNodeChildren(connectionId, triggersNodeId)
+            })
+          }}
+        />
+      )}
+
+      {manageIndexesDialog && (
+        <ManageIndexesDialog
+          connectionId={manageIndexesDialog.connectionId}
+          databaseName={manageIndexesDialog.databaseName}
+          schema={manageIndexesDialog.schema}
+          tableName={manageIndexesDialog.tableName}
+          initialIndexName={manageIndexesDialog.initialIndexName}
+          openOnNew={manageIndexesDialog.openOnNew}
+          onClose={() => setManageIndexesDialog(null)}
+          onSuccess={() => {
+            const { connectionId, databaseName, schema, tableName } = manageIndexesDialog
+            const indexesNodeId = `db:${databaseName}:tables:${schema}.${tableName}:indexes`
+            void window.api.database.invalidateCache(connectionId, indexesNodeId).then(() => {
+              loadNodeChildren(connectionId, indexesNodeId)
+            })
+          }}
+        />
+      )}
+
+      {isExportDialogOpen && (() => {
+        const activeTab = tabs.find((t) => t.id === activeTabId)
+        return activeTab?.kind === 'erd' ? (
+          <ErdExportDialog
+            open={isExportDialogOpen}
+            databaseName={activeTab.databaseName}
+            currentGrid={activeTab.background}
+            onConfirm={(opts) => {
+              setIsExportDialogOpen(false)
+              setPendingExportTrigger(opts)
+            }}
+            onCancel={() => setIsExportDialogOpen(false)}
+          />
+        ) : null
+      })()}
+
+      {profilerDialog && (
+        <StartProfilingDialog
+          connectionName={profilerDialog.connectionName}
+          databaseName={profilerDialog.databaseName}
+          onStart={(trackedEvents: TrackedEventType[]) => {
+            void activateSession({
+              connectionId: profilerDialog.connectionId,
+              connectionName: profilerDialog.connectionName,
+              databaseName: profilerDialog.databaseName,
+              trackedEvents,
+              intervalMs: 500
+            })
+            setProfilerDialog(null)
+          }}
+          onClose={() => setProfilerDialog(null)}
+        />
+      )}
+
+      {manageViewsDialog && (
+        <ManageViewsDialog
+          connectionId={manageViewsDialog.connectionId}
+          databaseName={manageViewsDialog.databaseName}
+          initialViewName={manageViewsDialog.initialViewName}
+          openOnNew={manageViewsDialog.openOnNew}
+          onClose={() => setManageViewsDialog(null)}
+          onSuccess={() => {
+            const { connectionId, databaseName } = manageViewsDialog
+            const viewsNodeId = `db:${databaseName}:views`
+            void window.api.database.invalidateCache(connectionId, viewsNodeId).then(() => {
+              loadNodeChildren(connectionId, viewsNodeId)
+            })
+          }}
+        />
+      )}
+
+      {manageStoredProceduresDialog && (
+        <ManageStoredProceduresDialog
+          connectionId={manageStoredProceduresDialog.connectionId}
+          databaseName={manageStoredProceduresDialog.databaseName}
+          initialProcedureName={manageStoredProceduresDialog.initialProcedureName}
+          openOnNew={manageStoredProceduresDialog.openOnNew}
+          onClose={() => setManageStoredProceduresDialog(null)}
+          onSuccess={() => {
+            const { connectionId, databaseName } = manageStoredProceduresDialog
+            const spNodeId = `db:${databaseName}:stored-procedures`
+            void window.api.database.invalidateCache(connectionId, spNodeId).then(() => {
+              loadNodeChildren(connectionId, spNodeId)
+            })
+          }}
+        />
+      )}
+
+      {manageDataTypesDialog && (
+        <ManageDataTypesDialog
+          connectionId={manageDataTypesDialog.connectionId}
+          databaseName={manageDataTypesDialog.databaseName}
+          initialTypeName={manageDataTypesDialog.initialTypeName}
+          openOnNew={manageDataTypesDialog.openOnNew}
+          onClose={() => setManageDataTypesDialog(null)}
+          onSuccess={() => {
+            const { connectionId, databaseName } = manageDataTypesDialog
+            const dataTypesNodeId = `db:${databaseName}:types:data-types`
+            void window.api.database.invalidateCache(connectionId, dataTypesNodeId).then(() => {
+              loadNodeChildren(connectionId, dataTypesNodeId)
+            })
+          }}
+        />
+      )}
+
+      {manageTableTypesDialog && (
+        <ManageTableTypesDialog
+          connectionId={manageTableTypesDialog.connectionId}
+          databaseName={manageTableTypesDialog.databaseName}
+          initialTypeName={manageTableTypesDialog.initialTypeName}
+          openOnNew={manageTableTypesDialog.openOnNew}
+          onClose={() => setManageTableTypesDialog(null)}
+          onSuccess={() => {
+            const { connectionId, databaseName } = manageTableTypesDialog
+            const tableTypesNodeId = `db:${databaseName}:types:tables`
+            void window.api.database.invalidateCache(connectionId, tableTypesNodeId).then(() => {
+              loadNodeChildren(connectionId, tableTypesNodeId)
+            })
+          }}
+        />
+      )}
+
+      {manageMemoryOptimizedTableTypesDialog && (
+        <ManageMemoryOptimizedTableTypesDialog
+          connectionId={manageMemoryOptimizedTableTypesDialog.connectionId}
+          databaseName={manageMemoryOptimizedTableTypesDialog.databaseName}
+          initialTypeName={manageMemoryOptimizedTableTypesDialog.initialTypeName}
+          openOnNew={manageMemoryOptimizedTableTypesDialog.openOnNew}
+          onClose={() => setManageMemoryOptimizedTableTypesDialog(null)}
+          onSuccess={() => {
+            const { connectionId, databaseName } = manageMemoryOptimizedTableTypesDialog
+            const memOptNodeId = `db:${databaseName}:types:memory-optimized-tables`
+            void window.api.database.invalidateCache(connectionId, memOptNodeId).then(() => {
+              loadNodeChildren(connectionId, memOptNodeId)
+            })
+          }}
+        />
+      )}
+
+      <Menu
+        items={contextMenu?.items ?? []}
+        position={contextMenu?.position ?? null}
+        onClose={() => setContextMenu(null)}
+      />
+      <Menu
+        items={[{ id: 'remove-sort', label: 'Remove Sort', onClick: () => { if (columnSortContextMenu) { handleColumnRemoveSort(columnSortContextMenu.tab, columnSortContextMenu.columnName); setColumnSortContextMenu(null) } } }]}
+        position={columnSortContextMenu?.position ?? null}
+        onClose={() => setColumnSortContextMenu(null)}
+      />
+      <Menu
+        items={[{
+          id: 'clear',
+          label: 'Clear',
+          onClick: () => {
+            if (boolPillContextMenu) {
+              const { tab, rsIndex, columnName, row, rowIndex, sourceTable, pkColumns } = boolPillContextMenu
+              void handleBooleanToggle(tab, rsIndex, sourceTable, pkColumns, columnName, row, rowIndex, null)
+              setBoolPillContextMenu(null)
+            }
+          }
+        }]}
+        position={boolPillContextMenu?.position ?? null}
+        onClose={() => setBoolPillContextMenu(null)}
+      />
+      <Menu
+        items={rowContextMenu ? [
+          {
+            id: 'edit',
+            label: 'Edit',
+            icon: <Pencil size={13} />,
+            onClick: () => {
+              const { row, sourceTable, pkColumns, connectionId, databaseName, provider } = rowContextMenu
+              setRowContextMenu(null)
+              handleOpenEditRecord(connectionId, databaseName, provider, sourceTable, pkColumns, row)
+            }
+          },
+          {
+            id: 'delete',
+            label: 'Delete',
+            icon: <Trash2 size={13} />,
+            onClick: () => {
+              const { row, tab, rsIndex, sourceTable, pkColumns, connectionId, databaseName } = rowContextMenu
+              setRowContextMenu(null)
+              setDeleteConfirmState({ tabId: tab.id, rsIndex, connectionId, databaseName, sourceTable, pkColumns, selectedRows: [row] })
+            }
+          }
+        ] : []}
+        position={rowContextMenu?.position ?? null}
+        onClose={() => setRowContextMenu(null)}
+      />
+    </div>
+  )
+}
+
+export default ExplorerPage

@@ -1,0 +1,98 @@
+[
+  {
+    "id": "tip-query-run",
+    "text": "Press Ctrl+Enter (or Cmd+Enter on Mac) to run the selected query, or the entire script if nothing is selected. This is the fastest way to execute without reaching for the mouse.",
+    "category": "productivity",
+    "screen": { "page": "explorer" }
+  },
+  {
+    "id": "tip-erd-view",
+    "text": "Open the ERD tab in Explorer to visualize your database schema as an interactive entity-relationship diagram. You can pan, zoom, and click tables to inspect their columns and relationships.",
+    "category": "exploration",
+    "screen": { "page": "explorer" }
+  },
+  {
+    "id": "tip-ai-assistant",
+    "text": "Use the AI assistant in Explorer to describe what you want in plain language and get a SQL query generated for you. Look for the AI panel on the right side of the query editor.",
+    "category": "ai",
+    "screen": { "page": "explorer" }
+  },
+  {
+    "id": "tip-environment-colors",
+    "text": "Assign environments like Production, QA, or Development to your connections. Connections tagged as Critical show a distinct color in the interface, helping you avoid running risky queries on the wrong database.",
+    "category": "safety",
+    "screen": { "page": "explorer" }
+  },
+  {
+    "id": "tip-multiple-connections",
+    "text": "You can have multiple database connections open at the same time. Switch between them in the Explorer panel — each gets its own query tabs and results.",
+    "category": "productivity",
+    "screen": { "page": "explorer" }
+  },
+  {
+    "id": "tip-interactive-tables",
+    "text": "Enable Interactive Tables in Settings → Results View Config to unlock row creation, deletion, and in-cell editing directly in the results grid.",
+    "category": "features",
+    "screen": { "page": "settings", "section": "results-view-config" }
+  },
+  {
+    "id": "tip-key-icons",
+    "text": "Turn on key icons in Settings → Results View Config to display primary key and foreign key indicators next to column headers when browsing table data.",
+    "category": "features",
+    "screen": { "page": "settings", "section": "results-view-config" }
+  },
+  {
+    "id": "tip-profiler",
+    "text": "The Profiler captures live query activity on your SQL Server connections. Use it to find slow queries, track execution counts, and diagnose performance issues in real time.",
+    "category": "performance",
+    "screen": { "page": "profiler" }
+  },
+  {
+    "id": "tip-compare",
+    "text": "Use the Compare feature to diff two databases side by side — schema structure, table contents, indexes, and more. Great for spotting drift between environments.",
+    "category": "features",
+    "screen": { "page": "compare" }
+  },
+  {
+    "id": "tip-theme",
+    "text": "Switch between Neon Dark, Solar Light, and System Sync themes in Settings → Appearance. System Sync follows your OS dark/light mode automatically.",
+    "category": "appearance",
+    "screen": { "page": "settings", "section": "appearance" }
+  },
+  {
+    "id": "tip-font-scaling",
+    "text": "Adjust Font Scaling in Settings → Appearance to make the interface larger or smaller. This scales the entire UI — useful on high-DPI displays or when you want a more comfortable reading size.",
+    "category": "accessibility",
+    "screen": { "page": "settings", "section": "appearance" }
+  },
+  {
+    "id": "tip-syntax-highlighting",
+    "text": "Syntax highlighting in the query editor can be toggled in Settings → Appearance. Disabling it may improve performance when working with very large scripts.",
+    "category": "appearance",
+    "screen": { "page": "settings", "section": "appearance" }
+  },
+  {
+    "id": "tip-environments-manage",
+    "text": "Create custom environments in Settings → General to label and color-code your connections. Set an environment as Critical to enable extra confirmation prompts before executing destructive queries.",
+    "category": "safety",
+    "screen": { "page": "settings", "section": "general" }
+  },
+  {
+    "id": "tip-query-timeout",
+    "text": "Set a query timeout in Settings → Databases Config to automatically cancel queries that run too long. Set it to 0 for no timeout — useful for long-running migrations.",
+    "category": "configuration",
+    "screen": { "page": "settings", "section": "databases-config" }
+  },
+  {
+    "id": "tip-docs",
+    "text": "The Docs section contains the full built-in documentation for Spiral, including feature guides, keyboard shortcuts, and tips for getting the most out of the application.",
+    "category": "general",
+    "screen": { "page": "docs" }
+  },
+  {
+    "id": "tip-toolbar-text-buttons",
+    "text": "Turn off Show Toolbar Text Buttons in Settings → Appearance to display icons only in the Explorer toolbar. This frees up horizontal space, giving your query tabs more room.",
+    "category": "appearance",
+    "screen": { "page": "settings", "section": "appearance" }
+  }
+]

@@ -1,0 +1,129 @@
+﻿.menu {
+  position: fixed;
+  min-width: 10.5rem;
+  background: color-mix(in srgb, var(--color-surface-variant) 40%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.45rem;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.4);
+  padding: 0.275rem 0.3rem;
+  z-index: 200;
+  outline: none;
+  user-select: none;
+}
+
+.menu__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.4125rem 0.825rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: var(--font-sm);
+  color: var(--color-on-surface);
+  text-align: left;
+  white-space: nowrap;
+  border-radius: 0.45rem;
+  transition: background-color 100ms ease, color 100ms ease;
+  position: relative;
+}
+
+.menu__item:hover,
+.menu__item--focused {
+  background-color: var(--color-primary-tint-hover);
+  color: var(--color-on-surface);
+}
+
+html[data-theme='dark'] .menu__item:hover,
+html[data-theme='dark'] .menu__item--focused {
+  background-color: #2764e1;
+  color: #ffffff;
+}
+
+html[data-theme='dark'] .menu__item:hover .menu__item-icon,
+html[data-theme='dark'] .menu__item--focused .menu__item-icon {
+  color: #ffffff;
+}
+
+@keyframes menu-item-click {
+  0%   { background-color: var(--color-primary-tint-hover); }
+  30%  { background-color: transparent; }
+  60%  { background-color: var(--color-primary-tint-hover); }
+  85%  { background-color: transparent; }
+  100% { background-color: var(--color-primary-tint-hover); }
+}
+
+@keyframes menu-item-click-dark {
+  0%   { background-color: #2764e1; }
+  30%  { background-color: transparent; }
+  60%  { background-color: #2764e1; }
+  85%  { background-color: transparent; }
+  100% { background-color: #2764e1; }
+}
+
+html[data-platform='darwin'] .menu__item--clicking {
+  animation: menu-item-click 200ms ease forwards;
+  transition: none;
+}
+
+html[data-platform='darwin'][data-theme='dark'] .menu__item--clicking {
+  animation: menu-item-click-dark 200ms ease forwards;
+}
+
+.menu__item--disabled {
+  opacity: 0.4;
+  cursor: default;
+  pointer-events: none;
+}
+
+.menu__item-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--color-muted);
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+}
+
+.menu__item:hover .menu__item-icon,
+.menu__item--focused .menu__item-icon {
+  color: var(--color-primary);
+}
+
+.menu__item-label {
+  flex: 1;
+}
+
+.menu__item-shortcut {
+  margin-left: 1.375rem;
+  font-size: var(--font-2xs);
+  color: var(--color-muted);
+  flex-shrink: 0;
+}
+
+.menu__item-arrow {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  color: var(--color-muted);
+  flex-shrink: 0;
+}
+
+.menu__separator {
+  height: 0.0625rem;
+  background-color: var(--color-border);
+  margin: 0.275rem 0;
+}
+
+/* Sub-menu */
+
+.menu__submenu {
+  position: absolute;
+  top: -0.275rem;   /* align with parent item top padding offset */
+  left: 100%;
+  margin-left: 0.125rem;
+}

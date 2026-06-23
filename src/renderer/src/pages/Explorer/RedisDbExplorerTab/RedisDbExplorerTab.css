@@ -1,0 +1,556 @@
+.redis-explorer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--color-bg);
+  font-size: var(--font-sm);
+}
+
+/* ── Stats Bar & Toolbar ── */
+
+.redis-explorer__stats-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.75rem;
+  margin: 18px 14px;
+  border: 0.0625rem solid #40454d;
+  border-radius: 0.8rem;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.redis-explorer__stats-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.redis-explorer__stats-bar-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.redis-explorer__stats-bar-title {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--color-on-surface);
+  white-space: nowrap;
+}
+
+.redis-explorer__stats-bar-divider {
+  width: 0.0625rem;
+  height: 1rem;
+  background: #40454d;
+  flex-shrink: 0;
+  margin: 0 0.15rem;
+}
+
+.redis-explorer__stats-bar-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-sm);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.redis-explorer__stats-dot {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.redis-explorer__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.redis-explorer__search {
+  width: 320px;
+  padding: 6px 12px;
+  border: none;
+  outline: none;
+  border-radius: 8px;
+  background: var(--color-input-bg);
+  color: var(--color-on-surface);
+  font-size: 12px;
+}
+
+.redis-explorer__search:focus {
+  outline: none;
+  border: none;
+}
+
+.redis-explorer__search::placeholder {
+  color: var(--color-muted);
+}
+
+.redis-explorer__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--btn-secondary-bg, var(--input-bg));
+  color: var(--text-primary);
+  font-size: 12px;
+  cursor: pointer;
+  min-width: 26px;
+  height: 26px;
+}
+
+.redis-explorer__btn:hover:not(:disabled) {
+  background: var(--hover-bg);
+}
+
+.redis-explorer__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.redis-explorer__btn--add {
+  color: var(--accent-color, var(--primary-color, #4a9eff));
+  border-color: currentColor;
+}
+
+.redis-explorer__pagination {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.redis-explorer__page-size-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.redis-explorer__page-size-select {
+  padding: 2px 4px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.redis-explorer__page-info {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  min-width: 64px;
+  text-align: center;
+}
+
+/* ── Table ── */
+
+.redis-explorer__table-wrap {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+  position: relative;
+}
+
+.redis-explorer__state-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 100%;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.redis-explorer__state-overlay--error {
+  color: var(--danger-color, #dc3c3c);
+}
+
+.redis-explorer__table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.redis-explorer__th {
+  position: sticky;
+  top: 0;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--color-table-header-bg);
+  border-bottom: 1px solid var(--border-color);
+  text-align: left;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.redis-explorer__th--sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.redis-explorer__th--sortable:hover {
+  color: var(--text-primary);
+  background: var(--hover-bg);
+}
+
+.redis-explorer__sort-icon {
+  font-size: 0.6rem;
+  color: var(--color-accent, var(--color-muted));
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.redis-explorer__th--num {
+  width: 44px;
+  text-align: right;
+}
+
+.redis-explorer__th--ttl {
+  width: 110px;
+}
+
+.redis-explorer__th--value {
+  width: 220px;
+}
+
+.redis-explorer__th--type {
+  width: 80px;
+}
+
+.redis-explorer__th--size {
+  width: 80px;
+}
+
+.redis-explorer__th--actions {
+  width: 60px;
+}
+
+.redis-explorer__row:nth-child(even) {
+  background: var(--table-row-alt-bg, transparent);
+}
+
+.redis-explorer__row:hover {
+  background: var(--hover-bg);
+}
+
+.redis-explorer__td {
+  padding: 5px 10px;
+  font-size: 12px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-subtle, var(--border-color));
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.redis-explorer__td--num {
+  color: var(--text-muted);
+  text-align: right;
+  font-size: 11px;
+}
+
+.redis-explorer__th--icon {
+  width: 40px;
+}
+
+.redis-explorer__td--icon {
+  padding: 5px 4px;
+}
+
+.redis-explorer__icon-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.redis-explorer__td--key {
+  font-family: var(--font-mono);
+}
+
+.redis-explorer__key-cell {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.redis-explorer__key-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Tree structure ── */
+
+.redis-explorer__tree-indent {
+  display: inline-block;
+  width: calc(var(--depth, 0) * 16px);
+  flex-shrink: 0;
+}
+
+.redis-explorer__key-chevron-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.redis-explorer__key-chevron-btn:hover:not(:disabled) {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.redis-explorer__key-chevron-btn:disabled {
+  cursor: default;
+}
+
+.redis-explorer__key-chevron-placeholder {
+  display: inline-block;
+  width: 16px;
+  flex-shrink: 0;
+}
+
+/* ── Type icons ── */
+
+.redis-explorer__type-icon {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.redis-explorer__type-icon--string { color: #3b82f6; }
+.redis-explorer__type-icon--list   { color: #a855f7; }
+.redis-explorer__type-icon--set    { color: #22c55e; }
+.redis-explorer__type-icon--zset   { color: #ca8a04; }
+.redis-explorer__type-icon--hash   { color: #f97316; }
+.redis-explorer__type-icon--stream { color: #ec4899; }
+
+/* ── Folder rows ── */
+
+.redis-explorer__folder-row {
+  cursor: pointer;
+  user-select: none;
+}
+
+.redis-explorer__folder-row .redis-explorer__td--key {
+  gap: 4px;
+}
+
+.redis-explorer__folder-row:hover .redis-explorer__td {
+  background: var(--hover-bg);
+}
+
+.redis-explorer__folder-chevron {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.redis-explorer__folder-icon {
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.redis-explorer__folder-label {
+  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.redis-explorer__folder-count {
+  margin-left: 4px;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: normal;
+  font-family: var(--font-sans, inherit);
+}
+
+/* ── Child item rows ── */
+
+.redis-explorer__child-row .redis-explorer__td {
+  background: var(--table-row-alt-bg, rgba(0, 0, 0, 0.02));
+}
+
+.redis-explorer__child-bullet {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.redis-explorer__child-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  margin-right: 2px;
+}
+
+.redis-explorer__child-value {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary, var(--text-muted));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.redis-explorer__td--ttl {
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.redis-explorer__no-expiry {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.redis-explorer__td--value {
+  font-family: var(--font-mono);
+}
+
+.redis-explorer__value-preview {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-secondary, var(--text-muted));
+}
+
+.redis-explorer__td--size {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.redis-explorer__td--actions {
+  padding: 3px 8px;
+}
+
+.redis-explorer__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.redis-explorer__row:hover .redis-explorer__actions {
+  opacity: 1;
+}
+
+.redis-explorer__action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.redis-explorer__action-btn:hover {
+  background: var(--hover-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.redis-explorer__action-btn--danger:hover {
+  background: var(--danger-bg, rgba(220, 60, 60, 0.12));
+  border-color: var(--danger-color, #dc3c3c);
+  color: var(--danger-color, #dc3c3c);
+}
+
+.redis-explorer__action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.redis-explorer__empty {
+  text-align: center;
+  padding: 32px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* ── Type badges ── */
+
+.redis-type-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.redis-type-badge--string {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.redis-type-badge--list {
+  background: rgba(168, 85, 247, 0.15);
+  color: #a855f7;
+}
+
+.redis-type-badge--set {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.redis-type-badge--zset {
+  background: rgba(234, 179, 8, 0.15);
+  color: #ca8a04;
+}
+
+.redis-type-badge--hash {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
+.redis-type-badge--stream {
+  background: rgba(236, 72, 153, 0.15);
+  color: #ec4899;
+}
+
+/* ── Spinner ── */
+
+@keyframes redis-explorer-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.redis-explorer__spin {
+  animation: redis-explorer-spin 0.8s linear infinite;
+}

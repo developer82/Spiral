@@ -1,0 +1,2093 @@
+{
+  "update": {
+    "checking": "בדיקה לעדכונים",
+    "updateAvailable": "עדכון זמין",
+    "upToDate": "מעודכן",
+    "updated": "עודכן — ראה מה חדש",
+    "downloading": "מוריד {{percent}}%",
+    "downloadingPill": "מוריד עדכון… {{percent}}%",
+    "installUpdate": "התקן עדכון",
+    "dialogTitle": "עדכון זמין",
+    "currentVersion": "גרסה נוכחית",
+    "newVersion": "גרסה חדשה",
+    "releaseNotes": "הערות גרסה",
+    "updateNowButton": "עדכן עכשיו",
+    "laterButton": "לאחר מכן",
+    "installing": "מתקין…",
+    "installNow": "התקן עכשיו",
+    "close": "סגור",
+    "downloadProgressTitle": "מוריד עדכון",
+    "downloadProgressText": "מוריד… {{percent}}% • {{speed}}",
+    "downloadComplete": "ההורדה הושלמה",
+    "downloadCompleteText": "גרסה {{version}} מוכנה להתקנה.",
+    "hideDownload": "המשך ברקע",
+    "cancelDownload": "בטל הורדה",
+    "cancelDownloadConfirmTitle": "לבטל את ההורדה?",
+    "cancelDownloadConfirmMessage": "הורדת העדכון תיעצר והנתונים שהורדו יימחקו. ניתן להוריד שוב מאוחר יותר.",
+    "releaseNotesTitle": "הערות גרסה",
+    "loadingNotes": "טוען הערות גרסה…",
+    "noNotes": "אין הערות גרסה זמינות"
+  },
+  "nav": {
+    "sideNav": {
+      "ariaLabel": "ניווט צדדי",
+      "explorer": "סייר",
+      "profiler": "פרופיל",
+      "compare": "השוואה",
+      "query": "עורך שאילתות",
+      "schema": "תצוגת סכמה",
+      "security": "אבטחה",
+      "metrics": "מדדים",
+      "settings": "הגדרות",
+      "profile": "פרופיל משתמש"
+    },
+    "topBar": {
+      "ariaLabel": "תפריט ראשי",
+      "file": "קובץ",
+      "edit": "עריכה",
+      "view": "תצוגה",
+      "window": "חלון",
+      "history": "היסטוריה",
+      "help": "עזרה"
+    }
+  },
+  "deleteConfirmDialog": {
+    "cancel": "ביטול",
+    "confirm": "מחק",
+    "close": "סגור"
+  },
+  "confirmDialog": {
+    "cancel": "ביטול",
+    "confirm": "אישור",
+    "delete": "מחק",
+    "close": "סגור"
+  },
+  "settings": {
+    "navAriaLabel": "ניווט הגדרות",
+    "groups": {
+      "application": "הגדרות יישום",
+      "developer": "מפתח"
+    },
+    "sections": {
+      "userProfile": "פרופיל משתמש",
+      "general": "כללי",
+      "appearance": "מראה",
+      "databasesConfig": "הגדרות בסיסי נתונים",
+      "resultsViewConfig": "הגדרות תצוגת תוצאות",
+      "ai": "בינה מלאכותית"
+    },
+    "databasesConfig": {
+      "title": "הגדרות בסיסי נתונים",
+      "subtitle": "הגדר את התנהגות השאילתות ברירת המחדל ואת הגדרות החיבור עבור בסיסי הנתונים שלך.",
+      "queryDefaults": "ברירות מחדל לשאילתות",
+      "explorer": "סייר",
+      "queryTimeout": {
+        "label": "זמן קצוב לשאילתה",
+        "desc": "הזמן המקסימלי (בשניות) להמתנה לפני ביטול שאילתה",
+        "noTimeout": "ללא הגבלת זמן",
+        "seconds": "{{count}} שניות"
+      },
+      "showSystemDatabases": {
+        "label": "הצג בסיסי נתונים מערכת",
+        "desc": "הצג בסיסי נתונים של המערכת (master, model, msdb, tempdb) בעץ הסייר"
+      },
+      "selectTopRowsCount": {
+        "label": "מספר שורות לבחירה מהירה",
+        "desc": "מספר השורות להחזרה בעת שימוש ב-\"בחר שורות מובילות\" מתפריט ההקשר של הטבלה"
+      },
+      "jsonResults": "תוצאות JSON",
+      "copyJsonFormatted": {
+        "label": "העתק JSON כטקסט מעוצב",
+        "desc": "בעת העתקת ערך JSON מציג התוצאות, פרמט אותו עם רווח פנים. בטל כדי להעתיק JSON דחוס בשורה אחת"
+      },
+      "queryExecution": "ביצוע שאילתות",
+      "autoIncludeExecutionPlan": {
+        "label": "כלול תכנית ביצוע אוטומטית",
+        "desc": "צור והצג אוטומטית את תכנית הביצוע עבור כל שאילתה שמופעלת"
+      },
+      "autoIncludeClientStatistics": {
+        "label": "כלול סטטיסטיקות לקוח אוטומטית",
+        "desc": "אסוף והצג אוטומטית סטטיסטיקות לקוח עבור כל שאילתה שמופעלת"
+      },
+      "comparisonExport": "ייצוא השוואה",
+      "askBeforeIncludingSecrets": {
+        "label": "שאל לפני הכללת סיסמאות",
+        "desc": "הצג אישור בכל פעם ששומרים דוח השוואה, ושאל אם לכלול סיסמאות חיבור בקובץ JSON"
+      },
+      "includeSecretsByDefault": {
+        "label": "כלול סיסמאות כברירת מחדל",
+        "desc": "בחר מראש \"כלול סיסמאות\" בדו-שיח האישור. אין אפקט כאשר השאלה מבוטלת"
+      },
+      "mysqlTools": {
+        "title": "כלי לקוח MySQL",
+        "subtitle": "נתיבים אופציונליים לקבצי mysqldump ו-mysql המשמשים לגיבוי ושחזור של MySQL. השאר ריק כדי להשתמש בקבצים הנמצאים בנתיב המערכת. כאשר אף אחד אינו זמין, נעשה שימוש במנוע JS מובנה.",
+        "mysqldumpPath": {
+          "label": "נתיב mysqldump",
+          "desc": "נתיב מלא לקובץ ההפעלה mysqldump המשמש לגיבויי MySQL"
+        },
+        "mysqlClientPath": {
+          "label": "נתיב לקוח mysql",
+          "desc": "נתיב מלא לקובץ ההפעלה mysql המשמש לשחזורי MySQL"
+        },
+        "test": {
+          "label": "כלים שזוהו",
+          "desc": "הרץ בדיקה לאימות שהקבצים המוגדרים נגישים",
+          "button": "בדוק",
+          "testing": "בודק…",
+          "found": "נמצא",
+          "notFound": "לא נמצא"
+        }
+      },
+      "postgresTools": {
+        "title": "כלי לקוח PostgreSQL",
+        "subtitle": "נתיבים אופציונליים לקבצי pg_dump, pg_restore ו-psql המשמשים לגיבוי ושחזור של PostgreSQL. השאר ריק כדי להשתמש בקבצים הנמצאים בנתיב המערכת. כלים אלו נדרשים לגיבוי ושחזור של Postgres.",
+        "pgDumpPath": {
+          "label": "נתיב pg_dump",
+          "desc": "נתיב מלא לקובץ ההפעלה pg_dump המשמש לגיבויי PostgreSQL"
+        },
+        "pgRestorePath": {
+          "label": "נתיב pg_restore",
+          "desc": "נתיב מלא לקובץ ההפעלה pg_restore המשמש לשחזורי custom/tar/directory"
+        },
+        "psqlPath": {
+          "label": "נתיב psql",
+          "desc": "נתיב מלא לקובץ ההפעלה psql המשמש לשחזורי פורמט plain"
+        },
+        "test": {
+          "label": "כלים שזוהו",
+          "desc": "הרץ בדיקה לאימות שהקבצים המוגדרים נגישים",
+          "button": "בדוק",
+          "testing": "בודק…",
+          "found": "נמצא",
+          "notFound": "לא נמצא"
+        }
+      },
+      "mongoTools": {
+        "title": "כלי בסיס נתונים MongoDB",
+        "subtitle": "נתיבים אופציונליים לקבצי mongodump ו-mongorestore המשמשים לגיבוי ושחזור של MongoDB. השאר ריק כדי להשתמש בקבצים הנמצאים בנתיב המערכת. כאשר הכלים חסרים, Spiral עובר למנוע JSON מובנה.",
+        "mongodumpPath": {
+          "label": "נתיב mongodump",
+          "desc": "נתיב מלא לקובץ ההפעלה mongodump המשמש לגיבויי MongoDB"
+        },
+        "mongorestorePath": {
+          "label": "נתיב mongorestore",
+          "desc": "נתיב מלא לקובץ ההפעלה mongorestore המשמש לשחזור ארכיוני MongoDB"
+        }
+      }
+    },
+    "resultsViewConfig": {
+      "title": "הגדרות תצוגת תוצאות",
+      "subtitle": "הגדר כיצד תוצאות השאילתות מוצגות ומעוצבות.",
+      "columnHeaders": "כותרות עמודות",
+      "uppercaseColumnHeaders": {
+        "label": "כותרות עמודות באותיות גדולות",
+        "desc": "הצג את שמות העמודות בטבלת התוצאות באותיות גדולות במקום בכתיב המקורי"
+      },
+      "showKeyIconsInResults": {
+        "label": "הצג אייקוני מפתח בכותרות עמודות",
+        "desc": "הצג אייקון מפתח ליד שמות עמודות שהן מפתח ראשי או מפתח זר בעת עיון בנתוני טבלה"
+      },
+      "tableOptions": "אפשרויות טבלה",
+      "useInteractiveTables": {
+        "label": "השתמש בטבלאות אינטראקטיביות",
+        "desc": "אפשר אינטראקציה עם נתוני הטבלה, כולל יצירה, מחיקה, מיון שורות ועיצוב משופר"
+      }
+    },
+    "ai": {
+      "title": "הגדרות בינה מלאכותית",
+      "subtitle": "נהל מודלים של בינה מלאכותית והגדר את טוקן הגישה שלך ל-Hugging Face.",
+      "hfToken": {
+        "sectionTitle": "אימות",
+        "label": "טוקן Hugging Face",
+        "desc": "נדרש להורדת מודלים של AI. קבל טוקן חינמי בכתובת huggingface.co/settings/tokens",
+        "placeholder": "hf_..."
+      },
+      "models": {
+        "title": "מודלים",
+        "download": "הורד",
+        "cancel": "ביטול",
+        "delete": "מחק",
+        "confirmDelete": "אשר מחיקה",
+        "cancelDelete": "ביטול",
+        "sizeOnDisk": "{{size}} בדיסק",
+        "notDownloaded": "לא הורד",
+        "downloading": "מוריד…",
+        "startingDownload": "מתחיל הורדה…",
+        "authHint": "הוסף את טוקן ה-Hugging Face שלך למעלה לאימות."
+      }
+    },
+    "comingSoon": "— בקרוב",
+    "resetDefaults": "איפוס ברירות מחדל",
+    "userProfile": {
+      "title": "פרופיל משתמש",
+      "helloTitle": "שלום, {{name}}",
+      "subtitle": "נהל את הפרופיל, הסיסמה והנעילה האוטומטית שלך.",
+      "privacyNote": "כל המידע מאוחסן באופן מקומי במכשיר שלך ואינו נשלח לאף אחד או לשום מקום.",
+      "identity": "זהות",
+      "avatarAlt": "תמונת פרופיל",
+      "chooseImage": "בחר תמונה",
+      "removeImage": "הסר תמונה",
+      "displayName": "שם תצוגה",
+      "displayNameDesc": "שם המוצג בטיפ כאשר מרחפים על אייקון הפרופיל.",
+      "displayNamePlaceholder": "הזן את שמך…",
+      "passwordSection": "הגנת סיסמה",
+      "lockSection": "נעילה אוטומטית",
+      "password": {
+        "noPasswordTitle": "לא הוגדרה סיסמה",
+        "noPasswordDesc": "הגן על האפליקציה בסיסמה למניעת גישה לא מורשית.",
+        "hasPasswordTitle": "סיסמה מוגדרת",
+        "hasPasswordDesc": "האפליקציה מוגנת בסיסמה.",
+        "setButton": "הגדר סיסמה",
+        "changeButton": "שנה סיסמה",
+        "removeButton": "הסר סיסמה",
+        "setTitle": "הגדר סיסמה",
+        "changeTitle": "שנה סיסמה",
+        "removeTitle": "הסר סיסמה",
+        "removeDesc": "הזן את הסיסמה הנוכחית לאישור ההסרה.",
+        "removeWarning": "אזהרה: הסרת הסיסמה תפענח את כל סיסמאות החיבורים ותשמור אותן כטקסט גלוי.",
+        "currentPlaceholder": "סיסמה נוכחית",
+        "newPlaceholder": "סיסמה חדשה",
+        "confirmPlaceholder": "אשר סיסמה חדשה",
+        "setConfirm": "הגדר סיסמה",
+        "changeConfirm": "עדכן סיסמה",
+        "removeConfirm": "הסר סיסמה",
+        "cancel": "ביטול",
+        "saving": "שומר…",
+        "setSuccess": "הסיסמה הוגדרה בהצלחה.",
+        "changeSuccess": "הסיסמה עודכנה.",
+        "removeSuccess": "הסיסמה הוסרה.",
+        "errorEmpty": "הסיסמה אינה יכולה להיות ריקה.",
+        "errorMismatch": "הסיסמאות אינן תואמות.",
+        "errorCurrentRequired": "אנא הזן את הסיסמה הנוכחית.",
+        "recoveryNote": "שכחת את הסיסמה? ניתן לאפס את האפליקציה על ידי מחיקת תיקיית נתוני האפליקציה ממערכת ההפעלה."
+      },
+      "lockOnStartup": {
+        "label": "נעל בהפעלה",
+        "desc": "דרוש הזנת סיסמה בכל הפעלה של האפליקציה."
+      },
+      "lockOnInactivity": {
+        "label": "נעל בחוסר פעילות",
+        "desc": "נעל אוטומטית את האפליקציה לאחר תקופת חוסר פעילות."
+      },
+      "lockOnMinimize": {
+        "label": "נעל בעת מזעור",
+        "desc": "נעל את האפליקציה בכל פעם שהחלון ממוזער לשורת המשימות."
+      },
+      "inactivityTimeout": {
+        "label": "זמן קצוב לחוסר פעילות",
+        "desc": "דקות של חוסר פעילות לפני נעילת האפליקציה.",
+        "minutes": "דק׳"
+      }
+    },
+    "general": {
+      "title": "הגדרות כלליות",
+      "subtitle": "הגדר את העדפות סביבת העבודה שלך ואת התנהגות האפליקציה הבסיסית.",
+      "language": {
+        "label": "שפה",
+        "desc": "בחר את שפת התצוגה עבור ממשק האפליקציה"
+      },
+      "environments": {
+        "label": "ניהול סביבות",
+        "desc": "הגדר סביבות בשם שניתן לשייך לחיבורים וללשוניות שאילתה.",
+        "manage": "ניהול",
+        "count_one": "סביבה אחת",
+        "count_other": "{{count}} סביבות",
+        "dialogTitle": "ניהול סביבות",
+        "tableTitle": "סביבות זמינות",
+        "tableSubtitle": "השתמש בסביבות כדי להבליט יעדים רגישים ולהפעיל הגנות בביצוע שאילתות.",
+        "emptyDescription": "ללא תיאור",
+        "columns": {
+          "color": "צבע",
+          "name": "שם",
+          "description": "תיאור",
+          "critical": "מצב",
+          "actions": "פעולות"
+        },
+        "values": {
+          "critical": "קריטית",
+          "standard": "רגילה"
+        },
+        "fields": {
+          "name": "שם",
+          "namePlaceholder": "Production",
+          "description": "תיאור",
+          "descriptionPlaceholder": "סביבת הייצור הראשית מול הלקוחות",
+          "critical": "סביבה קריטית",
+          "criticalHint": "סביבות קריטיות דורשות אישור לפני ביצוע שאילתה שעלולה להיות לא בטוחה.\nגם כשאפשרות זו מופעלת, תוכנה עלולה לטעות. הרצת קוד שמשנה את הנתונים שלך היא באחריותך, ועליך תמיד לאמת את הקוד לפני הביצוע.",
+          "color": "צבע"
+        },
+        "editor": {
+          "addTitle": "הוספת סביבה",
+          "editTitle": "עריכת סביבה",
+          "subtitle": "בחר שם ברור, צבע ורמת סיכון."
+        },
+        "validation": {
+          "nameRequired": "שם הסביבה הוא שדה חובה",
+          "nameUnique": "שמות הסביבות חייבים להיות ייחודיים"
+        },
+        "deleteInUse": {
+          "title": "מחיקת סביבה",
+          "message_one": "\"{{name}}\" משויכת לחיבור אחד. מחיקה תסיר את השיוך הזה. להמשיך?",
+          "message_other": "\"{{name}}\" משויכת ל-{{count}} חיבורים. מחיקה תסיר את השיוכים האלה. להמשיך?"
+        },
+        "actions": {
+          "add": "הוסף",
+          "edit": "ערוך",
+          "delete": "מחק",
+          "create": "צור",
+          "update": "עדכן",
+          "close": "סגור"
+        }
+      },
+      "defaultConnectionSort": {
+        "label": "מיון חיבורים ברירת מחדל",
+        "desc": "סדר המיון הראשוני שיוחל על רשימת החיבורים בעת טעינת האפליקציה",
+        "fields": {
+          "name": "שם",
+          "createdAt": "תאריך יצירה",
+          "lastUsedAt": "שימוש אחרון",
+          "provider": "ספק",
+          "environment": "סביבה"
+        },
+        "directions": {
+          "asc": "עולה",
+          "desc": "יורד"
+        }
+      },
+      "hfToken": {
+        "label": "טוקן Hugging Face",
+        "desc": "נדרש להורדת מודלים של AI. קבל טוקן חינמי בכתובת huggingface.co/settings/tokens",
+        "placeholder": "hf_..."
+      },
+      "likeConfetti": {
+        "label": "אני אוהב קונפטי",
+        "desc": "הצג קונפטי מדי פעם בעת פעולות מוצלחות"
+      },
+      "tipsAndTricks": {
+        "label": "טיפים וטריקים",
+        "desc": "הצג טיפים וטריקים שימושיים בזמן העבודה",
+        "preview": "תצוגה מקדימה"
+      },
+      "appUpdate": {
+        "label": "עדכון אפליקציה",
+        "desc": "בדוק והתקן את הגרסה האחרונה של Spiral",
+        "checkButton": "בדוק עדכונים",
+        "checking": "בודק…",
+        "releaseNotesButton": "הערות גרסה"
+      },
+      "analytics": {
+        "label": "ניתוח שימוש",
+        "desc": "Spiral משתמשת ב‑Google Analytics כדי להבין כיצד נעשה שימוש באפליקציה ולשפר אותה. לא נאסף מידע אישי, ולעולם לא נשלחים פרטי התחברות או סיסמאות. ניתן לבטל את ההסכמה בכל עת.",
+        "toggleLabel": "שיתוף נתוני שימוש אנונימיים"
+      }
+    },
+    "appearance": {
+      "title": "מראה",
+      "subtitle": "התאם את הסגנון החזותי ופריסת הממשק של האפליקציה.",
+      "resetDefaults": "איפוס ברירות מחדל",
+      "themePreferences": "העדפות ערכת נושא",
+      "themes": {
+        "dark": "כהה ניאון",
+        "light": "אור שמש",
+        "glassLight": "זכוכית בהירה",
+        "system": "סנכרון מערכת",
+        "selectAriaLabel": "בחר ערכת נושא {{theme}}",
+        "selectedTheme": {
+          "title": "ערכת נושא נבחרת",
+          "desc": "בחר ערכת נושא ספציפית מספריית ערכות הנושא המלאה"
+        },
+        "dropdown": {
+          "placeholder": "בחר ערכת נושא...",
+          "searchPlaceholder": "חפש ערכות נושא...",
+          "noResults": "לא נמצאו ערכות נושא",
+          "ariaLabel": "ערכת נושא"
+        }
+      },
+      "interfaceElements": "אלמנטי ממשק",
+      "syntaxHighlighting": {
+        "title": "הדגשת תחביר",
+        "desc": "הפעל קוד צבעוני בעורך השאילתות"
+      },
+      "showGridLines": {
+        "title": "הצג קווי רשת",
+        "desc": "הצג גבולות בין שורות ועמודות בתצוגת הנתונים"
+        },
+        "hideSideNav": {
+          "title": "הסתר סרגל ניווט צדדי",
+          "desc": "הסתר את אייקוני הניווט של הדפים בצד שמאל עד להצגתם מחדש מתפריט התצוגה"
+        },
+      "erdBackground": {
+        "title": "רקע ברירת מחדל ל-ERD",
+        "desc": "סגנון רקע ברירת מחדל לדיאגרמות ERD חדשות",
+        "none": "ללא",
+        "dots": "נקודות",
+        "grid": "רשת"
+      },
+      "accessibility": "נגישות",
+      "customTitlebar": {
+        "title": "סרגל כותרת מותאם",
+        "desc": "השתמש בסרגל העליון כסרגל כותרת החלון, המאפשר גרירה ולחצני חלון בסגנון מקורי. נדרש הפעלה מחדש להחלה."
+      },
+      "enableAnimations": {
+        "title": "הפעל אנימציות",
+        "desc": "הצג אפקטי תנועה כגון מעברי כניסה לתיבות דו-שיח ברחבי האפליקציה"
+      },
+      "darkTerminals": {
+        "title": "מסופים כהים",
+        "desc": "שמור על רקע כהה במסופי Redis ו-MongoDB במקום להתאים אותו לצבעי ערכת הנושא הנבחרת"
+      },
+      "glassEffectColor": {
+        "title": "צבע אפקט זכוכית",
+        "desc": "כוון את צבע הזוהר בפאנל הניווט הצדי.",
+        "off": "כבוי",
+        "auto": "אוטומטי",
+        "manual": "ידני",
+        "morning": "בוקר",
+        "noon": "צהריים",
+        "evening": "ערב"
+      },
+      "restartRequired": "נדרשת הפעלה מחדש להחלת השינוי.",
+      "restartNow": "הפעל מחדש",
+      "fontScaling": {
+        "label": "גודל גופן",
+        "ariaLabel": "גודל גופן",
+        "default": "100% (ברירת מחדל)"
+      }
+    }
+  },
+  "explorer": {
+    "newConnection": "חיבור חדש",
+    "databases": "מסדי נתונים",
+    "tables": "טבלאות",
+    "views": "תצוגות",
+    "storedProcedures": "פרוצדורות מאוחסנות",
+    "functions": "פונקציות",
+    "types": "סוגים",
+    "typeEnums": "ערכות מנוי",
+    "typeComposites": "סוגים מורכבים",
+    "security": "אבטחה",
+    "securityUsers": "משתמשים",
+    "securityRoles": "תפקידים",
+    "securitySchemas": "סכמות",
+    "redisKeyspaces": "מרחבי מפתחות",
+    "mongodbCollections": "אוספים",
+    "redisKeyspace": {
+      "refreshContextMenuLabel": "רענן",
+      "exploreDataContextMenuLabel": "עיין בנתונים"
+    },
+    "redisDbExplorer": {
+      "refresh": "רענן",
+      "searchPlaceholder": "חיפוש מפתחות או ערכים…",
+      "noKeys": "לא נמצאו מפתחות",
+      "loadError": "טעינת המפתחות נכשלה",
+      "noExpiry": "ללא תפוגה",
+      "expiresAt": "פג תוקף {{datetime}}",
+      "pageSizeLabel": "שורות",
+      "pageOf": "{{page}} מתוך {{total}}",
+      "keys": "מפתחות",
+      "expiring": "פגי תוקף",
+      "addKey": "הוסף מפתח",
+      "deleteConfirmTitle": "מחיקת מפתח",
+      "deleteConfirmMessage": "למחוק את \"{{keyName}}\"? פעולה זו אינה ניתנת לביטול.",
+      "columns": {
+        "rowNumber": "#",
+        "keyName": "שם מפתח",
+        "ttl": "TTL",
+        "value": "ערך",
+        "type": "סוג",
+        "size": "גודל"
+      }
+    },
+    "redisKeyEdit": {
+      "title": "עריכת מפתח",
+      "newTitle": "מפתח חדש",
+      "keyNamePlaceholder": "הכנס שם מפתח",
+      "ttlLabel": "TTL",
+      "ttlSeconds": "שניות",
+      "ttlNoExpiry": "ללא תפוגה",
+      "streamReadOnly": "רשומות Stream אינן ניתנות לעריכה",
+      "save": "שמור",
+      "cancel": "בטל",
+      "delete": "מחק",
+      "deleteConfirmTitle": "מחיקת מפתח",
+      "deleteConfirmMessage": "למחוק את \"{{keyName}}\"?",
+      "loadError": "טעינת ערך המפתח נכשלה",
+      "addItem": "הוסף פריט",
+      "addField": "הוסף שדה",
+      "addMember": "הוסף חבר",
+      "field": "שדה",
+      "value": "ערך",
+      "member": "חבר",
+      "score": "ציון"
+    },
+    "deleteRedisKey": {
+      "contextMenuLabel": "מחק",
+      "confirmTitle": "מחיקת מפתח",
+      "confirmMessage": "האם אתה בטוח שברצונך למחוק את המפתח \"{{keyName}}\"? פעולה זו אינה ניתנת לביטול."
+    },
+    "deleteRedisPrefix": {
+      "contextMenuLabel": "מחק",
+      "confirmTitle": "מחיקת מפתחות",
+      "confirmMessage": "האם אתה בטוח שברצונך למחוק את כל המפתחות תחת הקידומת \"{{prefix}}:\"? פעולה זו אינה ניתנת לביטול."
+    },
+    "redisDashboard": {
+      "contextMenuLabel": "לוח מחוונים",
+      "tabTitle": "לוח מחוונים",
+      "lastRefreshed": "עדכון אחרון",
+      "autoRefreshOn": "רענון אוטומטי פעיל",
+      "noData": "אין נתונים זמינים",
+      "commandSuccess": "הפקודה הושלמה בהצלחה",
+      "errorDialog": {
+        "title": "שגיאת חיבור"
+      },
+      "searchPlaceholder": "חיפוש מפתחות…",
+      "maintenanceNote": "השתמש בפקודות אלה לניהול שרת Redis שלך. פקודות FLUSH אינן ניתנות לביטול.",
+      "dangerZone": "אזור סכנה",
+      "noKeys": "אין מסדי נתונים עם מפתחות",
+      "noInfoResults": "לא נמצאו מפתחות תואמים",
+      "sections": {
+        "server": "שרת",
+        "memory": "זיכרון",
+        "stats": "סטטיסטיקות",
+        "persistence": "שמירה",
+        "replication": "שכפול",
+        "cacheEfficiency": "יעילות מטמון",
+        "keyStats": "סטטיסטיקות מפתחות",
+        "maintenance": "תחזוקה",
+        "allInfo": "כל מידע Redis"
+      },
+      "actions": {
+        "refresh": "רענן",
+        "copySnapshot": "העתק תמונת מצב",
+        "openRawInfo": "פתח INFO גולמי"
+      },
+      "fields": {
+        "redisVersion": "גרסת Redis",
+        "mode": "מצב",
+        "os": "מערכת הפעלה",
+        "processId": "מזהה תהליך",
+        "port": "פורט TCP",
+        "uptime": "זמן פעילות",
+        "hz": "Hz",
+        "configFile": "קובץ תצורה",
+        "usedMemory": "זיכרון בשימוש",
+        "peakMemory": "שיא זיכרון",
+        "rssMemory": "זיכרון RSS",
+        "luaMemory": "זיכרון Lua",
+        "maxMemory": "זיכרון מרבי",
+        "noLimit": "ללא הגבלה",
+        "evictionPolicy": "מדיניות פינוי",
+        "fragmentationRatio": "יחס פיצול",
+        "allocator": "מקצה זיכרון",
+        "connectedClients": "לקוחות מחוברים",
+        "blockedClients": "לקוחות חסומים",
+        "totalConnections": "סך חיבורים",
+        "totalCommands": "פקודות שעובדו",
+        "opsPerSec": "פעולות לשנייה",
+        "rejectedConnections": "חיבורים שנדחו",
+        "netIn": "קלט רשת",
+        "netOut": "פלט רשת",
+        "pubsubChannels": "ערוצי Pub/Sub",
+        "keyspaceHits": "פגיעות במרחב מפתחות",
+        "keyspaceMisses": "החטאות במרחב מפתחות",
+        "hitRatio": "יחס פגיעה",
+        "expiredKeys": "מפתחות שפגו תוקפם",
+        "evictedKeys": "מפתחות שפונו",
+        "rdbChanges": "שינויים מאז השמירה האחרונה",
+        "rdbSaveInProgress": "שמירת RDB בתהליך",
+        "rdbLastStatus": "סטטוס RDB אחרון",
+        "rdbLastSave": "שמירת RDB אחרונה",
+        "aofEnabled": "AOF מופעל",
+        "aofLastStatus": "סטטוס כתיבת AOF אחרון",
+        "aofSize": "גודל קובץ AOF",
+        "yes": "כן",
+        "no": "לא",
+        "role": "תפקיד",
+        "connectedSlaves": "עותקים מחוברים",
+        "masterHost": "ראשי",
+        "masterLinkStatus": "חיבור לראשי",
+        "replicationOffset": "היסט שכפול",
+        "replicationId": "מזהה שכפול",
+        "nodeAddr": "כתובת",
+        "nodeRole": "תפקיד",
+        "nodeStatus": "סטטוס",
+        "nodeFlags": "דגלים",
+        "connected": "מחובר",
+        "disconnected": "מנותק",
+        "database": "מסד נתונים",
+        "keys": "מפתחות",
+        "expires": "מסיים",
+        "avgTtl": "TTL ממוצע (ms)",
+        "infoSection": "קטע",
+        "infoKey": "מפתח",
+        "infoValue": "ערך"
+      },
+      "commands": {
+        "confirm": "בצע",
+        "cancel": "ביטול",
+        "bgsave": {
+          "label": "BGSAVE",
+          "confirmTitle": "הפעלת שמירה ברקע",
+          "confirmMessage": "פעולה זו תפעיל תמונת מצב RDB אסינכרונית לדיסק. להמשיך?"
+        },
+        "bgrewriteaof": {
+          "label": "BGREWRITEAOF",
+          "confirmTitle": "הפעלת כתיבת AOF מחדש",
+          "confirmMessage": "פעולה זו תפעיל כתיבת AOF מחדש אסינכרונית ברקע. להמשיך?"
+        },
+        "memoryPurge": {
+          "label": "MEMORY PURGE",
+          "confirmTitle": "ניקוי זיכרון",
+          "confirmMessage": "פעולה זו תנסה לשחרר זיכרון מפוצל בחזרה למקצה מערכת ההפעלה. להמשיך?"
+        },
+        "slowlogReset": {
+          "label": "SLOWLOG RESET",
+          "confirmTitle": "איפוס יומן פקודות איטיות",
+          "confirmMessage": "פעולה זו תמחק לצמיתות את יומן השאילתות האיטיות. להמשיך?"
+        },
+        "flushdb": {
+          "label": "FLUSHDB db{{dbIndex}}",
+          "confirmTitle": "מחיקת מסד נתונים",
+          "confirmMessage": "⚠ פעולה זו תמחק לצמיתות את כל המפתחות במסד הנתונים {{dbIndex}}. פעולה זו אינה ניתנת לביטול. האם אתה בטוח לחלוטין?"
+        },
+        "flushall": {
+          "label": "FLUSHALL",
+          "confirmTitle": "מחיקת כל מסדי הנתונים",
+          "confirmMessage": "⚠ פעולה זו תמחק לצמיתות את כל המפתחות בכל מסדי הנתונים בשרת Redis זה. פעולה זו אינה ניתנת לביטול. האם אתה בטוח לחלוטין?"
+        }
+      }
+    },
+    "columns": "עמודות",
+    "keys": "מפתחות",
+    "constraints": "אילוצים",
+    "triggers": "טריגרים",
+    "indexes": "אינדקסים",
+    "statistics": "סטטיסטיקות",
+    "emptyState": "אין חיבורים עדיין. לחץ על \"חיבור חדש\" כדי להתחיל.",
+    "search": {
+      "placeholder": "חפש לפי שם או מחשב מארח…",
+      "ariaLabel": "חפש חיבורים"
+    },
+    "filter": {
+      "ariaLabel": "סנן חיבורים",
+      "title": "סנן חיבורים",
+      "provider": "ספק",
+      "environment": "סביבה"
+    },
+    "sort": {
+      "ariaLabel": "מיין חיבורים",
+      "title": "מיין חיבורים",
+      "noEnvironment": "ללא סביבה",
+      "fields": {
+        "name": "שם",
+        "createdAt": "תאריך יצירה",
+        "lastUsedAt": "שימוש אחרון",
+        "provider": "ספק",
+        "environment": "סביבה"
+      },
+      "directions": {
+        "asc": "עולה",
+        "desc": "יורד"
+      }
+    },
+    "connecting": "מתחבר",
+    "loading": "טוען",
+    "noItems": "אין פריטים",
+    "connectionError": "החיבור נכשל",
+    "retryConnection": "לחץ לניסיון חוזר",
+    "eagerLoading": "טוען מבנה מסד ברקע…",
+    "statusLabel": {
+      "disconnected": "מנותק",
+      "connecting": "מתחבר",
+      "connected": "מחובר",
+      "error": "שגיאת חיבור"
+    },
+    "dialog": {
+      "title": "חיבור חדש",
+      "editTitle": "עריכת חיבור",
+      "fields": {
+        "name": "שם",
+        "provider": "ספק",
+        "host": "שרת",
+        "port": "פורט",
+        "username": "שם משתמש",
+        "password": "סיסמה",
+        "rememberPassword": "זכור סיסמה",
+        "defaultDatabase": "מסד נתונים ברירת מחדל",
+        "color": "צבע אייקון",
+        "colorResetDefault": "איפוס לברירת מחדל",
+        "autoConnect": "התחבר אוטומטית",
+        "autoConnectDesc": "התחבר אוטומטית למסד נתונים זה עם הפעלת האפליקציה",
+        "eagerLoading": "טעינה מוקדמת",
+        "eagerLoadingDesc": "טען מראש את כל מסדי הנתונים, טבלאות, תצוגות, פרוצדורות ופונקציות ברקע לאחר ההתחברות, לניווט מיידי בעץ",
+        "backgroundAutoRefresh": "רענון אוטומטי ברקע",
+        "backgroundAutoRefreshDesc": "עקוב בשקט אחר שינויים בסכמה באזורים הפתוחים בעץ ורענן אותם אוטומטית מבלי להפריע לעבודתך",
+        "redisHideEmptyDatabases": "הסתר מסדי נתונים לוגיים ריקים",
+        "redisHideEmptyDatabasesDesc": "הצג רק מסדי נתונים לוגיים ב-Redis שמכילים לפחות מפתח אחד. רענן את רשימת מסדי הנתונים כדי לגלות מסדי נתונים לאחר שיש בהם ערכים.",
+        "filePath": "קובץ מסד נתונים",
+        "browseFile": "עיון…",
+        "redisMode": "מצב פריסה",
+        "redisModeStandalone": "עצמאי",
+        "redisModeCluster": "אשכול",
+        "redisModeSentinel": "סנטינל",
+        "sentinelNodes": "צמתי סנטינל",
+        "sentinelMasterName": "שם מאסטר",
+        "redisUsername": "שם משתמש (ACL)",
+        "redisDatabaseIndex": "אינדקס מסד נתונים",
+        "redisTls": "TLS / SSL",
+        "redisTlsEnable": "הפעל TLS/SSL",
+        "redisTlsServername": "שם שרת (SNI)",
+        "redisTlsValidation": "אימות אישור",
+        "redisTlsRejectUnauthorized": "דחה אישורים לא מורשים",
+        "sshTunnel": "מנהרת SSH",
+        "sshTunnelEnable": "הפעל מנהרת SSH",
+        "sshHost": "שרת SSH",
+        "sshPort": "פורט SSH",
+        "sshUsername": "שם משתמש SSH",
+        "sshAuthMode": "אופן אימות",
+        "sshAuthModePassword": "סיסמה",
+        "sshAuthModeKey": "מפתח פרטי",
+        "sshPassword": "סיסמת SSH",
+        "sshPrivateKeyPath": "קובץ מפתח פרטי",
+        "sshPassphrase": "ביטוי סיסמה",
+        "sshPassphrasePlaceholder": "השאר ריק אם למפתח אין ביטוי סיסמה",
+        "environment": "סביבה",
+        "environmentDesc": "שייך לחיבור הזה תווית סביבה.",
+        "environmentUnset": "ללא סביבה",
+        "environmentSearchPlaceholder": "חפש סביבות",
+        "environmentNoResults": "לא נמצאו סביבות"
+      },
+      "providers": {
+        "sqlserver": "SQL Server",
+        "mysql": "MySQL",
+        "sqlite": "SQLite"
+      },
+      "actions": {
+        "testConnection": "בדוק חיבור",
+        "testingConnection": "בודק…",
+        "save": "שמור",
+        "update": "עדכן",
+        "cancel": "ביטול"
+      },
+      "tabs": {
+        "connectionDetails": "פרטי חיבור",
+        "connectionString": "מחרוזת חיבור",
+        "options": "אפשרויות"
+      },
+      "connectionStringTab": {
+        "parseError": "לא ניתן לנתח את מחרוזת החיבור"
+      },
+      "testResult": {
+        "success": "החיבור הצליח"
+      },
+      "validation": {
+        "nameRequired": "שם החיבור הוא שדה חובה",
+        "hostRequired": "שרת הוא שדה חובה",
+        "portInvalid": "הפורט חייב להיות מספר בין 1 ל-65535",
+        "usernameRequired": "שם משתמש הוא שדה חובה",
+        "filePathRequired": "נתיב קובץ מסד הנתונים הוא שדה חובה",
+        "sentinelNodesRequired": "נדרשת לפחות כתובת צומת סנטינל אחד",
+        "sentinelMasterNameRequired": "שם המאסטר של הסנטינל הוא שדה חובה",
+        "x509CertRequired": "קובץ תעודת לקוח נדרש לאימות X.509",
+        "sshHostRequired": "שרת SSH הוא שדה חובה",
+        "sshUsernameRequired": "שם משתמש SSH הוא שדה חובה",
+        "sshPrivateKeyRequired": "נתיב קובץ המפתח הפרטי הוא שדה חובה"
+      },
+      "createPrompt": {
+        "message": "קובץ זה אינו קיים. ליצור מסד נתונים SQLite חדש בנתיב זה?",
+        "confirm": "צור מסד נתונים",
+        "cancel": "ביטול"
+      }
+    },
+    "criticalEnvironmentConfirm": {
+      "title": "סביבה קריטית",
+      "close": "סגור",
+      "message": "אתה עומד להריץ שאילתה מול הסביבה הקריטית \"{{environmentName}}\". להמשיך?",
+      "skipForTab": "אל תשאל אותי שוב עבור לשונית זו",
+      "cancel": "ביטול",
+      "confirm": "הרץ שאילתה"
+    },
+    "contextMenu": {
+      "edit": "עריכה",
+      "connect": "התחבר",
+      "disconnect": "התנתק",
+      "delete": "מחק",
+      "deleteConnectionTitle": "מחיקת חיבור",
+      "confirmDelete": "האם אתה בטוח שברצונך למחוק את \"{{name}}\"?",
+      "confirmDeleteConnected": "\"{{name}}\" מחובר כעת. לנתק ולמחוק את החיבור?",
+      "confirmDisconnectForEdit": "החיבור פעיל. לנתק לפני העריכה?",
+      "confirmDisconnectForEditTitle": "חיבור פעיל",
+      "confirmDisconnectForEditConfirm": "נתק ועריכה"
+    },
+    "renameCollection": {
+      "contextMenuLabel": "שנה שם",
+      "dialogTitle": "שינוי שם אוסף",
+      "nameLabel": "שם חדש",
+      "renameButton": "שנה שם",
+      "renamingButton": "משנה שם…",
+      "cancelButton": "ביטול",
+      "unknownError": "אירעה שגיאה בלתי צפויה",
+      "validation": {
+        "nameRequired": "שם האוסף הוא שדה חובה",
+        "sameName": "השם החדש חייב להיות שונה מהשם הנוכחי",
+        "systemPrefix": "שם האוסף לא יכול להתחיל ב-\"system.\""
+      }
+    },
+    "dropCollection": {
+      "contextMenuLabel": "מחק",
+      "confirmTitle": "מחיקת אוסף",
+      "confirmMessage": "האם אתה בטוח שברצונך למחוק את \"{{collectionName}}\"? פעולה זו אינה ניתנת לביטול."
+    },
+    "createCollection": {
+      "refreshContextMenuLabel": "רענן",
+      "contextMenuLabel": "צור אוסף",
+      "dialogTitle": "צור אוסף",
+      "nameLabel": "שם האוסף",
+      "namePlaceholder": "הזן שם אוסף",
+      "createButton": "צור",
+      "creatingButton": "יוצר…",
+      "cancelButton": "ביטול",
+      "unknownError": "אירעה שגיאה בלתי צפויה",
+      "validation": {
+        "nameRequired": "שם האוסף הוא שדה חובה",
+        "systemPrefix": "שם האוסף לא יכול להתחיל ב-\"system.\""
+      }
+    },
+    "createDatabase": {
+      "refreshContextMenuLabel": "רענן",
+      "contextMenuLabel": "צור מסד נתונים",
+      "dialogTitle": "צור מסד נתונים",
+      "nameLabel": "שם מסד הנתונים",
+      "namePlaceholder": "הזן שם מסד נתונים",
+      "createButton": "צור",
+      "creatingButton": "יוצר…",
+      "cancelButton": "ביטול",
+      "unknownError": "אירעה שגיאה בלתי צפויה",
+      "validation": {
+        "nameRequired": "שם מסד הנתונים הוא שדה חובה",
+        "nameInvalidChars": "שם מסד הנתונים לא יכול להכיל את התווים [, ], או '"
+      }
+    },
+    "serverFileBrowser": {
+      "title": "עיון בקבצי השרת",
+      "select": "בחר",
+      "cancel": "ביטול",
+      "loading": "טוען…",
+      "noDrives": "אין כוננים זמינים",
+      "emptyFolder": "התיקייה ריקה",
+      "fileNameLabel": "שם הקובץ",
+      "fileNamePlaceholder": "הזן שם קובץ",
+      "manualFallback": "לא ניתן לעיין במערכת הקבצים של השרת (אין הרשאות מספיקות). הזן נתיב מלא ידנית.",
+      "manualPathLabel": "נתיב מלא",
+      "manualPathPlaceholder": "לדוגמה C:\\Backups\\MyDatabase.bak",
+      "enterManually": "הזן נתיב ידנית",
+      "browseDrives": "עיין בכוננים"
+    },
+    "backup": {
+      "contextMenuLabel": "גיבוי…",
+      "dialogTitle": "גיבוי מסד נתונים",
+      "loading": "טוען…",
+      "source": "מקור",
+      "databaseLabel": "מסד נתונים",
+      "nameLabel": "שם ערכת הגיבוי",
+      "namePlaceholder": "שם אופציונלי לגיבוי זה",
+      "backupType": "סוג גיבוי",
+      "types": {
+        "full": "מלא",
+        "differential": "דיפרנציאלי",
+        "log": "יומן טרנזקציות"
+      },
+      "backupComponent": "רכיב גיבוי",
+      "componentDatabase": "מסד נתונים",
+      "componentFiles": "קבצים וקבוצות קבצים",
+      "chooseFiles": "בחר קבצים…",
+      "filesSelected": "{{count}} פריטים נבחרו",
+      "destination": "יעד",
+      "noDestinations": "לא נוספו מיקומי גיבוי עדיין.",
+      "addDestination": "הוסף",
+      "removeDestination": "הסר",
+      "media": "מדיה",
+      "appendExisting": "הוסף לערכת הגיבוי הקיימת",
+      "overwriteExisting": "דרוס את כל ערכות הגיבוי הקיימות",
+      "reliability": "אמינות",
+      "verify": "אמת את הגיבוי בסיום",
+      "checksum": "בצע סכום ביקורת לפני כתיבה למדיה",
+      "continueOnError": "המשך במקרה של שגיאה",
+      "transactionLog": "יומן טרנזקציות",
+      "truncateLog": "קצץ את יומן הטרנזקציות",
+      "tailLog": "גבה את קצה היומן והשאר את מסד הנתונים במצב שחזור",
+      "expiration": "תפוגת גיבוי",
+      "expirationNone": "ערכת הגיבוי אינה פגה",
+      "expirationAfter": "אחרי",
+      "days": "ימים",
+      "expirationOn": "בתאריך",
+      "compression": "דחיסה",
+      "compressionDefault": "השתמש בהגדרת ברירת המחדל של השרת",
+      "compressionCompress": "דחוס גיבוי",
+      "compressionNone": "אל תדחוס גיבוי",
+      "previewScript": "תצוגת סקריפט",
+      "hideScript": "הסתר סקריפט",
+      "cancel": "ביטול",
+      "backUp": "גבה",
+      "backingUp": "מגבה…",
+      "success": "הגיבוי הושלם תוך {{seconds}} שניות.",
+      "unknownError": "אירעה שגיאה בלתי צפויה",
+      "validation": {
+        "destinationRequired": "הוסף לפחות מיקום גיבוי אחד.",
+        "filesRequired": "בחר לפחות קובץ או קבוצת קבצים אחת.",
+        "expirationDateRequired": "בחר תאריך תפוגה."
+      },
+      "filesAndFilegroups": {
+        "title": "בחר קבצים וקבוצות קבצים",
+        "empty": "לא נמצאו קבצים עבור מסד נתונים זה.",
+        "data": "נתונים",
+        "log": "יומן",
+        "confirm": "אישור",
+        "cancel": "ביטול"
+      }
+    },
+    "restore": {
+      "contextMenuLabel": "שחזור…",
+      "dialogTitle": "שחזור מסד נתונים",
+      "loading": "טוען…",
+      "source": "מקור",
+      "sourceDatabase": "מסד נתונים",
+      "sourceDevice": "התקן",
+      "addDevice": "הוסף",
+      "restorePlan": "תוכנית שחזור",
+      "refresh": "רענן",
+      "noBackupSets": "אין ערכות גיבוי זמינות.",
+      "colType": "סוג",
+      "colDatabase": "מסד נתונים",
+      "colDate": "תאריך",
+      "colPosition": "מיקום",
+      "colFile": "קובץ",
+      "destination": "יעד",
+      "targetDatabase": "מסד נתונים יעד",
+      "options": "אפשרויות",
+      "replace": "דרוס את מסד הנתונים הקיים (WITH REPLACE)",
+      "takeTailLog": "גבה את קצה היומן לפני השחזור",
+      "restrictedUser": "הגבל גישה למסד הנתונים המשוחזר (RESTRICTED_USER)",
+      "recoveryState": "מצב שחזור",
+      "recovery": "RESTORE WITH RECOVERY",
+      "norecovery": "RESTORE WITH NORECOVERY",
+      "standby": "RESTORE WITH STANDBY",
+      "relocate": "מיקום מחדש של קבצים",
+      "loadFileList": "טען רשימת קבצים",
+      "noMoveFiles": "טען את רשימת הקבצים כדי למקם מחדש את קבצי מסד הנתונים.",
+      "previewScript": "תצוגת סקריפט",
+      "hideScript": "הסתר סקריפט",
+      "cancel": "ביטול",
+      "restore": "שחזר",
+      "restoring": "משחזר…",
+      "success": "השחזור הושלם תוך {{seconds}} שניות.",
+      "unknownError": "אירעה שגיאה בלתי צפויה",
+      "validation": {
+        "targetRequired": "הזן שם מסד נתונים יעד.",
+        "sourceRequired": "בחר לפחות ערכת גיבוי אחת לשחזור."
+      }
+    },
+    "mysqlBackup": {
+      "dialogTitle": "גיבוי מסד נתונים MySQL",
+      "source": "מקור",
+      "databaseLabel": "מסד נתונים",
+      "content": "תוכן",
+      "contentBoth": "סכימה ונתונים",
+      "contentSchema": "סכימה בלבד",
+      "contentData": "נתונים בלבד",
+      "destination": "יעד",
+      "noFile": "לא נבחר קובץ",
+      "chooseFile": "בחר קובץ…",
+      "compress": "דחוס פלט (gzip)",
+      "options": "אפשרויות",
+      "opt": {
+        "addDropTable": "הוסף פקודות DROP TABLE",
+        "singleTransaction": "טרנזקציה יחידה (תצלום עקבי)",
+        "includeRoutines": "כלול שגרות מאוחסנות",
+        "includeTriggers": "כלול טריגרים",
+        "includeEvents": "כלול אירועים",
+        "extendedInsert": "השתמש בפקודות INSERT מורחבות",
+        "addCreateDatabase": "הוסף פקודת CREATE DATABASE"
+      },
+      "charset": "ערכת תווים",
+      "engineCli": "mysqldump זוהה — גיבויים משתמשים בלקוח mysqldump",
+      "engineJs": "mysqldump לא נמצא — גיבויים משתמשים במנוע המובנה",
+      "previewCommand": "תצוגה מקדימה של הפקודה",
+      "hideCommand": "הסתר פקודה",
+      "cancel": "ביטול",
+      "backUp": "גבה",
+      "backingUp": "מגבה…",
+      "success": "הגיבוי הושלם תוך {{seconds}} שניות ({{size}} KB, מנוע {{engine}}).",
+      "unknownError": "אירעה שגיאה לא ידועה במהלך הגיבוי.",
+      "validation": {
+        "fileRequired": "בחר קובץ יעד."
+      }
+    },
+    "mysqlRestore": {
+      "dialogTitle": "שחזור מסד נתונים MySQL",
+      "source": "מקור",
+      "noFile": "לא נבחר קובץ",
+      "chooseFile": "בחר קובץ…",
+      "target": "יעד",
+      "targetDatabase": "מסד נתונים יעד",
+      "createIfNotExists": "צור מסד נתונים אם אינו קיים",
+      "stopOnError": "עצור בשגיאה הראשונה",
+      "cancel": "ביטול",
+      "restore": "שחזר",
+      "restoring": "משחזר…",
+      "success": "השחזור הושלם תוך {{seconds}} שניות (מנוע {{engine}}, {{count}} פקודות).",
+      "unknownError": "אירעה שגיאה לא ידועה במהלך השחזור.",
+      "validation": {
+        "fileRequired": "בחר קובץ גיבוי לשחזור.",
+        "targetRequired": "הזן שם מסד נתונים יעד."
+      }
+    },
+    "mongoBackup": {
+      "dialogTitle": "גיבוי מסד נתונים MongoDB",
+      "source": "מקור",
+      "databaseLabel": "מסד נתונים",
+      "destination": "יעד",
+      "noFile": "לא נבחר קובץ",
+      "chooseFile": "בחר קובץ…",
+      "compress": "דחיסת פלט (gzip)",
+      "engineCli": "mongodump זוהה — הגיבויים משתמשים בארכיון mongodump",
+      "engineJs": "mongodump לא נמצא — הגיבויים משתמשים במנוע JSON המובנה",
+      "previewCommand": "תצוגה מקדימה של הפקודה",
+      "hideCommand": "הסתר פקודה",
+      "cancel": "ביטול",
+      "backUp": "גבה",
+      "backingUp": "מגבה…",
+      "success": "הגיבוי הושלם תוך {{seconds}} שניות ({{size}} KB, מנוע {{engine}}).",
+      "unknownError": "אירעה שגיאה לא ידועה במהלך הגיבוי.",
+      "validation": {
+        "fileRequired": "בחר קובץ יעד."
+      }
+    },
+    "mongoRestore": {
+      "dialogTitle": "שחזור מסד נתונים MongoDB",
+      "source": "מקור",
+      "noFile": "לא נבחר קובץ",
+      "chooseFile": "בחר קובץ…",
+      "target": "יעד",
+      "targetDatabase": "מסד נתונים יעד",
+      "drop": "מחק אוספים לפני השחזור",
+      "stopOnError": "עצור בשגיאה הראשונה",
+      "cancel": "ביטול",
+      "restore": "שחזר",
+      "restoring": "משחזר…",
+      "success": "השחזור הושלם תוך {{seconds}} שניות (מנוע {{engine}}, {{count}} אוספים).",
+      "unknownError": "אירעה שגיאה לא ידועה במהלך השחזור.",
+      "validation": {
+        "fileRequired": "בחר קובץ גיבוי לשחזור.",
+        "targetRequired": "הזן שם מסד נתונים יעד."
+      }
+    },
+    "sqliteBackup": {
+      "dialogTitle": "גיבוי מסד נתונים SQLite",
+      "source": "מקור",
+      "databaseLabel": "מסד נתונים",
+      "destination": "יעד",
+      "noFile": "לא נבחר קובץ",
+      "chooseFile": "בחר קובץ…",
+      "compact": "כיווץ (VACUUM)",
+      "compress": "דחיסת פלט (gzip)",
+      "cancel": "ביטול",
+      "backUp": "גבה",
+      "backingUp": "מגבה…",
+      "success": "הגיבוי הושלם תוך {{seconds}} שניות ({{size}} KB).",
+      "unknownError": "אירעה שגיאה לא ידועה במהלך הגיבוי.",
+      "validation": {
+        "fileRequired": "בחר קובץ יעד."
+      }
+    },
+    "sqliteRestore": {
+      "dialogTitle": "שחזור מסד נתונים SQLite",
+      "source": "מקור",
+      "noFile": "לא נבחר קובץ",
+      "chooseFile": "בחר קובץ…",
+      "target": "יעד",
+      "databaseLabel": "מסד נתונים",
+      "overwriteWarning": "השחזור יחליף את קובץ מסד הנתונים הנוכחי בגיבוי שנבחר.",
+      "safetyCopy": "שמור עותק של מסד הנתונים הנוכחי תחילה",
+      "cancel": "ביטול",
+      "restore": "שחזר",
+      "restoring": "משחזר…",
+      "success": "השחזור הושלם תוך {{seconds}} שניות.",
+      "safetyCopySaved": "מסד הנתונים הקודם נשמר ב-{{path}}.",
+      "unknownError": "אירעה שגיאה לא ידועה במהלך השחזור.",
+      "validation": {
+        "fileRequired": "בחר קובץ גיבוי לשחזור."
+      }
+    },
+    "redisBackup": {
+      "dialogTitle": "גיבוי מסד נתונים Redis",
+      "dialogTitleAll": "גיבוי כל מסדי הנתונים של Redis",
+      "scope": "היקף",
+      "scopeDatabase": "מסד נתונים {{index}}",
+      "scopeAll": "כל מסדי הנתונים",
+      "destination": "יעד",
+      "noFile": "לא נבחר קובץ",
+      "chooseFile": "בחר קובץ…",
+      "compress": "דחיסת פלט (gzip)",
+      "cancel": "ביטול",
+      "backUp": "גבה",
+      "backingUp": "מגבה…",
+      "success": "הגיבוי הושלם תוך {{seconds}} שניות — {{keys}} מפתחות ב-{{databases}} מסדי נתונים, {{size}} ק\"ב.",
+      "unknownError": "אירעה שגיאה לא ידועה במהלך הגיבוי.",
+      "contextMenuLabel": "גיבוי",
+      "contextMenuAllLabel": "גיבוי כל מסדי הנתונים",
+      "validation": {
+        "fileRequired": "בחר קובץ יעד."
+      }
+    },
+    "redisRestore": {
+      "dialogTitle": "שחזור מסד נתונים Redis",
+      "dialogTitleAll": "שחזור כל מסדי הנתונים של Redis",
+      "source": "מקור",
+      "noFile": "לא נבחר קובץ",
+      "chooseFile": "בחר קובץ…",
+      "target": "יעד",
+      "targetDatabaseIndex": "אינדקס מסד נתונים יעד",
+      "conflict": "אם מפתח כבר קיים",
+      "conflictReplace": "דרוס מפתחות קיימים",
+      "conflictFlush": "נקה מסד נתונים תחילה",
+      "conflictSkip": "דלג על מפתחות קיימים",
+      "cancel": "ביטול",
+      "restore": "שחזר",
+      "restoring": "משחזר…",
+      "success": "השחזור הושלם תוך {{seconds}} שניות — {{restored}} מפתחות שוחזרו, {{skipped}} דולגו, ב-{{databases}} מסדי נתונים.",
+      "unknownError": "אירעה שגיאה לא ידועה במהלך השחזור.",
+      "contextMenuLabel": "שחזור",
+      "contextMenuAllLabel": "שחזור כל מסדי הנתונים",
+      "validation": {
+        "fileRequired": "בחר קובץ גיבוי לשחזור.",
+        "targetRequired": "הזן אינדקס מסד נתונים יעד תקין."
+      }
+    },
+    "postgresBackup": {
+      "dialogTitle": "גיבוי מסד נתונים PostgreSQL",
+      "source": "מקור",
+      "databaseLabel": "מסד נתונים",
+      "content": "תוכן",
+      "contentBoth": "סכימה ונתונים",
+      "contentSchema": "סכימה בלבד",
+      "contentData": "נתונים בלבד",
+      "destination": "יעד",
+      "format": "פורמט פלט",
+      "formatPlain": "SQL רגיל (.sql)",
+      "formatCustom": "מותאם (ארכיון דחוס)",
+      "formatTar": "ארכיון Tar",
+      "formatDirectory": "תיקייה",
+      "noFile": "לא נבחר קובץ",
+      "chooseFile": "בחר קובץ…",
+      "chooseFolder": "בחר תיקייה…",
+      "compress": "דחוס פלט (gzip)",
+      "compressionLevel": "רמת דחיסה (0–9)",
+      "options": "אפשרויות",
+      "opt": {
+        "noOwner": "ללא בעלים (דלג על פקודות בעלות)",
+        "noPrivileges": "ללא הרשאות (דלג על GRANT/REVOKE)",
+        "clean": "הוסף פקודות DROP (ניקוי)",
+        "createDatabase": "הוסף פקודת CREATE DATABASE"
+      },
+      "encoding": "קידוד",
+      "engineCli": "pg_dump זוהה — גיבויים משתמשים בלקוח pg_dump",
+      "engineMissing": "pg_dump לא נמצא — התקן את כלי הלקוח של PostgreSQL כדי לגבות",
+      "previewCommand": "תצוגה מקדימה של הפקודה",
+      "hideCommand": "הסתר פקודה",
+      "cancel": "ביטול",
+      "backUp": "גבה",
+      "backingUp": "מגבה…",
+      "success": "הגיבוי הושלם תוך {{seconds}} שניות ({{size}} KB).",
+      "unknownError": "אירעה שגיאה לא ידועה במהלך הגיבוי.",
+      "validation": {
+        "fileRequired": "בחר קובץ או תיקיית יעד."
+      }
+    },
+    "postgresRestore": {
+      "dialogTitle": "שחזור מסד נתונים PostgreSQL",
+      "source": "מקור",
+      "noFile": "לא נבחר קובץ",
+      "chooseFile": "בחר קובץ…",
+      "format": "פורמט ארכיון",
+      "formatPlain": "SQL רגיל (.sql)",
+      "formatCustom": "מותאם (ארכיון דחוס)",
+      "formatTar": "ארכיון Tar",
+      "formatDirectory": "תיקייה",
+      "target": "יעד",
+      "targetDatabase": "מסד נתונים יעד",
+      "createDatabase": "צור מסד נתונים לפני השחזור",
+      "clean": "מחק אובייקטים קיימים תחילה (ניקוי)",
+      "noOwner": "ללא בעלים (דלג על פקודות בעלות)",
+      "singleTransaction": "שחזר כטרנזקציה יחידה",
+      "jobs": "עבודות מקבילות",
+      "cancel": "ביטול",
+      "restore": "שחזר",
+      "restoring": "משחזר…",
+      "success": "השחזור הושלם תוך {{seconds}} שניות.",
+      "unknownError": "אירעה שגיאה לא ידועה במהלך השחזור.",
+      "validation": {
+        "fileRequired": "בחר קובץ גיבוי לשחזור.",
+        "targetRequired": "הזן שם מסד נתונים יעד."
+      }
+    },
+    "unsavedChanges": {
+      "dialogTitle": "שינויים שלא נשמרו",
+      "message": "ל-\"{{fileName}}\" יש שינויים שלא נשמרו. האם לשמור לפני הסגירה?",
+      "saveButton": "שמור",
+      "discardButton": "אל תשמור",
+      "cancelButton": "ביטול"
+    },
+    "createTable": {
+      "refreshContextMenuLabel": "רענן",
+      "contextMenuLabel": "צור טבלה",
+      "dialogTitle": "צור טבלה",
+      "schemaLabel": "סכמה",
+      "tableNameLabel": "שם הטבלה",
+      "tableNamePlaceholder": "הזן שם טבלה",
+      "columnsTitle": "עמודות",
+      "propertiesTitle": "מאפייני עמודה",
+      "propertiesEmpty": "בחר עמודה לצפייה במאפייניה",
+      "addColumnButton": "הוסף עמודה",
+      "noColumns": "אין עמודות עדיין. לחץ על \"הוסף עמודה\" להתחיל.",
+      "colHeader": {
+        "name": "שם",
+        "type": "סוג",
+        "null": "Null"
+      },
+      "props": {
+        "length": "אורך",
+        "lengthCustom": "מותאם אישית",
+        "precisionScale": "דיוק / סקלה",
+        "precision": "דיוק",
+        "scale": "סקלה",
+        "defaultValue": "ערך ברירת מחדל",
+        "defaultValuePlaceholder": "לדוגמה: GETDATE(), 0, 'N/A'",
+        "primaryKey": "מפתח ראשי",
+        "identity": "זהות (Identity)",
+        "identitySeedIncrement": "התחלה / פסיעה",
+        "identitySeed": "התחלה",
+        "identityIncrement": "פסיעה"
+      },
+      "sqlPreviewTitle": "תצוגת SQL",
+      "resetSqlButton": "אפס SQL",
+      "resetSqlTitle": "חזור ל-SQL שנוצר אוטומטית",
+      "cancelButton": "ביטול",
+      "createButton": "צור טבלה",
+      "creatingButton": "יוצר…",
+      "loading": "טוען סכמת טבלה…",
+      "closeAriaLabel": "סגור דיאלוג",
+      "unknownError": "אירעה שגיאה בלתי צפויה",
+      "validation": {
+        "nameRequired": "שם הטבלה הוא שדה חובה",
+        "nameInvalidChars": "שם הטבלה לא יכול להכיל את התווים [, ], או '",
+        "noSql": "אין מה להריץ. הוסף עמודות או ערוך את ה-SQL ישירות."
+      }
+    },
+    "manageAggregations": {
+      "cancelButton": "ביטול",
+      "createButton": "צור Aggregation",
+      "saveButton": "שמור Aggregation",
+      "savingButton": "שומר…",
+      "deleteButton": "מחק",
+      "deletingButton": "מוחק…"
+    },
+    "editTable": {
+      "contextMenuLabel": "ערוך טבלה",
+      "dialogTitle": "עריכת טבלה: {{tableName}}",
+      "saveButton": "שמור שינויים",
+      "savingButton": "שומר…"
+    },
+    "foreignKeys": {
+      "dialogTitle": "ניהול מפתחות זרים — {{table}}",
+      "listHeader": "מפתחות זרים",
+      "noKeys": "אין מפתחות זרים",
+      "newKey": "(חדש)",
+      "addButton": "הוסף מפתח זר",
+      "addContextMenuLabel": "הוסף מפתח זר",
+      "editContextMenuLabel": "ערוך מפתח זר",
+      "selectOrAdd": "בחר מפתח זר או הוסף חדש",
+      "tableMapping": "מיפוי טבלאות",
+      "sourceTable": "טבלת מקור (מוחזרת)",
+      "sourceColumn": "עמודת מקור",
+      "destinationTable": "טבלת יעד (מחזיקת ה-FK)",
+      "destinationColumn": "עמודת יעד",
+      "selectTable": "— בחר טבלה —",
+      "selectColumn": "— בחר עמודה —",
+      "properties": "מאפיינים",
+      "name": "שם",
+      "description": "תיאור",
+      "descriptionPlaceholder": "תיאור אופציונלי…",
+      "enforceForReplication": "אכוף עבור שכפול",
+      "enforceFkConstraints": "אכוף אילוצי מפתח זר",
+      "deleteRule": "כלל מחיקה",
+      "updateRule": "כלל עדכון",
+      "saveButton": "שמור FK",
+      "deleteButton": "מחק FK"
+    },
+    "manageTriggers": {
+      "dialogTitle": "ניהול טריגרים — {{table}}",
+      "listHeader": "טריגרים",
+      "noTriggers": "אין טריגרים",
+      "newTrigger": "(חדש)",
+      "addButton": "הוסף טריגר",
+      "createContextMenuLabel": "צור טריגר",
+      "editContextMenuLabel": "ערוך טריגר",
+      "selectOrAdd": "בחר טריגר או הוסף חדש",
+      "nameLabel": "שם",
+      "namePlaceholder": "trg_MyTrigger",
+      "descriptionLabel": "תיאור",
+      "descriptionPlaceholder": "תיאור אופציונלי…",
+      "tableLabel": "טבלה",
+      "timingLabel": "מתי לרוץ",
+      "after": "AFTER",
+      "insteadOf": "INSTEAD OF",
+      "eventsLabel": "אירועים",
+      "insertEvent": "INSERT",
+      "updateEvent": "UPDATE",
+      "deleteEvent": "DELETE",
+      "codeLabel": "קוד הטריגר",
+      "saveButton": "שמור טריגר",
+      "deleteButton": "מחק טריגר",
+      "validation": {
+        "nameRequired": "שם הטריגר נדרש.",
+        "eventRequired": "יש לבחור לפחות אירוע אחד (INSERT, UPDATE, DELETE).",
+        "codeRequired": "קוד הטריגר נדרש."
+      }
+    },
+    "manageIndexes": {
+      "dialogTitle": "ניהול אינדקסים — {{table}}",
+      "listHeader": "אינדקסים",
+      "noIndexes": "אין אינדקסים",
+      "newIndex": "(חדש)",
+      "addButton": "הוסף אינדקס",
+      "createContextMenuLabel": "צור אינדקס",
+      "editContextMenuLabel": "ערוך אינדקס",
+      "rebuild": "בנה מחדש",
+      "reorganize": "ארגן מחדש",
+      "disable": "בטל",
+      "selectOrAdd": "בחר אינדקס או הוסף חדש",
+      "primaryKeyNote": "לא ניתן לשנות אינדקסי מפתח ראשי כאן.",
+      "nameLabel": "שם",
+      "namePlaceholder": "idx_TableName_Column",
+      "typeLabel": "סוג",
+      "typeClustered": "CLUSTERED",
+      "typeNonClustered": "NONCLUSTERED",
+      "typeClusteredDisabled": "CLUSTERED (כבר קיים בטבלה)",
+      "uniqueLabel": "ייחודי",
+      "columnsLabel": "עמודות האינדקס",
+      "addColumn": "הוסף עמודה",
+      "columnHeader": "עמודה",
+      "sortHeader": "מיון",
+      "includeHeader": "כלול",
+      "ascending": "ASC",
+      "descending": "DESC",
+      "filterLabel": "ביטוי סינון",
+      "filterPlaceholder": "לדוגמה: [Status] = 'Active' (אופציונלי, לאינדקס חלקי)",
+      "fillFactorLabel": "Fill Factor (0–100)",
+      "fillFactorPlaceholder": "לדוגמה: 80",
+      "descriptionLabel": "תיאור",
+      "descriptionPlaceholder": "תיאור אופציונלי…",
+      "saveButton": "שמור אינדקס",
+      "deleteButton": "מחק אינדקס",
+      "rebuilding": "בונה מחדש…",
+      "reorganizing": "מארגן מחדש…",
+      "disabling": "מבטל…",
+      "rebuildSuccess": "האינדקס נבנה מחדש בהצלחה.",
+      "reorganizeSuccess": "האינדקס אורגן מחדש בהצלחה.",
+      "disableSuccess": "האינדקס בוטל בהצלחה.",
+      "validation": {
+        "nameRequired": "שם האינדקס נדרש.",
+        "columnsRequired": "נדרשת לפחות עמודת מפתח אחת."
+      }
+    },
+    "checkConstraints": {
+      "dialogTitle": "ניהול אילוצים — {{table}}",
+      "listHeader": "אילוצים",
+      "noConstraints": "אין אילוצי בדיקה",
+      "newConstraint": "(חדש)",
+      "addButton": "הוסף אילוץ",
+      "addContextMenuLabel": "הוסף אילוץ",
+      "editContextMenuLabel": "ערוך אילוץ",
+      "selectOrAdd": "בחר אילוץ או הוסף חדש",
+      "condition": "תנאי",
+      "properties": "מאפיינים",
+      "name": "שם",
+      "description": "תיאור",
+      "descriptionPlaceholder": "תיאור אופציונלי…",
+      "checkExistingData": "בדוק נתונים קיימים",
+      "enforceInsertsAndUpdates": "אכוף INSERT ו-UPDATE",
+      "enforceForReplication": "אכוף עבור שכפול",
+      "saveButton": "שמור אילוץ",
+      "deleteButton": "מחק אילוץ",
+      "validation": {
+        "nameRequired": "שם האילוץ נדרש.",
+        "conditionRequired": "התנאי נדרש."
+      }
+    },
+    "dropTable": {
+      "contextMenuLabel": "מחק",
+      "confirmTitle": "מחיקת טבלה",
+      "confirmMessage": "האם אתה בטוח שברצונך למחוק את הטבלה \"{{tableName}}\"? פעולה זו אינה ניתנת לביטול."
+    },
+    "dropDatabase": {
+      "contextMenuLabel": "מחק",
+      "confirmTitle": "מחיקת מסד נתונים",
+      "confirmMessage": "האם אתה בטוח שברצונך למחוק את מסד הנתונים \"{{databaseName}}\"? פעולה זו אינה ניתנת לביטול."
+    },
+    "createErd": {
+      "contextMenuLabel": "צור סכמת ERD"
+    },
+    "erdFilesFolder": "קבצי ERD",
+    "erdFile": {
+      "remove": "הסר מהרשימה"
+    },
+    "erd": {
+      "export": {
+        "title": "ייצוא כ-PNG",
+        "background": "רקע",
+        "transparent": "שקוף",
+        "grid": "רשת",
+        "gridOptions": {
+          "none": "ללא",
+          "dots": "נקודות",
+          "grid": "רשת"
+        },
+        "summary": "כלול סיכום מסד נתונים (טבלאות, עמודות, קשרים, אינדקסים)",
+        "cancel": "ביטול",
+        "export": "ייצא"
+      }
+    },
+    "selectTopRows": "בחר {{count}} שורות מובילות",
+    "newQuery": "שאילתה חדשה",
+    "profile": "פרופיל",
+    "views": "תצוגות",
+    "manageMySqlUsers": {
+      "dialogTitle": "ניהול משתמשי MySQL",
+      "listHeader": "משתמשים",
+      "addButton": "הוסף משתמש",
+      "editButton": "ערוך משתמש",
+      "deleteButton": "מחק משתמש",
+      "newUser": "משתמש חדש",
+      "selectOrAdd": "בחר משתמש או הוסף חדש",
+      "usernameLabel": "שם משתמש",
+      "usernamePlaceholder": "הזן שם משתמש",
+      "hostLabel": "מארח",
+      "hostPlaceholder": "% (כל מארח)",
+      "pluginLabel": "פלאגין אימות",
+      "passwordLabel": "סיסמה",
+      "passwordPlaceholder": "הזן סיסמה",
+      "passwordEditPlaceholder": "השאר ריק כדי לשמור סיסמה נוכחית",
+      "accountLockedLabel": "חשבון נעול",
+      "passwordExpiredLabel": "סיסמה פגת תוקף",
+      "tab_general": "כללי",
+      "tab_globalPrivileges": "הרשאות גלובליות",
+      "tab_databasePrivileges": "הרשאות מסד נתונים",
+      "dbPrivilegesHeader": "מסד נתונים",
+      "dbPrivilegesEmpty": "לא הוענקו הרשאות מסד נתונים",
+      "saveButton": "שמור",
+      "usernameRequired": "נדרש שם משתמש",
+      "passwordRequired": "נדרשת סיסמה עבור פלאגין אימות זה",
+      "confirmDelete": "למחוק משתמש \"{{name}}\"? פעולה זו אינה הפיכה."
+    },
+    "manageRedisAclUsers": {
+      "dialogTitle": "ניהול משתמשי Redis",
+      "listHeader": "משתמשים",
+      "addButton": "הוסף משתמש",
+      "editButton": "ערוך משתמש",
+      "deleteButton": "מחק משתמש",
+      "newUser": "משתמש חדש",
+      "selectOrAdd": "בחר משתמש או הוסף חדש",
+      "usernameLabel": "שם משתמש",
+      "usernamePlaceholder": "הכנס שם משתמש",
+      "passwordLabel": "סיסמה",
+      "passwordPlaceholder": "הכנס סיסמה",
+      "passwordEditPlaceholder": "השאר ריק לשמירת הסיסמה הנוכחית",
+      "confirmPasswordLabel": "אימות סיסמה",
+      "confirmPasswordPlaceholder": "הכנס סיסמה שנית",
+      "passwordMismatch": "הסיסמאות אינן תואמות",
+      "enabledLabel": "חשבון מופעל",
+      "nopassLabel": "ללא סיסמה נדרשת (nopass)",
+      "tab_general": "כללי",
+      "tab_commands": "פקודות",
+      "tab_keys": "מפתחות וערוצים",
+      "allCommandsLabel": "אפשר את כל הפקודות",
+      "allKeysLabel": "כל המפתחות",
+      "noKeysLabel": "ללא גישה למפתחות",
+      "allChannelsLabel": "כל הערוצים",
+      "noChannelsLabel": "ללא גישה לערוצים",
+      "addKeyPatternPlaceholder": "תבנית מפתח (לדוג׳ cache:*)",
+      "addChannelPatternPlaceholder": "תבנית ערוץ (לדוג׳ notifications:*)",
+      "addPatternButton": "הוסף",
+      "keyPatternsLabel": "תבניות מפתח",
+      "channelPatternsLabel": "תבניות ערוץ",
+      "saveButton": "שמור",
+      "usernameRequired": "שם משתמש הינו שדה חובה",
+      "confirmDelete": "למחוק משתמש \"{{name}}\"? פעולה זו אינה הפיכה."
+    },
+    "manageMongoUsers": {
+      "dialogTitle": "ניהול משתמשי MongoDB",
+      "listHeader": "משתמשים",
+      "addButton": "הוסף משתמש",
+      "editButton": "ערוך משתמש",
+      "deleteButton": "מחק משתמש",
+      "newUser": "משתמש חדש",
+      "selectOrAdd": "בחר משתמש או הוסף חדש",
+      "usernameLabel": "שם משתמש",
+      "usernamePlaceholder": "הכנס שם משתמש",
+      "passwordLabel": "סיסמה",
+      "passwordPlaceholder": "הכנס סיסמה",
+      "passwordEditPlaceholder": "השאר ריק לשמירת הסיסמה הנוכחית",
+      "confirmPasswordLabel": "אימות סיסמה",
+      "confirmPasswordPlaceholder": "הכנס סיסמה שנית",
+      "passwordMismatch": "הסיסמאות אינן תואמות",
+      "tab_general": "כללי",
+      "tab_roles": "תפקידים",
+      "roleLabel": "תפקיד",
+      "databaseLabel": "מסד נתונים",
+      "addRoleButton": "הוסף תפקיד",
+      "noRoles": "לא הוקצו תפקידים",
+      "saveButton": "שמור",
+      "usernameRequired": "שם משתמש הינו שדה חובה",
+      "confirmDelete": "למחוק משתמש \"{{name}}\"? פעולה זו אינה הפיכה."
+    },
+    "manageMySqlDatabaseUsers": {
+      "dialogTitle": "ניהול משתמשי מסד נתונים",
+      "listHeader": "משתמשים",
+      "addButton": "הוסף משתמש",
+      "editButton": "ערוך משתמש",
+      "deleteButton": "בטל גישה מלאה",
+      "selectOrAdd": "בחר משתמש לניהול הרשאות",
+      "tab_privileges": "הרשאות",
+      "saveButton": "שמור",
+      "noUsers": "אין משתמשים עם גישה למסד נתונים זה",
+      "confirmRevoke": "לבטל את כל ההרשאות על \"{{database}}\" ממשתמש \"{{name}}\"? פעולה זו אינה הפיכה."
+    },
+    "manageDatabaseUsers": {
+      "dialogTitle": "ניהול משתמשי מסד נתונים",
+      "listHeader": "משתמשים",
+      "addButton": "הוסף משתמש",
+      "editButton": "ערוך משתמש",
+      "deleteButton": "מחק משתמש",
+      "newUser": "משתמש חדש",
+      "selectOrAdd": "בחר משתמש או הוסף חדש",
+      "userNameLabel": "שם משתמש",
+      "userNamePlaceholder": "הזן שם משתמש",
+      "userTypeLabel": "סוג משתמש",
+      "userType_sql": "משתמש SQL עם כניסה",
+      "userType_windows": "משתמש Windows",
+      "userType_external": "ספק חיצוני (Entra ID)",
+      "userType_nologin": "משתמש SQL ללא כניסה",
+      "loginLabel": "כניסה",
+      "loginPlaceholder": "בחר כניסת שרת",
+      "defaultSchemaLabel": "סכמת ברירת מחדל",
+      "tab_general": "כללי",
+      "tab_membership": "חברות",
+      "saveButton": "שמור",
+      "userNameRequired": "נדרש שם משתמש",
+      "loginRequired": "יש לבחור כניסת שרת",
+      "confirmDelete": "להסיר משתמש \"{{name}}\" ממסד הנתונים \"{{database}}\"? פעולה זו אינה הפיכה."
+    },
+    "manageViews": {
+      "title": "ניהול תצוגות",
+      "viewsListHeader": "תצוגות",
+      "noViews": "אין תצוגות",
+      "newView": "תצוגה חדשה",
+      "selectOrCreate": "בחר תצוגה או צור חדשה",
+      "viewNameLabel": "שם תצוגה",
+      "viewNamePlaceholder": "שםהתצוגה",
+      "schemaLabel": "סכמה",
+      "deleteView": "מחק תצוגה",
+      "errorNoName": "שם תצוגה נדרש.",
+      "errorNoSQL": "הגדרת התצוגה (שאילתת SELECT) נדרשת.",
+      "refreshContextMenuLabel": "רענן תצוגות",
+      "createContextMenuLabel": "צור תצוגה",
+      "editContextMenuLabel": "ערוך תצוגה",
+      "queryEditor": {
+        "addTable": "הוסף טבלה",
+        "canvasHint": "הוסף טבלאות כדי לבנות את השאילתה",
+        "canvasEmpty": "גרור טבלאות לכאן כדי לבנות את השאילתה",
+        "loadingSchema": "טוען סכמה…",
+        "syncWarning": "ה-SQL נערך ידנית — בונה הממשק עלול לא לשקף את השאילתה הנוכחית",
+        "runQuery": "הרץ",
+        "results": "תוצאות",
+        "rows": "שורות",
+        "resultsEmpty": "הרץ את השאילתה כדי לראות תוצאות",
+        "resultsNoRows": "השאילתה הורצה — לא הוחזרו שורות",
+        "columnsTable": "תצורת עמודות",
+        "columnsEmpty": "הוסף טבלאות כדי לראות עמודות",
+        "colColumn": "עמודה",
+        "colAlias": "כינוי",
+        "colTable": "טבלה",
+        "colOutput": "פלט",
+        "colSortType": "סוג מיון",
+        "colSortOrder": "סדר מיון",
+        "colFilter": "סינון"
+      }
+    },
+    "manageStoredProcedures": {
+      "title": "ניהול חוקי מאגר",
+      "listHeader": "חוקי מאגר",
+      "noItems": "אין חוקי מאגר",
+      "newItem": "חוק מאגר חדש",
+      "selectOrCreate": "בחר חוק מאגר או צור חדש",
+      "propertiesHeader": "מאפיינים",
+      "nameLabel": "שם",
+      "namePlaceholder": "usp_MyProcedure",
+      "schemaLabel": "סכמה",
+      "descriptionLabel": "תיאור",
+      "descriptionPlaceholder": "תיאור אופציונלי…",
+      "parametersHeader": "פרמטרים",
+      "noParameters": "אין פרמטרים",
+      "addParameter": "הוסף פרמטר",
+      "colParamName": "שם",
+      "colParamType": "סוג",
+      "colParamDefault": "ערך ברירת מחדל",
+      "paramNamePlaceholder": "@ParamName",
+      "paramTypePlaceholder": "INT",
+      "paramDefaultPlaceholder": "NULL",
+      "bodyHeader": "גוף החוק",
+      "deleteProcedure": "מחק חוק מאגר",
+      "errorNoName": "שם החוק נדרש.",
+      "errorNoBody": "גוף החוק נדרש.",
+      "refreshContextMenuLabel": "רענן חוקי מאגר",
+      "createContextMenuLabel": "צור חוק מאגר",
+      "editContextMenuLabel": "ערוך חוק מאגר"
+    },
+    "manageTableTypes": {
+      "dialogTitle": "ניהול סוגי טבלאות",
+      "listHeader": "סוגי טבלאות",
+      "noItems": "אין סוגי טבלאות",
+      "newItem": "סוג טבלה חדש",
+      "selectOrAdd": "בחר סוג טבלה או הוסף חדש",
+      "addButton": "הוסף סוג טבלה",
+      "saveButton": "צור",
+      "updateButton": "עדכן",
+      "deleteButton": "מחק סוג טבלה",
+      "schemaLabel": "סכמה",
+      "nameLabel": "שם",
+      "namePlaceholder": "MyTableType",
+      "columnsHeader": "עמודות",
+      "createContextMenuLabel": "צור סוג טבלה",
+      "editContextMenuLabel": "ערוך סוג טבלה",
+      "refreshContextMenuLabel": "רענן",
+      "validation": {
+        "nameRequired": "שם נדרש",
+        "schemaRequired": "סכמה נדרשת"
+      }
+    },
+    "manageMemoryOptimizedTableTypes": {
+      "dialogTitle": "ניהול סוגי טבלאות ממוטבות זיכרון",
+      "listHeader": "סוגי טבלאות ממוטבות זיכרון",
+      "noItems": "אין סוגי טבלאות ממוטבות זיכרון",
+      "newItem": "סוג טבלה ממוטבת זיכרון חדשה",
+      "selectOrAdd": "בחר סוג או הוסף חדש",
+      "addButton": "הוסף סוג",
+      "saveButton": "צור",
+      "updateButton": "עדכן",
+      "deleteButton": "מחק סוג",
+      "schemaLabel": "סכמה",
+      "nameLabel": "שם",
+      "namePlaceholder": "MyMemOptType",
+      "columnsHeader": "עמודות",
+      "createContextMenuLabel": "צור סוג טבלה ממוטבת זיכרון",
+      "editContextMenuLabel": "ערוך סוג טבלה ממוטבת זיכרון",
+      "refreshContextMenuLabel": "רענן",
+      "validation": {
+        "nameRequired": "שם נדרש",
+        "schemaRequired": "סכמה נדרשת",
+        "primaryKeyRequired": "יש לסמן לפחות עמודה אחת כמפתח ראשי (נדרש עבור סוגי טבלאות ממוטבות זיכרון)"
+      }
+    }
+  },
+  "profiler": {
+    "emptyState": "אין פגישות פרופיל פעילות. לחץ לחיצה ימנית על בסיס נתונים בסייר ובחר \"פרופיל\" כדי להתחיל מעקב.",
+    "startDialog": {
+      "title": "הפעל פרופיל",
+      "eventsTitle": "אירועים לעקוב",
+      "start": "התחל",
+      "cancel": "ביטול"
+    },
+    "eventTypes": {
+      "sqlStatement": "פקודות SQL",
+      "blockedQuery": "שאילתות חסומות",
+      "sessionLogin": "התחברות",
+      "sessionLogout": "התנתקות",
+      "error": "שגיאות"
+    },
+    "tab": {
+      "running": "פועל",
+      "paused": "מושהה",
+      "stopped": "עצור",
+      "close": "סגור לשונית"
+    },
+    "toolbar": {
+      "pause": "השהה",
+      "resume": "המשך",
+      "stop": "עצור",
+      "events": "אירועים",
+      "filterPlaceholder": "סנן לפי SQL, משתמש, מחשב..."
+    },
+    "table": {
+      "time": "זמן",
+      "type": "סוג",
+      "duration": "משך (ms)",
+      "cpu": "CPU (ms)",
+      "reads": "קריאות",
+      "writes": "כתיבות",
+      "rows": "שורות",
+      "login": "משתמש",
+      "host": "מחשב",
+      "waitType": "סוג המתנה",
+      "waitingForEvents": "ממתין לאירועים...",
+      "noEvents": "לא נלכדו אירועים."
+    },
+    "sqlViewer": {
+      "selectEvent": "בחר אירוע לצפייה ב-SQL שלו",
+      "noQuery": "(אין טקסט שאילתה זמין)"
+    },
+    "error": {
+      "title": "הפרופיל הופסק:",
+      "permissionDenied": "למשתמש אין הרשאת VIEW SERVER STATE. הענק הרשאה זו כדי לאפשר את הפרופיל."
+    }
+  },
+  "pages": {
+    "query": "עורך שאילתות",
+    "schema": "תצוגת סכמה",
+    "security": "אבטחה",
+    "metrics": "מדדים"
+  },
+  "common": {
+    "save": "שמור",
+    "saving": "שומר…",
+    "close": "סגור",
+    "loading": "טוען…",
+    "deleting": "מוחק…"
+  },
+  "menu": {
+    "file": {
+      "new": "חדש",
+      "open": "פתח",
+      "save": "שמור",
+      "saveAs": "שמור בשם...",
+      "saveAll": "שמור הכל",
+      "close": "סגור",
+      "importEnvironment": "ייבוא סביבה",
+      "exportEnvironment": "ייצוא סביבה",
+      "quit": "יציאה"
+    },
+    "edit": {
+      "cut": "גזור",
+      "copy": "העתק",
+          "subtitle": "בחר שם ברור, צבע ורמת סיכון."
+      },
+      "view": {
+        "explorer": "סייר",
+        "profiler": "פרופיל",
+        "compare": "השוואה",
+        "settings": "הגדרות",
+        "profile": "פרופיל משתמש",
+        "showSideNav": "הצג סרגל ניווט צדדי",
+        "hideSideNav": "הסתר סרגל ניווט צדדי"
+      },
+      "window": {
+        "closeAllTabs": "סגור את כל הכרטיסיות",
+        "lockScreen": "נעל מסך"
+      },
+      "help": {
+        "about": "אודות",
+        "checkForUpdates": "בדוק עדכונים...",
+        "documentation": "תיעוד",
+        "takeScreenshot": "צלם מסך",
+        "showTip": "הצג טיפ",
+        "developerTools": "הצג כלי מפתח"
+      }
+  },
+  "compare": {
+    "addComparison": "הוסף השוואה",
+    "actions": {
+      "compare": "השווה",
+      "comparing": "משווה...",
+      "delete": "מחק",
+      "edit": "ערוך"
+    },
+    "deleteConfirmTitle": "מחיקת השוואה",
+    "deleteConfirm": "למחוק את ההשוואה \"{{name}}\"?",
+    "detail": {
+      "keyMappings": "מפתחות לוגיים מותאמים",
+      "noDescription": "עדיין לא הוזן תיאור.",
+      "noKeyMappings": "עדיין לא הוגדרו מפתחות לוגיים מותאמים. כשאפשר, ייעשה שימוש במפתחות ראשיים.",
+      "providers": "ספקים",
+      "scope": "טווח השוואה",
+      "source": "מסד נתוני מקור",
+      "target": "מסד נתוני יעד",
+      "unmapped": "לא ממופה"
+    },
+    "dialog": {
+      "actions": {
+        "addMapping": "הוסף מיפוי",
+        "cancel": "ביטול",
+        "newConnection": "חיבור חדש",
+        "removeMapping": "הסר מיפוי",
+        "save": "שמור השוואה",
+        "swapEndpoints": "החלף מקור ויעד",
+        "update": "עדכן השוואה"
+      },
+      "fields": {
+        "connection": "חיבור",
+        "database": "מסד נתונים",
+        "description": "תיאור",
+        "name": "שם ההשוואה",
+        "providers": "ספקים"
+      },
+      "keyMappings": {
+        "empty": "הוסף דריסות ברמת טבלה כאשר ההשוואה צריכה להשתמש במפתח לוגי מותאם במקום במפתח הראשי הפיזי.",
+        "help": "דריסות אופציונליות עבור סכימות או תצוגות מעורבות שזקוקות להגדרת מפתח לוגי מותאם.",
+        "sourceColumns": "עמודות מקור",
+        "sourceTable": "טבלת מקור",
+        "targetColumns": "עמודות יעד",
+        "targetTable": "טבלת יעד"
+      },
+      "loadingDatabases": "טוען מסדי נתונים...",
+      "placeholders": {
+        "selectConnection": "בחר חיבור",
+        "selectDatabase": "בחר מסד נתונים"
+      },
+      "providerSummary": {
+        "empty": "בחר חיבורי מקור ויעד כדי למלא את הספקים."
+      },
+      "sections": {
+        "endpoints": "מקור ויעד",
+        "endpointsHelp": "כל צד יכול להצביע על חיבור קיים מה-Explorer או ליצור חיבור חדש בתוך הדו-שיח.",
+        "general": "פרטי ההשוואה",
+        "keyMappings": "מפתחות מורכבים מותאמים",
+        "scope": "טווח השוואה",
+        "source": "מקור",
+        "target": "יעד"
+      },
+      "titleEdit": "עריכת השוואה",
+      "titleNew": "השוואה חדשה",
+      "validation": {
+        "nameRequired": "נדרש שם להשוואה.",
+        "scopeRequired": "בחר לפחות טווח השוואה אחד.",
+        "sourceConnectionRequired": "בחר חיבור מקור.",
+        "sourceDatabaseRequired": "בחר מסד נתוני מקור.",
+        "targetConnectionRequired": "בחר חיבור יעד.",
+        "targetDatabaseRequired": "בחר מסד נתוני יעד."
+      }
+    },
+    "emptySearch": "לא נמצאו השוואות התואמות את החיפוש.",
+    "emptyState": "אין השוואות עדיין. לחץ על \"הוסף השוואה\" כדי להתחיל.",
+    "emptySelection": "בחר השוואה קיימת או צור חדשה כדי לראות את ההגדרות שלה.",
+    "filter": {
+      "ariaLabel": "סינון השוואות",
+      "provider": "ספק",
+      "title": "סינון"
+    },
+    "panelAriaLabel": "לוח השוואות",
+    "search": {
+      "ariaLabel": "חיפוש השוואות",
+      "placeholder": "חפש השוואות..."
+    },
+    "sort": {
+      "ariaLabel": "מיון השוואות",
+      "directions": {
+        "asc": "עולה",
+        "desc": "יורד"
+      },
+      "fields": {
+        "createdAt": "תאריך יצירה",
+        "name": "שם",
+        "sourceProvider": "ספק מקור",
+        "targetProvider": "ספק יעד",
+        "updatedAt": "עדכון אחרון"
+      },
+      "title": "מיין לפי"
+    },
+    "report": {
+      "categories": {
+        "checkConstraints": "אילוצי בדיקה",
+        "columns": "עמודות",
+        "foreignKeys": "מפתחות זרים",
+        "functions": "פונקציות",
+        "indexes": "אינדקסים",
+        "rows": "שורות",
+        "securityRoles": "תפקידי מסד נתונים",
+        "securitySchemas": "סכמות",
+        "securityUsers": "משתמשי מסד נתונים",
+        "storedProcedures": "פרוצדורות מאוחסנות",
+        "tables": "טבלאות",
+        "triggers": "טריגרים",
+        "views": "תצוגות"
+      },
+      "changeTypes": {
+        "added": "נוסף",
+        "modified": "שונה",
+        "removed": "הוסר",
+        "unsupported": "דולג"
+      },
+      "empty": "לחץ על השווה כדי ליצור דוח עם כל ההבדלים שהתגלו.",
+      "executionFailed": "לא ניתן להשלים את ההשוואה.",
+      "generatedAt": "נוצר {{timestamp}}",
+      "noDifferences": "לא נמצאו הבדלים בטווח שנבחר.",
+      "source": "מקור",
+      "swapDirectionIndicator": "כיוון סנכרון: {{truth}} → {{receiver}}",
+      "summary": {
+        "added": "נוסף",
+        "modified": "שונה",
+        "removed": "הוסר",
+        "total": "סה״כ",
+        "unsupported": "דולג"
+      },
+      "actions": {
+        "createScript": "צור סקריפט",
+        "generatingScript": "מייצר...",
+        "print": "הדפס",
+        "save": "שמור",
+        "saving": "שומר...",
+        "swap": "החלף",
+        "swapped": "מוחלף",
+        "sync": "סנכרן",
+        "syncAll": "סנכרן הכל",
+        "syncing": "מסנכרן..."
+      },
+      "target": "יעד",
+      "title": "דוח תוצאות",
+      "warnings": "אזהרות",
+      "search": {
+        "placeholder": "חפש לפי שם…",
+        "ariaLabel": "חיפוש תוצאות",
+        "noResults": "אין תוצאות התואמות לחיפוש או למסננים שלך."
+      },
+      "filter": {
+        "ariaLabel": "סינון תוצאות",
+        "title": "סוג שינוי"
+      },
+      "sort": {
+        "ariaLabel": "מיון תוצאות",
+        "title": "מיון לפי שם",
+        "directions": {
+          "asc": "א → ת",
+          "desc": "ת → א"
+        }
+      }
+    },
+    "scope": {
+      "groups": {
+        "data": {
+          "description": "הגדר אילו מערכי נתונים יושוו ברמת שורה.",
+          "title": "נתוני טבלאות"
+        },
+        "schema": {
+          "description": "בחר את המשטחים המבניים והתכנותיים לבדיקה.",
+          "title": "סכימה ואובייקטים מבניים"
+        }
+      },
+      "options": {
+        "indexingSubsystems": {
+          "description": "אינדקסים מקובצים ולא מקובצים, אובייקטי Full-Text ואינדקסים מרחביים או XML.",
+          "label": "מערכות אינדוקס"
+        },
+        "keyMatchedSets": {
+          "description": "השוואת שורות שנוספו, נמחקו או השתנו באמצעות מפתחות פיזיים או לוגיים מותאמים.",
+          "label": "קבוצות מבוססות מפתח"
+        },
+        "programmableObjects": {
+          "description": "פרוצדורות, פונקציות, טריגרים ותצוגות.",
+          "label": "אובייקטים תכנותיים"
+        },
+        "rowLevelValues": {
+          "description": "השוואה שדה-מול-שדה בין טבלאות יעד או תצוגות ניתנות לעדכון.",
+          "label": "ערכים ברמת שורה"
+        },
+        "securityMetadataProfiles": {
+          "description": "משתמשים, תפקידים, הרשאות, תעודות, סינונימים, מפתחות ומאפיינים מורחבים.",
+          "label": "אבטחה ופרופילי מטא-דאטה"
+        },
+        "tablesCoreConstraints": {
+          "description": "טבלאות, עמודות, טיפוסי נתונים מערכתיים, זהויות, מפתחות ראשיים וזרים, אילוצים ייחודיים ואילוצי בדיקה.",
+          "label": "טבלאות ואילוצי ליבה"
+        }
+      }
+    },
+    "scopeLabels": {
+      "data.keyMatchedSets": "קבוצות מבוססות מפתח",
+      "data.rowLevelValues": "ערכים ברמת שורה",
+      "schema.indexingSubsystems": "מערכות אינדוקס",
+      "schema.programmableObjects": "אובייקטים תכנותיים",
+      "schema.securityMetadataProfiles": "אבטחה ופרופילי מטא-דאטה",
+      "schema.tablesCoreConstraints": "טבלאות ואילוצי ליבה"
+    },
+    "exportSecretsDialog": {
+      "title": "שמירת דוח השוואה",
+      "close": "סגור דו-שיח",
+      "message": "האם לכלול פרטי חיבור כמו סיסמאות ונתיבי קבצים בקובץ JSON המיוצא?",
+      "warning": "כלילת סיסמאות מאפשרת לכל מי שיש לו גישה לקובץ לקרוא את פרטי הגישה למסד הנתונים. שתף את הקובץ רק עם גורמים מוסמכים.",
+      "includeSecrets": "כלול סיסמאות ונתיבי קבצים",
+      "dontAskAgain": "אל תשאל שוב (שומר את הבחירה הנוכחית כברירת מחדל)",
+      "cancel": "בטל",
+      "save": "שמור"
+    },
+    "syncConfirmDialog": {
+      "title": "סנכרון מסדי נתונים",
+      "close": "סגור דו-שיח",
+      "warningAll": "פעולה זו תחיל את כל הממצאים הניתנים לסנכרון מהדוח על {{receiverName}}. לא ניתן לבטל פעולה זו אוטומטית אלא אם תיצור סקריפט ביטול למטה.",
+      "warningSingle": "פעולה זו תחיל את הממצא שנבחר על {{receiverName}}. לא ניתן לבטל פעולה זו אוטומטית אלא אם תיצור סקריפט ביטול למטה.",
+      "selectedFinding": "ממצא נבחר: {{findingName}}",
+      "createRevertScript": "צור סקריפט ביטול (יישמר לפני הסנכרון)",
+      "revertScriptNote": "סקריפט הביטול יישמר לקובץ שתבחר. שמור עליו — הוא מאפשר לבטל את הסנכרון במידת הצורך.",
+      "cancel": "בטל",
+      "confirm": "סנכרן עכשיו"
+    }
+  },
+  "environmentImportExport": {
+    "exportTitle": "ייצוא סביבה",
+    "exportDescription": "ייצא את הגדרות Spiral שלך לקובץ לגיבוי או להעברה למחשב אחר.",
+    "exportConnections": "חיבורי מסד נתונים",
+    "exportComparisons": "תוכניות השוואה",
+    "exportPasswords": "סיסמאות",
+    "exportSettings": "הגדרות",
+    "exportPasswordsHint": "כלול סיסמאות חיבור ואישורי SSH",
+    "export": "ייצא",
+    "exporting": "מייצא...",
+    "cancel": "ביטול",
+    "importTitle": "ייבוא סביבה",
+    "importWaiting": "ממתין לבחירת קובץ...",
+    "importValidating": "מאמת קובץ...",
+    "importConnections": "מייבא חיבורי מסד נתונים...",
+    "importComparisons": "מייבא תוכניות השוואה...",
+    "importSettings": "מייבא הגדרות...",
+    "importSuccess": "הייבוא הושלם בהצלחה.",
+    "importSuccessConnections": "{{count}} חיבור(ים) יובאו",
+    "importSuccessComparisons": "{{count}} תוכנית(ות) השוואה יובאו",
+    "importSuccessSettings": "הגדרות יובאו",
+    "importError": "הייבוא נכשל",
+    "close": "סגור"
+  },
+  "jsonViewer": {
+    "copy": "העתק",
+    "expandAll": "הרחב את כל השדות",
+    "collapseAll": "כווץ את כל השדות",
+    "invalidJson": "JSON לא תקין",
+    "errorAt": "בשורה {{line}}, עמודה {{col}}"
+  },
+  "docs": {
+    "navAriaLabel": "ניווט תיעוד",
+    "searchPlaceholder": "חיפוש בתיעוד...",
+    "noResults": "לא נמצאו מקטעים",
+    "empty": "אין תיעוד זמין"
+  },
+  "tips": {
+    "dismiss": "סגור טיפ",
+    "titles": {
+      "aTipForYou": "טיפ בשבילך",
+      "tipOfTheDay": "טיפ היום",
+      "niceToKnow": "כדאי לדעת",
+      "whatsNext": "מה הלאה?",
+      "didYouKnow": "ידעת?",
+      "didYouTryThisTrick": "ניסית את הטריק הזה?",
+      "haveYouTriedThis": "ניסית את זה?",
+      "includedInThisApplication": "כלול באפליקציה זו"
+    }
+  }
+}

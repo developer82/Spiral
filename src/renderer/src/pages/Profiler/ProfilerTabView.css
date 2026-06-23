@@ -1,0 +1,302 @@
+.profiler-tab-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── Error banner ── */
+
+.profiler-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.825rem;
+  background: color-mix(in srgb, var(--color-error, #c0392b) 12%, transparent);
+  border-bottom: 0.0625rem solid color-mix(in srgb, var(--color-error, #c0392b) 40%, transparent);
+  color: var(--color-error, #c0392b);
+  font-size: var(--font-xs);
+  flex-shrink: 0;
+}
+
+.profiler-error-banner__icon {
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.profiler-error-banner__title {
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.profiler-error-banner__message {
+  opacity: 0.9;
+}
+
+
+/* ── Toolbar ── */
+
+.profiler-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.825rem;
+  padding: 0.55rem 0.825rem;
+  border-bottom: 0.0625rem solid var(--color-border);
+  background: var(--color-topbar-bg);
+  flex-shrink: 0;
+}
+
+.profiler-toolbar__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4125rem;
+}
+
+.profiler-toolbar__btn {
+  display: flex;
+  align-items: center;
+  gap: 0.33rem;
+  padding: 0.33rem 0.66rem;
+  border-radius: 0.275rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--color-surface-hover);
+  border: 0.0625rem solid var(--color-border);
+  color: var(--color-on-surface);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.profiler-toolbar__btn:hover {
+  background: var(--color-primary-tint-soft);
+  border-color: var(--color-primary-shadow);
+  color: var(--color-primary);
+}
+
+.profiler-toolbar__btn--resume {
+  color: #a2f31f;
+  border-color: rgba(162, 243, 31, 0.25);
+  background: rgba(162, 243, 31, 0.06);
+}
+
+.profiler-toolbar__btn--resume:hover {
+  background: rgba(162, 243, 31, 0.12);
+}
+
+.profiler-toolbar__btn--stop {
+  color: #ff716c;
+  border-color: rgba(255, 113, 108, 0.25);
+  background: rgba(255, 113, 108, 0.06);
+}
+
+.profiler-toolbar__btn--stop:hover {
+  background: rgba(255, 113, 108, 0.12);
+}
+
+.profiler-toolbar__stopped-badge {
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--color-muted);
+  background: var(--color-surface-hover);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.275rem;
+  padding: 0.275rem 0.55rem;
+}
+
+.profiler-toolbar__right {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.profiler-toolbar__count {
+  font-size: var(--font-xs);
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.profiler-toolbar__filter {
+  padding: 0.33rem 0.55rem;
+  border-radius: 0.275rem;
+  border: 0.0625rem solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: var(--font-xs);
+  width: 14rem;
+  transition: border-color 150ms ease;
+}
+
+.profiler-toolbar__filter:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* ── Events table ── */
+
+.profiler-table-wrap {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+}
+
+.profiler-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-xs);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.profiler-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--color-topbar-bg);
+}
+
+.profiler-table th {
+  padding: 0.4125rem 0.55rem;
+  text-align: left;
+  font-size: var(--font-2xs, 0.7rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+  border-bottom: 0.0625rem solid var(--color-border);
+  white-space: nowrap;
+}
+
+.profiler-table td {
+  padding: 0.275rem 0.55rem;
+  border-bottom: 0.0625rem solid var(--color-border);
+  vertical-align: middle;
+  white-space: nowrap;
+  color: var(--color-on-surface);
+  max-width: 20rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profiler-table__row {
+  cursor: pointer;
+  transition: background-color 100ms ease;
+}
+
+.profiler-table__row:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.profiler-table__row--selected {
+  background-color: var(--color-primary-tint-soft) !important;
+}
+
+.profiler-table__num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+}
+
+.profiler-table__time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+}
+
+.profiler-table__type {
+  white-space: nowrap;
+}
+
+/* ── Row color coding ── */
+
+.profiler-row--blocked td {
+  color: #ff716c;
+}
+
+.profiler-row--error td {
+  color: #f5a623;
+}
+
+.profiler-row--session td {
+  color: #a1faff;
+}
+
+/* ── Event type badge ── */
+
+.profiler-type-badge {
+  display: inline-block;
+  padding: 0.1rem 0.33rem;
+  border-radius: 0.2rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.profiler-type-badge--sql-statement {
+  background: rgba(161, 250, 255, 0.1);
+  color: #a1faff;
+}
+
+.profiler-type-badge--blocked-query {
+  background: rgba(255, 113, 108, 0.1);
+  color: #ff716c;
+}
+
+.profiler-type-badge--error {
+  background: rgba(245, 166, 35, 0.1);
+  color: #f5a623;
+}
+
+.profiler-type-badge--session-login,
+.profiler-type-badge--session-logout {
+  background: rgba(161, 250, 255, 0.08);
+  color: var(--color-muted);
+}
+
+.profiler-table__empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-muted);
+  font-size: var(--font-sm);
+  font-style: italic;
+}
+
+/* ── Resize handle ── */
+
+.profiler-viewer__resize-handle {
+  height: 0.4125rem;
+  cursor: row-resize;
+  flex-shrink: 0;
+  background: transparent;
+  border-top: 0.0625rem solid var(--color-border);
+  position: relative;
+  transition: background-color 150ms ease;
+}
+
+.profiler-viewer__resize-handle:hover,
+.profiler-viewer__resize-handle:active {
+  background-color: var(--color-primary);
+  opacity: 0.35;
+}
+
+/* ── SQL Viewer ── */
+
+.profiler-viewer {
+  flex-shrink: 0;
+  overflow: hidden;
+  border-top: 0.0625rem solid var(--color-border);
+}
+
+.profiler-viewer__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-muted);
+  font-size: var(--font-sm);
+  font-style: italic;
+}
