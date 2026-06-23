@@ -1056,6 +1056,25 @@
                   >LinkedIn</a
                 >
                 <a class="link-hover-text footer-icon-link"
+                  href="{{ xUrl }}"
+                  target="_blank"
+                  rel="noopener"
+
+
+                  ><svg class="icon-fixed"
+                    viewBox="0 0 24 24"
+                    width="1em"
+                    height="1em"
+                    fill="currentColor"
+                    aria-hidden="true"
+
+                  >
+                    <path
+                      d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"
+                    /></svg
+                  >@Ophir_Oren</a
+                >
+                <a class="link-hover-text footer-icon-link"
                   href="{{ releasesUrl }}"
                   target="_blank"
                   rel="noopener"
@@ -1080,7 +1099,7 @@
     <script
       type="text/x-dc"
       data-dc-script
-      data-props='{"$preview":{"width":1280},"version":{"editor":"text","default":"v1.0.0","tsType":"string"},"githubUrl":{"editor":"text","default":"https://github.com/developer82/Spiral","tsType":"string"},"linkedinUrl":{"editor":"text","default":"https://www.linkedin.com/in/ophiroren/","tsType":"string"},"releasesUrl":{"editor":"text","default":"https://github.com/developer82/Spiral/releases","tsType":"string"}}'
+      data-props='{"$preview":{"width":1280},"version":{"editor":"text","default":"v1.0.0","tsType":"string"},"githubUrl":{"editor":"text","default":"https://github.com/developer82/Spiral","tsType":"string"},"linkedinUrl":{"editor":"text","default":"https://www.linkedin.com/in/ophiroren/","tsType":"string"},"xUrl":{"editor":"text","default":"https://x.com/Ophir_Oren","tsType":"string"},"releasesUrl":{"editor":"text","default":"https://github.com/developer82/Spiral/releases","tsType":"string"}}'
     >
       class Component extends DCLogic {
         state = { os: 'Windows' };
@@ -1091,6 +1110,7 @@
             os: this.state.os,
             githubUrl,
             linkedinUrl: this.props.linkedinUrl ?? 'https://www.linkedin.com/in/ophiroren/',
+            xUrl: this.props.xUrl ?? 'https://x.com/Ophir_Oren',
             releasesUrl: this.props.releasesUrl ?? (githubUrl.replace(/\/$/, '') + '/releases'),
             version: this.props.version ?? 'v1.0.0',
           };
