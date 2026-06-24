@@ -16,12 +16,18 @@ export interface ConnectionItem {
 
 export type ConnectionListEntry = ConnectionGroupHeader | ConnectionItem
 
+export type ConnectionStatusFilter = 'online' | 'offline' | null
+
 export interface UseConnectionListParams {
   connections: ConnectionRecord[]
   environments: EnvironmentDefinition[]
   searchText: string
   filterProviders: Set<ConnectionProvider>
   filterEnvironmentIds: Set<string>
+  /** Ids of connections whose runtime status is 'connected'. */
+  connectedIds: Set<string>
+  /** Single-select status filter: 'online', 'offline', or null for no filtering. */
+  filterStatus: ConnectionStatusFilter
   sortField: ConnectionSortField
   sortDirection: SortDirection
 }
@@ -53,10 +59,12 @@ export function computeConnectionList({
   searchText,
   filterProviders,
   filterEnvironmentIds,
+  connectedIds,
+  filterStatus,
   sortField,
   sortDirection
 }: UseConnectionListParams): UseConnectionListReturn {
-  const hasActiveFilters = filterProviders.size > 0 || filterEnvironmentIds.size > 0
+  const hasActiveFilters = filterProviders.size > 0 || filterEnvironmentIds.size > 0 || filterStatus !== null
 
   const normalizedSearch = searchText.trim().toLocaleLowerCase()
 
@@ -73,6 +81,9 @@ export function computeConnectionList({
       const envId = conn.environmentId ?? ''
       if (!filterEnvironmentIds.has(envId)) return false
     }
+
+    if (filterStatus === 'online' && !connectedIds.has(conn.id)) return false
+    if (filterStatus === 'offline' && connectedIds.has(conn.id)) return false
 
     return true
   })
@@ -114,7 +125,7 @@ export function computeConnectionList({
 }
 
 export function useConnectionList(params: UseConnectionListParams): UseConnectionListReturn {
-  const { connections, environments, searchText, filterProviders, filterEnvironmentIds, sortField, sortDirection } = params
+  const { connections, environments, searchText, filterProviders, filterEnvironmentIds, connectedIds, filterStatus, sortField, sortDirection } = params
 
   const filtered = useMemo(() => {
     const normalizedSearch = searchText.trim().toLocaleLowerCase()
@@ -129,9 +140,11 @@ export function useConnectionList(params: UseConnectionListParams): UseConnectio
         const envId = conn.environmentId ?? ''
         if (!filterEnvironmentIds.has(envId)) return false
       }
+      if (filterStatus === 'online' && !connectedIds.has(conn.id)) return false
+      if (filterStatus === 'offline' && connectedIds.has(conn.id)) return false
       return true
     })
-  }, [connections, searchText, filterProviders, filterEnvironmentIds])
+  }, [connections, searchText, filterProviders, filterEnvironmentIds, connectedIds, filterStatus])
 
   const entries = useMemo(() => {
     if (sortField === 'provider') {
@@ -162,7 +175,7 @@ export function useConnectionList(params: UseConnectionListParams): UseConnectio
     return sorted.map<ConnectionListEntry>((conn) => ({ kind: 'connection', connection: conn }))
   }, [filtered, sortField, sortDirection, environments])
 
-  return { entries, hasActiveFilters: filterProviders.size > 0 || filterEnvironmentIds.size > 0 }
+  return { entries, hasActiveFilters: filterProviders.size > 0 || filterEnvironmentIds.size > 0 || filterStatus !== null }
 }
 
 /**

@@ -672,7 +672,10 @@
       "ariaLabel": "סנן חיבורים",
       "title": "סנן חיבורים",
       "provider": "ספק",
-      "environment": "סביבה"
+      "environment": "סביבה",
+      "status": "סטטוס",
+      "online": "מחובר",
+      "offline": "מנותק"
     },
     "sort": {
       "ariaLabel": "מיין חיבורים",

@@ -1,7 +1,7 @@
 {
   "name": "Spiral",
   "productName": "Spiral",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A cross-platform database client and administration tool for SQL and NoSQL databases, featuring interactive ERD visualizers, visual execution plans, database profiling, schema comparison, and a local AI query generator.",
   "main": "./out/main/index.js",
   "author": "Ophir Oren",

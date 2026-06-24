@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect } from 'react'
+﻿import { useState, useRef, useEffect, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { useScreenNav } from '../../../components/NavController/NavController'
 import {
@@ -131,6 +131,7 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
   const [connectionSearch, setConnectionSearch] = useState('')
   const [filterProviders, setFilterProviders] = useState<Set<ConnectionProvider>>(new Set())
   const [filterEnvironmentIds, setFilterEnvironmentIds] = useState<Set<string>>(new Set())
+  const [filterStatus, setFilterStatus] = useState<'online' | 'offline' | null>(null)
   const [sortField, setSortField] = useState<ConnectionSortField>(
     () => settings.defaultConnectionSort?.field ?? 'name'
   )
@@ -180,6 +181,10 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
     })
   }
 
+  function toggleFilterStatus(status: 'online' | 'offline'): void {
+    setFilterStatus((prev) => (prev === status ? null : status))
+  }
+
   function getFilterPanelPosition(): { top: number; left: number } {
     const btn = filterBtnRef.current
     if (!btn) return { top: 0, left: 0 }
@@ -195,12 +200,22 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
   }
 
   // ── Derived connection list ───────────────────────────────────────────────
+  const connectedIds = useMemo(() => {
+    const s = new Set<string>()
+    for (const c of tree.connections) {
+      if (tree.runtimeStates.get(c.id)?.status === 'connected') s.add(c.id)
+    }
+    return s
+  }, [tree.connections, tree.runtimeStates])
+
   const { entries: connectionEntries, hasActiveFilters } = useConnectionList({
     connections: tree.connections,
     environments: settings.environments ?? [],
     searchText: connectionSearch,
     filterProviders,
     filterEnvironmentIds,
+    connectedIds,
+    filterStatus,
     sortField,
     sortDirection
   })
@@ -2973,6 +2988,18 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
                   </button>
                 </>
               )}
+              <div className="explorer__dropdown-separator" />
+              <div className="explorer__dropdown-section">{t('explorer.filter.status')}</div>
+              {(['online', 'offline'] as const).map((status) => (
+                <button
+                  key={status}
+                  className={`explorer__dropdown-item${filterStatus === status ? ' explorer__dropdown-item--active' : ''}`}
+                  onClick={() => toggleFilterStatus(status)}
+                >
+                  <Check size={12} className="explorer__dropdown-check" />
+                  {t(`explorer.filter.${status}`)}
+                </button>
+              ))}
             </div>
           )
         })()}

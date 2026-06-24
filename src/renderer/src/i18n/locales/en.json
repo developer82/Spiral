@@ -751,7 +751,10 @@
       "ariaLabel": "Filter connections",
       "title": "Filter Connections",
       "provider": "Provider",
-      "environment": "Environment"
+      "environment": "Environment",
+      "status": "Status",
+      "online": "Online",
+      "offline": "Offline"
     },
     "sort": {
       "ariaLabel": "Sort connections",

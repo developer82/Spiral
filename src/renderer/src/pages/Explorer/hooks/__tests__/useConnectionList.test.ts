@@ -27,6 +27,8 @@ function computeList(params: Partial<UseConnectionListParams> & { connections: C
     searchText: params.searchText ?? '',
     filterProviders: params.filterProviders ?? new Set(),
     filterEnvironmentIds: params.filterEnvironmentIds ?? new Set(),
+    connectedIds: params.connectedIds ?? new Set(),
+    filterStatus: params.filterStatus ?? null,
     sortField: params.sortField ?? 'name',
     sortDirection: params.sortDirection ?? 'asc'
   })
@@ -125,6 +127,58 @@ describe('useConnectionList – filter', () => {
     })
     const ids = entries.map((e) => e.kind === 'connection' ? e.connection.id : null).filter(Boolean)
     expect(ids).toEqual(['4'])
+  })
+})
+
+describe('useConnectionList – status filter', () => {
+  const connections = [
+    makeConn({ id: '1', name: 'Connected A', provider: 'postgres' }),
+    makeConn({ id: '2', name: 'Connected B', provider: 'mysql' }),
+    makeConn({ id: '3', name: 'Disconnected', provider: 'sqlite' }),
+    makeConn({ id: '4', name: 'Connecting', provider: 'postgres' }),
+    makeConn({ id: '5', name: 'Errored', provider: 'mysql' })
+  ]
+  // Only ids 1 and 2 are connected; 3 disconnected, 4 connecting, 5 error.
+  const connectedIds = new Set(['1', '2'])
+
+  it('hasActiveFilters is true when status filter set', () => {
+    const { hasActiveFilters } = computeList({ connections, connectedIds, filterStatus: 'online' })
+    expect(hasActiveFilters).toBe(true)
+  })
+
+  it('online filter returns only connected connections', () => {
+    const { entries } = computeList({ connections, connectedIds, filterStatus: 'online' })
+    const ids = entries.map((e) => e.kind === 'connection' ? e.connection.id : null).filter(Boolean)
+    expect(ids).toEqual(expect.arrayContaining(['1', '2']))
+    expect(ids).toHaveLength(2)
+  })
+
+  it('offline filter returns every non-connected connection (incl. connecting/error)', () => {
+    const { entries } = computeList({ connections, connectedIds, filterStatus: 'offline' })
+    const ids = entries.map((e) => e.kind === 'connection' ? e.connection.id : null).filter(Boolean)
+    expect(ids).toEqual(expect.arrayContaining(['3', '4', '5']))
+    expect(ids).toHaveLength(3)
+  })
+
+  it('returns all connections when status filter is null', () => {
+    const { entries } = computeList({ connections, connectedIds, filterStatus: null })
+    expect(entries).toHaveLength(5)
+  })
+
+  it('treats every connection as offline when none are connected', () => {
+    const { entries } = computeList({ connections, connectedIds: new Set(), filterStatus: 'offline' })
+    expect(entries).toHaveLength(5)
+  })
+
+  it('combines status and provider filters (intersection)', () => {
+    const { entries } = computeList({
+      connections,
+      connectedIds,
+      filterStatus: 'online',
+      filterProviders: new Set(['postgres'])
+    })
+    const ids = entries.map((e) => e.kind === 'connection' ? e.connection.id : null).filter(Boolean)
+    expect(ids).toEqual(['1'])
   })
 })
 
