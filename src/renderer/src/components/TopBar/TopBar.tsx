@@ -34,6 +34,8 @@ import { useMenuStateContext } from '../../contexts/MenuStateContext'
 import { useSettingsContext } from '../../contexts/SettingsContext'
 import { useUpdateContext } from '../../contexts/UpdateContext'
 import { useTipsContext } from '../../contexts/TipsContext'
+import { useProfileContext } from '../../contexts/ProfileContext'
+import ProfileAvatar from '../ProfileAvatar/ProfileAvatar'
 import logoUrl from '../../assets/logo.png'
 import './TopBar.css'
 
@@ -85,14 +87,20 @@ function CloseIcon(): React.JSX.Element {
 
 interface WindowControlsProps {
   isMaximized: boolean
+  /** When the profile button sits immediately to the left, drop the auto left margin. */
+  hasProfile?: boolean
 }
 
-function WindowControls({ isMaximized }: WindowControlsProps): React.JSX.Element {
+function WindowControls({ isMaximized, hasProfile = false }: WindowControlsProps): React.JSX.Element {
   const isLinux = window.api.platform === 'linux'
 
   return (
     <div
-      className={`topbar__window-controls${isLinux ? ' topbar__window-controls--linux' : ''}`}
+      className={[
+        'topbar__window-controls',
+        isLinux ? 'topbar__window-controls--linux' : '',
+        hasProfile ? 'topbar__window-controls--with-profile' : ''
+      ].filter(Boolean).join(' ')}
       aria-label="Window controls"
     >
       <button
@@ -120,6 +128,25 @@ function WindowControls({ isMaximized }: WindowControlsProps): React.JSX.Element
   )
 }
 
+// Profile button shown in the title bar when the side navigation bar is hidden.
+// Mirrors the side-nav profile entry: shows the avatar and opens the User
+// Profile settings section on click.
+function TopBarProfileButton({ className = '' }: { className?: string }): React.JSX.Element {
+  const { t } = useTranslation()
+  const { profile } = useProfileContext()
+
+  return (
+    <button
+      className={`topbar__profile${className ? ` ${className}` : ''}`}
+      title={profile.displayName || t('nav.sideNav.profile')}
+      aria-label={t('nav.sideNav.profile')}
+      onClick={() => dispatchMenuAction('view:settings:user-profile')}
+    >
+      <ProfileAvatar size={24} />
+    </button>
+  )
+}
+
 const MENU_KEYS: MenuKey[] = ['file', 'edit', 'view', 'window', 'help']
 const ACCESS_KEY_MAP: Record<string, MenuKey> = { f: 'file', e: 'edit', v: 'view', w: 'window', h: 'help' }
 const MENU_ACCESS_LETTERS: Record<MenuKey, string> = { file: 'F', edit: 'E', view: 'V', window: 'W', help: 'H' }
@@ -144,6 +171,10 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
 
   const customTitlebar = settings.customTitlebar
   const platform = window.api.platform
+
+  // When the side navigation bar is hidden, surface the user profile in the
+  // title bar instead (not while the screen is locked).
+  const showProfile = !isLocked && !settings.showSideNavigationBar
 
   const [isMaximized, setIsMaximized] = useState(false)
   const [isInstalling, setIsInstalling] = useState(false)
@@ -613,6 +644,7 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
     >
       <div className={`topbar__brand${platform === 'darwin' ? ' topbar__brand--macos' : ''}`}>
         {platform === 'darwin' && updatePill}
+        {platform === 'darwin' && showProfile && <TopBarProfileButton />}
         <div className="topbar__logo-icon">
           <img src={logoUrl} alt="Spiral" className="topbar__logo-svg" />
         </div>
@@ -660,8 +692,12 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
 
       {platform !== 'darwin' && !isLocked && updatePill}
 
+      {platform !== 'darwin' && showProfile && (
+        <TopBarProfileButton className="topbar__profile--right" />
+      )}
+
       {customTitlebar && platform !== 'darwin' && (
-        <WindowControls isMaximized={isMaximized} />
+        <WindowControls isMaximized={isMaximized} hasProfile={showProfile} />
       )}
 
       {showAboutDialog && (

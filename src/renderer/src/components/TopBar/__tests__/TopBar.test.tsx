@@ -72,6 +72,23 @@ vi.mock('../../../contexts/TipsContext', () => ({
   })
 }))
 
+vi.mock('../../../contexts/ProfileContext', () => ({
+  useProfileContext: () => ({
+    profile: {
+      displayName: 'Ada Lovelace',
+      avatarDataUrl: null,
+      avatarZoom: 1,
+      avatarOffsetX: 0,
+      avatarOffsetY: 0,
+      lockOnStartup: false,
+      lockOnInactivity: false,
+      lockOnMinimize: false,
+      inactivityTimeoutMinutes: 5,
+      hasPassword: false
+    }
+  })
+}))
+
 vi.mock('../../../hooks/useConfetti', () => ({
   useConfetti: () => ({ triggerConfetti: vi.fn() })
 }))
@@ -841,5 +858,75 @@ describe('TopBar — update pill', () => {
 
     await user.click(screen.getByRole('button', { name: 'update.updateAvailable' }))
     expect(screen.getByText('update.dialogTitle')).toBeInTheDocument()
+  })
+})
+
+// ── Profile button ───────────────────────────────────────────────────────────
+
+describe('TopBar — profile button', () => {
+  afterEach(() => {
+    cleanup()
+    vi.restoreAllMocks()
+  })
+
+  function mockSideNavHidden(): void {
+    vi.mocked(useSettingsContext).mockReturnValue({
+      settings: { ...defaultSettings, showSideNavigationBar: false },
+      updateSetting: mockUpdateSetting,
+      resetSettings: mockResetSettings
+    })
+  }
+
+  it('does not render the profile button when the side navigation bar is visible', () => {
+    renderTopBar()
+    expect(screen.queryByRole('button', { name: 'nav.sideNav.profile' })).not.toBeInTheDocument()
+  })
+
+  it('renders the profile button when the side navigation bar is hidden', () => {
+    mockSideNavHidden()
+    renderTopBar()
+    expect(screen.getByRole('button', { name: 'nav.sideNav.profile' })).toBeInTheDocument()
+  })
+
+  it('does not render the profile button while the title bar is locked', () => {
+    mockSideNavHidden()
+    render(
+      <MenuStateProvider>
+        <TopBar isLocked />
+      </MenuStateProvider>
+    )
+    expect(screen.queryByRole('button', { name: 'nav.sideNav.profile' })).not.toBeInTheDocument()
+  })
+
+  it('dispatches the user-profile view action when the profile button is clicked', async () => {
+    const user = userEvent.setup()
+    mockSideNavHidden()
+    renderTopBar()
+
+    const events: string[] = []
+    const listener = (e: Event): void => { events.push((e as CustomEvent<string>).detail) }
+    window.addEventListener('menu:file-action', listener)
+
+    await user.click(screen.getByRole('button', { name: 'nav.sideNav.profile' }))
+
+    await waitFor(() => expect(events).toContain('view:settings:user-profile'))
+    window.removeEventListener('menu:file-action', listener)
+  })
+
+  it('places the profile button left of the window controls on Windows', () => {
+    // platform defaults to 'win32' in test-setup.ts
+    mockSideNavHidden()
+    const { container } = renderTopBar()
+    const profile = container.querySelector('.topbar__profile')
+    expect(profile).toHaveClass('topbar__profile--right')
+    expect(container.querySelector('.topbar__window-controls--with-profile')).toBeInTheDocument()
+  })
+
+  it('places the profile button inside the brand, left of the logo, on macOS', () => {
+    vi.spyOn(window.api, 'platform', 'get').mockReturnValue('darwin' as NodeJS.Platform)
+    mockSideNavHidden()
+    const { container } = renderTopBar()
+    const brand = container.querySelector('.topbar__brand')
+    expect(brand?.querySelector('.topbar__profile')).toBeInTheDocument()
   })
 })

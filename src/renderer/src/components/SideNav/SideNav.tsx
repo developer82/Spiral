@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useProfileContext } from '../../contexts/ProfileContext'
 import { useSkyColor, applySkyGlow } from '../../hooks/useSkyColor'
-import AvatarPlaceholder from '../AvatarPlaceholder/AvatarPlaceholder'
+import ProfileAvatar from '../ProfileAvatar/ProfileAvatar'
 import './SideNav.css'
 
 interface NavItem {
@@ -64,27 +64,13 @@ function SideNav({ activeItem = 'explorer', isVisible = true, onNavigate, onNavi
       <nav className="sidenav__bottom">
         {/* Profile button — above the settings icon */}
         <button
-          className={`sidenav__item sidenav__item--profile${activeItem === 'settings' && false ? '' : ''}`}
+          className="sidenav__item sidenav__item--profile"
           title={profile.displayName || t('nav.sideNav.profile')}
           aria-label={t('nav.sideNav.profile')}
           tabIndex={isVisible ? 0 : -1}
           onClick={() => onNavigateToProfile?.()}
         >
-          {profile.avatarDataUrl ? (
-            <span className="sidenav__avatar-clip">
-              <img
-                src={profile.avatarDataUrl}
-                alt={profile.displayName || t('nav.sideNav.profile')}
-                className="sidenav__avatar"
-                style={{
-                  transform: `translate(${profile.avatarOffsetX}%, ${profile.avatarOffsetY}%) scale(${profile.avatarZoom})`,
-                  transformOrigin: 'center'
-                }}
-              />
-            </span>
-          ) : (
-            <AvatarPlaceholder displayName={profile.displayName} size={24} />
-          )}
+          <ProfileAvatar size={24} />
         </button>
 
         {BOTTOM_NAV_ITEMS.map(({ id, icon: Icon, labelKey }) => (

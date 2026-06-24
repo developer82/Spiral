@@ -174,11 +174,20 @@ All left-side navigation is managed by the `NavController` component, which host
 
 2. **Screen Navigation (secondary panel)** — an optional per-page panel rendered to the right of SideNav. Pages that have a secondary navigation area (Explorer, Compare, Settings, Docs) inject their panel into NavController's slot via a React portal, keeping their panel state local while the visual output appears beside SideNav. The slot is empty for pages without a secondary nav (Profiler). When rendered outside a NavController (e.g., in unit tests), the panel falls back to rendering inline within the page.
 
-The side navigation bar can be hidden from **View → Hide Side Navigation Bar** and shown again from **View → Show Side Navigation Bar**. This preference persists across app restarts and can also be changed from **Settings → Appearance → Interface Elements**.
+The side navigation bar can be hidden from **View → Hide Side Navigation Bar** and shown again from **View → Show Side Navigation Bar**. This preference persists across app restarts and can also be changed from **Settings → Appearance → Interface Elements**. While the side navigation bar is hidden, the **User Profile** button relocates to the title bar so the avatar and quick access to the User Profile settings remain reachable (see [Top Bar](#top-bar)).
 
 ### Top Bar
 
 A horizontal application menu bar (`TopBar`) at the top with the Spiral logo/wordmark and menu items: **File**, **Edit**, **View**, and **Window**. On Windows and Linux, these menus render as custom HTML dropdowns via the shared `Menu` component. On macOS, matching native application menu entries are exposed as well, and the native **View** menu retains **Toggle Full Screen**.
+
+#### Title Bar Profile Button
+
+When the side navigation bar is hidden, the **User Profile** button moves into the title bar so the user's avatar (or default `UserRound` placeholder) stays visible. The avatar visual is shared with the side navigation bar via the `ProfileAvatar` component, so the chosen image, zoom, and offset render identically in both places. Clicking it opens the **User Profile** section of Settings, and hovering shows the display name as a tooltip. Placement is platform-aware:
+
+- **Windows / Linux** — pinned to the right of the title bar, immediately left of the window control buttons (minimize / maximize / close).
+- **macOS** — placed inside the brand cluster on the right, immediately left of the Spiral logo (the window traffic lights remain in the native left area).
+
+The button is not shown while the lock screen is active, and it disappears again as soon as the side navigation bar is restored.
 
 #### Window Menu
 
@@ -1314,7 +1323,7 @@ The **User Profile** section is found under **Application Settings** in the Sett
 
 #### Identity
 
-- **Profile Image**: an avatar image that appears in the side navigation bar and on the User Profile settings page.
+- **Profile Image**: an avatar image that appears in the side navigation bar (or the title bar when the side navigation bar is hidden) and on the User Profile settings page.
   - Click **Change Photo** to open the system file picker and select a JPEG, PNG, GIF, or WebP image. The selected image is copied to the app's user data directory.
   - Click **Remove Photo** to clear the avatar. The icon reverts to the default `UserRound` icon.
 - **Display Name**: a text field for entering a display name. The name is shown as the tooltip on the profile button in the side navigation bar. Changes are saved immediately on input.
