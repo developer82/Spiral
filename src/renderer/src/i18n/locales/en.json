@@ -765,7 +765,8 @@
         "createdAt": "Creation Date",
         "lastUsedAt": "Last Used",
         "provider": "Provider",
-        "environment": "Environment"
+        "environment": "Environment",
+        "status": "Status"
       },
       "directions": {
         "asc": "Ascending",

@@ -208,6 +208,11 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
     return s
   }, [tree.connections, tree.runtimeStates])
 
+  const statusLabels = useMemo(
+    () => ({ online: t('explorer.filter.online'), offline: t('explorer.filter.offline') }),
+    [t]
+  )
+
   const { entries: connectionEntries, hasActiveFilters } = useConnectionList({
     connections: tree.connections,
     environments: settings.environments ?? [],
@@ -216,6 +221,7 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
     filterEnvironmentIds,
     connectedIds,
     filterStatus,
+    statusLabels,
     sortField,
     sortDirection
   })
@@ -3011,7 +3017,8 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
             { field: 'createdAt', label: t('explorer.sort.fields.createdAt') },
             { field: 'lastUsedAt', label: t('explorer.sort.fields.lastUsedAt') },
             { field: 'provider', label: t('explorer.sort.fields.provider') },
-            { field: 'environment', label: t('explorer.sort.fields.environment') }
+            { field: 'environment', label: t('explorer.sort.fields.environment') },
+            { field: 'status', label: t('explorer.sort.fields.status') }
           ]
           return (
             <div

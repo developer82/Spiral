@@ -29,6 +29,7 @@ function computeList(params: Partial<UseConnectionListParams> & { connections: C
     filterEnvironmentIds: params.filterEnvironmentIds ?? new Set(),
     connectedIds: params.connectedIds ?? new Set(),
     filterStatus: params.filterStatus ?? null,
+    statusLabels: params.statusLabels,
     sortField: params.sortField ?? 'name',
     sortDirection: params.sortDirection ?? 'asc'
   })
@@ -277,6 +278,82 @@ describe('useConnectionList – sort by provider with group headers', () => {
     )
     const names = postgresGroup.map((e) => e.kind === 'connection' ? e.connection.name : '')
     expect(names).toEqual(['B Postgres', 'Z Postgres'])
+  })
+})
+
+describe('useConnectionList – sort by status with group headers', () => {
+  const connections = [
+    makeConn({ id: '1', name: 'Online A' }),
+    makeConn({ id: '2', name: 'Offline B' }),
+    makeConn({ id: '3', name: 'Online C' }),
+    makeConn({ id: '4', name: 'Offline D' })
+  ]
+  // ids 1 and 3 connected; 2 and 4 not connected.
+  const connectedIds = new Set(['1', '3'])
+
+  it('emits a group-header before each status group', () => {
+    const { entries } = computeList({ connections, connectedIds, sortField: 'status', sortDirection: 'asc' })
+    const headers = entries.filter((e) => e.kind === 'group-header')
+    expect(headers).toHaveLength(2)
+  })
+
+  it('groups connected connections under "Online" and the rest under "Offline"', () => {
+    const { entries } = computeList({ connections, connectedIds, sortField: 'status', sortDirection: 'asc' })
+    const headerLabels = entries
+      .filter((e) => e.kind === 'group-header')
+      .map((e) => (e as import('../useConnectionList').ConnectionGroupHeader).label)
+    expect(headerLabels).toContain('Online')
+    expect(headerLabels).toContain('Offline')
+  })
+
+  it('uses provided localized status labels for group headers', () => {
+    const { entries } = computeList({
+      connections,
+      connectedIds,
+      statusLabels: { online: 'מחובר', offline: 'מנותק' },
+      sortField: 'status',
+      sortDirection: 'asc'
+    })
+    const headerLabels = entries
+      .filter((e) => e.kind === 'group-header')
+      .map((e) => (e as import('../useConnectionList').ConnectionGroupHeader).label)
+    expect(headerLabels).toEqual(expect.arrayContaining(['מחובר', 'מנותק']))
+  })
+
+  it('places connected ids in the Online group and non-connected ids in the Offline group', () => {
+    const { entries } = computeList({ connections, connectedIds, sortField: 'status', sortDirection: 'asc' })
+    let current = ''
+    const grouped: Record<string, string[]> = { Online: [], Offline: [] }
+    for (const e of entries) {
+      if (e.kind === 'group-header') current = e.label
+      else grouped[current].push(e.connection.id)
+    }
+    expect(grouped.Online).toEqual(expect.arrayContaining(['1', '3']))
+    expect(grouped.Offline).toEqual(expect.arrayContaining(['2', '4']))
+  })
+
+  it('puts the Online group first when ascending', () => {
+    const { entries } = computeList({ connections, connectedIds, sortField: 'status', sortDirection: 'asc' })
+    const headerLabels = entries
+      .filter((e) => e.kind === 'group-header')
+      .map((e) => (e as import('../useConnectionList').ConnectionGroupHeader).label)
+    expect(headerLabels).toEqual(['Online', 'Offline'])
+  })
+
+  it('puts the Offline group first when descending', () => {
+    const { entries } = computeList({ connections, connectedIds, sortField: 'status', sortDirection: 'desc' })
+    const headerLabels = entries
+      .filter((e) => e.kind === 'group-header')
+      .map((e) => (e as import('../useConnectionList').ConnectionGroupHeader).label)
+    expect(headerLabels).toEqual(['Offline', 'Online'])
+  })
+
+  it('treats every connection as Offline when none are connected', () => {
+    const { entries } = computeList({ connections, connectedIds: new Set(), sortField: 'status', sortDirection: 'asc' })
+    const headerLabels = entries
+      .filter((e) => e.kind === 'group-header')
+      .map((e) => (e as import('../useConnectionList').ConnectionGroupHeader).label)
+    expect(headerLabels).toEqual(['Offline'])
   })
 })
 

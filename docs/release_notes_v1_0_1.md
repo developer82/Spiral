@@ -12,6 +12,8 @@ A small update adding finer control over the Explorer connection list.
 
   The options are mutually exclusive: selecting one deselects the other, and clicking the already-selected option clears it to show all connections regardless of state. Status is combined (ANDed) with the existing **Provider** and **Environment** filters.
 
+- **Sort by connection status** — the sort panel gains a **Status** option that groups the connection list into **Online** and **Offline** sections.
+
 ---
 
 Thanks for using Spiral! 🙌

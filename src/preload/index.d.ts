@@ -10,7 +10,7 @@ export interface EnvironmentDefinition {
 
 export type ErdBackground = 'none' | 'dots' | 'grid'
 
-export type ConnectionSortField = 'name' | 'createdAt' | 'lastUsedAt' | 'provider' | 'environment'
+export type ConnectionSortField = 'name' | 'createdAt' | 'lastUsedAt' | 'provider' | 'environment' | 'status'
 export type SortDirection = 'asc' | 'desc'
 
 export interface ConnectionSortOrder {

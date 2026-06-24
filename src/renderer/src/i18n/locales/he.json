@@ -686,7 +686,8 @@
         "createdAt": "תאריך יצירה",
         "lastUsedAt": "שימוש אחרון",
         "provider": "ספק",
-        "environment": "סביבה"
+        "environment": "סביבה",
+        "status": "סטטוס"
       },
       "directions": {
         "asc": "עולה",

@@ -28,9 +28,13 @@ export interface UseConnectionListParams {
   connectedIds: Set<string>
   /** Single-select status filter: 'online', 'offline', or null for no filtering. */
   filterStatus: ConnectionStatusFilter
+  /** Localized group-header labels used when sorting by status. */
+  statusLabels?: { online: string; offline: string }
   sortField: ConnectionSortField
   sortDirection: SortDirection
 }
+
+const DEFAULT_STATUS_LABELS = { online: 'Online', offline: 'Offline' }
 
 export interface UseConnectionListReturn {
   entries: ConnectionListEntry[]
@@ -61,6 +65,7 @@ export function computeConnectionList({
   filterEnvironmentIds,
   connectedIds,
   filterStatus,
+  statusLabels = DEFAULT_STATUS_LABELS,
   sortField,
   sortDirection
 }: UseConnectionListParams): UseConnectionListReturn {
@@ -105,6 +110,14 @@ export function computeConnectionList({
       (envId) => (envId ? (envMap.get(envId) ?? envId) : 'No environment'),
       sortDirection
     )
+  } else if (sortField === 'status') {
+    entries = buildGroupedEntries(
+      filtered,
+      (conn) => (connectedIds.has(conn.id) ? 'online' : 'offline'),
+      (key) => (key === 'online' ? statusLabels.online : statusLabels.offline),
+      sortDirection,
+      (key) => (key === 'online' ? 0 : 1)
+    )
   } else {
     const sorted = [...filtered].sort((a, b) => {
       switch (sortField) {
@@ -125,7 +138,7 @@ export function computeConnectionList({
 }
 
 export function useConnectionList(params: UseConnectionListParams): UseConnectionListReturn {
-  const { connections, environments, searchText, filterProviders, filterEnvironmentIds, connectedIds, filterStatus, sortField, sortDirection } = params
+  const { connections, environments, searchText, filterProviders, filterEnvironmentIds, connectedIds, filterStatus, statusLabels = DEFAULT_STATUS_LABELS, sortField, sortDirection } = params
 
   const filtered = useMemo(() => {
     const normalizedSearch = searchText.trim().toLocaleLowerCase()
@@ -164,6 +177,15 @@ export function useConnectionList(params: UseConnectionListParams): UseConnectio
         sortDirection
       )
     }
+    if (sortField === 'status') {
+      return buildGroupedEntries(
+        filtered,
+        (conn) => (connectedIds.has(conn.id) ? 'online' : 'offline'),
+        (key) => (key === 'online' ? statusLabels.online : statusLabels.offline),
+        sortDirection,
+        (key) => (key === 'online' ? 0 : 1)
+      )
+    }
     const sorted = [...filtered].sort((a, b) => {
       switch (sortField) {
         case 'name': return compareStrings(a.name, b.name, sortDirection)
@@ -173,21 +195,23 @@ export function useConnectionList(params: UseConnectionListParams): UseConnectio
       }
     })
     return sorted.map<ConnectionListEntry>((conn) => ({ kind: 'connection', connection: conn }))
-  }, [filtered, sortField, sortDirection, environments])
+  }, [filtered, sortField, sortDirection, environments, connectedIds, statusLabels])
 
   return { entries, hasActiveFilters: filterProviders.size > 0 || filterEnvironmentIds.size > 0 || filterStatus !== null }
 }
 
 /**
- * Groups connections by a key, sorts groups alphabetically, and within each
- * group sorts connections by name (direction applies to the group order, name
- * within a group is always ascending for readability).
+ * Groups connections by a key, sorts groups (alphabetically by label, or by an
+ * explicit `rankKey` order when provided), and within each group sorts
+ * connections by name (direction applies to the group order, name within a
+ * group is always ascending for readability).
  */
 function buildGroupedEntries(
   connections: ConnectionRecord[],
   getKey: (conn: ConnectionRecord) => string,
   getLabel: (key: string) => string,
-  direction: SortDirection
+  direction: SortDirection,
+  rankKey?: (key: string) => number
 ): ConnectionListEntry[] {
   const groups = new Map<string, ConnectionRecord[]>()
   const NO_ENV_KEY = ''
@@ -202,8 +226,13 @@ function buildGroupedEntries(
     }
   }
 
-  // Sort groups: "No environment" (empty key) always last
   const sortedKeys = [...groups.keys()].sort((a, b) => {
+    // Explicit rank order (e.g. status: Online before Offline ascending)
+    if (rankKey) {
+      const order = rankKey(a) - rankKey(b)
+      return direction === 'asc' ? order : -order
+    }
+    // Default: alphabetical by label, "No environment" (empty key) always last
     if (a === NO_ENV_KEY) return 1
     if (b === NO_ENV_KEY) return -1
     const labelA = getLabel(a).toLocaleLowerCase()
