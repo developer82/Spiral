@@ -183,18 +183,6 @@ function AppearanceSettings(): React.JSX.Element {
           </div>
           <div className="settings-card-group__row">
             <div className="settings-card__info">
-              <p className="settings-card__title">{t('settings.appearance.showGridLines.title')}</p>
-              <p className="settings-card__desc">{t('settings.appearance.showGridLines.desc')}</p>
-            </div>
-            <Toggle
-              id="toggle-grid-lines"
-              label={t('settings.appearance.showGridLines.title')}
-              checked={settings.showGridLines}
-              onChange={(v) => updateSetting('showGridLines', v)}
-            />
-          </div>
-          <div className="settings-card-group__row">
-            <div className="settings-card__info">
               <p className="settings-card__title">{t('settings.appearance.hideSideNav.title')}</p>
               <p className="settings-card__desc">{t('settings.appearance.hideSideNav.desc')}</p>
             </div>

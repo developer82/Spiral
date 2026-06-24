@@ -1041,6 +1041,17 @@ html[data-theme='light'] .query-editor__context-panel {
   text-transform: uppercase;
 }
 
+.query-results__table--grid-lines .query-results__th,
+.query-results__table--grid-lines .query-results__td {
+  border-right: 0.0625rem solid color-mix(in srgb, var(--color-muted) 45%, transparent);
+  border-bottom: 0.0625rem solid color-mix(in srgb, var(--color-muted) 45%, transparent);
+}
+
+.query-results__table--grid-lines .query-results__th:last-child,
+.query-results__table--grid-lines .query-results__td:last-child {
+  border-right: none;
+}
+
 .query-results__th-content {
   display: inline-flex;
   align-items: center;

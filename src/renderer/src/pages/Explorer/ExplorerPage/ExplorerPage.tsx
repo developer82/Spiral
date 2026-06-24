@@ -3770,6 +3770,7 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
                                 sortedCount={Object.keys(qState.sortIndicators ?? {}).length}
                                 filteredColumns={qState.filteredColumns}
                                 uppercaseHeaders={(settings as unknown as Record<string, boolean>).uppercaseColumnHeaders ?? false}
+                                showGridLines={settings.showGridLines ?? false}
                                 useInteractiveTables={useInteractive}
                                 onColumnSort={useInteractive ? (colName) => queryRunner.handleColumnSort(activeQueryTab, colName) : undefined}
                                 onColumnContextMenu={useInteractive ? (colName, pos) => interactiveResults.setColumnSortContextMenu({ tab: activeQueryTab, columnName: colName, position: pos }) : undefined}

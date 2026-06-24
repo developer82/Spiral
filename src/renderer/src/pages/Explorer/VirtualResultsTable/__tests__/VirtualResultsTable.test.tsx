@@ -697,3 +697,30 @@ describe('VirtualResultsTable – interactive boolean cell click', () => {
     expect(document.querySelector('.query-results__bool-pill')).not.toBeNull()
   })
 })
+
+describe('VirtualResultsTable – grid lines', () => {
+  it('does not add the grid-lines class when showGridLines is false', () => {
+    render(
+      <VirtualResultsTable
+        {...defaultProps}
+        columns={['name']}
+        rows={[{ name: 'Alice' }]}
+      />
+    )
+
+    expect(document.querySelector('.query-results__table--grid-lines')).toBeNull()
+  })
+
+  it('adds the grid-lines class when showGridLines is true', () => {
+    render(
+      <VirtualResultsTable
+        {...defaultProps}
+        showGridLines
+        columns={['name']}
+        rows={[{ name: 'Alice' }]}
+      />
+    )
+
+    expect(document.querySelector('.query-results__table--grid-lines')).not.toBeNull()
+  })
+})

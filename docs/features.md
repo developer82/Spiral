@@ -1273,7 +1273,6 @@ A two-column layout with a sidebar for section navigation and a content area.
 - **Glass Effect Color**: a slider controls the ambient sky-tinted glow rendered behind the side navigation. It can follow the time of day automatically, be pinned to a specific hour (morning/noon/evening), be set to a manual color, or be turned off. On the light themes (Solar Light and Glass Light) the glow's calculated colors are rendered with a stronger alpha (background `0.3` and border `0.7`, versus `0.12` and `0.35` on dark themes) so the effect stays visible against the bright background.
 - **Interface Elements**:
   - *Syntax Highlighting* — toggle colorful code in the query editor.
-  - *Show Grid Lines* — toggle row/column borders in data view.
   - *Hide Side Navigation Bar* — immediately hide the left-side page navigation icons. The View menu can show the bar again, and the preference persists across restarts.
   - *Dark Terminals* — controls the background color of the Redis and MongoDB shell terminals. When on (the default), the terminals always use a dark palette regardless of the active theme. When off, each terminal adopts a palette matching the selected theme (dark stays dark; Solar Light and Glass Light use light backgrounds with darkened, legible ANSI accent colors). Changes apply live to already-open terminals and follow theme switches, mirroring the Monaco editor. When Dark Terminals is on **and** the active theme is light — detected from the theme's actual background luminance (`--color-bg`), not a fixed theme list — the dark terminal box gets rounded corners and extra inner padding so it reads as a softened box against the bright UI instead of a hard-edged rectangle.
 - **Accessibility**: font scaling slider (80%–150%).
@@ -1298,6 +1297,16 @@ Configure default query behavior and connection settings.
 - **Copy JSON as Formatted Text**: when enabled, copying a JSON document from the result viewer (without a text selection) produces pretty-printed JSON with indentation. Disable to copy compact, single-line JSON (default: on).
 
 - **Reset Defaults** button restores all Databases Config settings to their defaults instantly.
+
+### Results View Config
+
+- **Column Headers**:
+  - *Uppercase Column Headers*: render result grid column headers in uppercase.
+  - *Show Key Icons in Results*: show a key icon next to primary/foreign key columns in the results grid.
+- **Table Options**:
+  - *Use Interactive Tables*: enable interactive table features in the results grid.
+  - *Show Grid Lines*: toggle row/column borders in the results data view.
+- **Reset Defaults** button restores all Results View Config settings to their defaults instantly.
 
 ### User Profile
 

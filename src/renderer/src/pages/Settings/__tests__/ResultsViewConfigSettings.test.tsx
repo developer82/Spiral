@@ -15,7 +15,8 @@ const mockResetSettings = vi.fn()
 const defaultSettings = {
   uppercaseColumnHeaders: false,
   showKeyIconsInResults: false,
-  useInteractiveTables: false
+  useInteractiveTables: false,
+  showGridLines: false
 }
 
 vi.mock('../useSettings', () => ({
@@ -146,5 +147,26 @@ describe('ResultsViewConfigSettings', () => {
     await user.click(toggle)
 
     expect(mockUpdateSetting).toHaveBeenCalledWith('showKeyIconsInResults', true)
+  })
+
+  it('renders the Show Grid Lines toggle under Table Options', () => {
+    render(<ResultsViewConfigSettings />)
+
+    expect(
+      screen.getByRole('checkbox', { name: 'settings.appearance.showGridLines.title' })
+    ).toBeInTheDocument()
+  })
+
+  it('calls updateSetting with "showGridLines" when its toggle is clicked', async () => {
+    const user = userEvent.setup()
+    render(<ResultsViewConfigSettings />)
+
+    const toggle = screen.getByRole('checkbox', {
+      name: 'settings.appearance.showGridLines.title'
+    })
+
+    await user.click(toggle)
+
+    expect(mockUpdateSetting).toHaveBeenCalledWith('showGridLines', true)
   })
 })

@@ -14,6 +14,10 @@ A small update adding finer control over the Explorer connection list.
 
 - **Sort by connection status** — the sort panel gains a **Status** option that groups the connection list into **Online** and **Offline** sections.
 
+## ⚙️ Settings
+
+- **Show Grid Lines** moved from *Appearance* to *Results View Config → Table Options*, and fixed — the toggle now actually draws row/column borders in the Query Results table (it previously had no effect). The lines also use a stronger, more visible color across all themes.
+
 ---
 
 Thanks for using Spiral! 🙌

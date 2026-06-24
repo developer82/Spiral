@@ -23,6 +23,7 @@ interface VirtualResultsTableProps {
   sortedCount: number
   filteredColumns?: Set<string>
   uppercaseHeaders: boolean
+  showGridLines?: boolean
   useInteractiveTables: boolean
   onColumnSort?: (columnName: string) => void
   onColumnContextMenu?: (columnName: string, position: { x: number; y: number }) => void
@@ -44,6 +45,7 @@ const VirtualResultsTable = memo(function VirtualResultsTable({
   sortedCount,
   filteredColumns,
   uppercaseHeaders,
+  showGridLines = false,
   useInteractiveTables,
   onColumnSort,
   onColumnContextMenu,
@@ -106,7 +108,7 @@ const VirtualResultsTable = memo(function VirtualResultsTable({
       onScroll={handleScroll}
     >
       <table
-        className={`query-results__table${uppercaseHeaders ? ' query-results__table--uppercase-headers' : ''}`}
+        className={`query-results__table${uppercaseHeaders ? ' query-results__table--uppercase-headers' : ''}${showGridLines ? ' query-results__table--grid-lines' : ''}`}
       >
         <thead>
           <tr>
