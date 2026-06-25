@@ -444,6 +444,9 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
   const [skipCriticalConfirmTabIds, setSkipCriticalConfirmTabIds] = useState<Set<string>>(new Set())
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
   const [contextMenu, setContextMenu] = useState<{ items: MenuItem[]; position: { x: number; y: number } } | null>(null)
+  // Tab drag-and-drop reordering state
+  const [draggedTabId, setDraggedTabId] = useState<string | null>(null)
+  const [dragOverTabId, setDragOverTabId] = useState<string | null>(null)
 
   // ── Circular-dependency breaker ───────────────────────────────────────────
   // useInteractiveResults needs executeQueryForTabWithSql (from useQueryRunner),
@@ -2908,6 +2911,24 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
 
   const activeTab = tabsMgr.tabs.find((t) => t.id === tabsMgr.activeTabId)
 
+  // Stable DOM order for the editor panes. Panes are shown/hidden by CSS class,
+  // not by position, so their order is purely visual-neutral. Reordering them to
+  // match the user's tab order would move a Monaco editor's DOM node, which
+  // recreates its view against a disposed InstantiationService and crashes. We
+  // therefore render panes in first-seen (creation) order and let only the tab
+  // strip reflect the user's custom order.
+  const paneOrderRef = useRef<string[]>([])
+  const paneTabs = useMemo(() => {
+    const byId = new Map(tabsMgr.tabs.map((t) => [t.id, t]))
+    // Drop ids for closed tabs, then append any newly opened tabs at the end.
+    const order = paneOrderRef.current.filter((id) => byId.has(id))
+    for (const tab of tabsMgr.tabs) {
+      if (!order.includes(tab.id)) order.push(tab.id)
+    }
+    paneOrderRef.current = order
+    return order.map((id) => byId.get(id)!)
+  }, [tabsMgr.tabs])
+
   function renderConnectionPanel(): React.JSX.Element {
     return (
       <aside ref={layout.panelRef} className="explorer__panel">
@@ -3138,8 +3159,38 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
                   key={tab.id}
                   role="tab"
                   aria-selected={isActiveTab}
-                  className={`explorer__tab${isActiveTab ? ' explorer__tab--active' : ''}${isActiveTab && tabEnvironment ? ' explorer__tab--environment-active' : ''}`}
+                  draggable
+                  className={`explorer__tab${isActiveTab ? ' explorer__tab--active' : ''}${isActiveTab && tabEnvironment ? ' explorer__tab--environment-active' : ''}${draggedTabId === tab.id ? ' explorer__tab--dragging' : ''}${dragOverTabId === tab.id && draggedTabId !== tab.id ? ' explorer__tab--drag-over' : ''}`}
                   onClick={() => tabsMgr.setActiveTabId(tab.id)}
+                  onDragStart={(e) => {
+                    setDraggedTabId(tab.id)
+                    e.dataTransfer.effectAllowed = 'move'
+                    // Custom MIME (not text/plain) so the Monaco editor's drop
+                    // handler ignores tab drags instead of inserting the id.
+                    e.dataTransfer.setData('application/x-spiral-tab', tab.id)
+                  }}
+                  onDragOver={(e) => {
+                    if (!draggedTabId || draggedTabId === tab.id) return
+                    e.preventDefault()
+                    e.dataTransfer.dropEffect = 'move'
+                    if (dragOverTabId !== tab.id) setDragOverTabId(tab.id)
+                  }}
+                  onDragLeave={() => {
+                    if (dragOverTabId === tab.id) setDragOverTabId(null)
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    if (draggedTabId && draggedTabId !== tab.id) {
+                      tabsMgr.moveTab(draggedTabId, tab.id)
+                    }
+                    setDraggedTabId(null)
+                    setDragOverTabId(null)
+                  }}
+                  onDragEnd={() => {
+                    setDraggedTabId(null)
+                    setDragOverTabId(null)
+                  }}
                 >
                   {isActiveTab && (
                     tab.kind === 'query'
@@ -3296,7 +3347,7 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
           />
         </div>
 
-          {tabsMgr.tabs.map((tab) =>
+          {paneTabs.map((tab) =>
             tab.kind === 'query' ? (
               <div
                 key={tab.id}

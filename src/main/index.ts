@@ -353,6 +353,14 @@ function createWindow(): void {
     return { action: 'deny' }
   })
 
+  // Block in-window navigation. A drag-and-drop that lands outside a drop zone
+  // otherwise makes Chromium navigate the window to the dropped data, blanking
+  // the app. The app is a SPA and never navigates the top frame intentionally.
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    const currentUrl = mainWindow.webContents.getURL()
+    if (url !== currentUrl) event.preventDefault()
+  })
+
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {

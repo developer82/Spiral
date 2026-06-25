@@ -9,6 +9,7 @@ import type { Node, Edge } from '@xyflow/react'
 import type { QueryEditorHandle } from '../MonacoEditor/QueryEditor'
 import type { ConnectionRecord } from '../connections.types'
 import { useMenuStateContext } from '../../../contexts/MenuStateContext'
+import { reorderTabs } from './reorderTabs'
 
 let tabCounter = 0
 
@@ -34,6 +35,7 @@ export interface UseTabsManagerReturn {
   handleSaveAs: () => Promise<void>
   handleSaveAll: () => Promise<void>
   removeTab: (tabId: string) => void
+  moveTab: (draggedTabId: string, targetTabId: string) => void
   closeActiveTab: () => void
   closeAllTabs: () => void
   closeTab: (e: React.MouseEvent, tabId: string) => void
@@ -249,6 +251,11 @@ export function useTabsManager({
       }
       return next
     })
+  }
+
+  /** Reorders tabs via drag-and-drop, placing the dragged tab at the target's position. */
+  function moveTab(draggedTabId: string, targetTabId: string): void {
+    setTabs((prev) => reorderTabs(prev, draggedTabId, targetTabId))
   }
 
   function closeActiveTab(): void {
@@ -766,6 +773,7 @@ export function useTabsManager({
     handleSaveAs,
     handleSaveAll,
     removeTab,
+    moveTab,
     closeActiveTab,
     closeAllTabs,
     closeTab,

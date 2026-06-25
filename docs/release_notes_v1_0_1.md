@@ -14,6 +14,8 @@ A small update adding finer control over the Explorer connection list.
 
 - **Sort by connection status** — the sort panel gains a **Status** option that groups the connection list into **Online** and **Offline** sections.
 
+- **Reorder tabs by drag-and-drop** — drag any editor tab onto another to drop it at that position; the dragged tab dims and the drop target shows a colored indicator on its left edge. Reordering doesn't change which tab is active or open.
+
 ## 🧭 Navigation
 
 - **Profile in the title bar** — when the side navigation bar is hidden, the user profile button now moves up to the title bar instead of disappearing. On Windows and Linux it sits just left of the window control buttons; on macOS it sits just left of the Spiral logo. Click it to jump straight to **User Profile** settings.

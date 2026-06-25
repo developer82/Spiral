@@ -339,6 +339,12 @@ Connection
 
 Each level is loaded on first expand and cached for the session. Collapsing and re-expanding a node does not re-fetch unless the previous load resulted in an error.
 
+#### Tab Strip
+
+The editor area's tab strip holds all open tabs (query, ERD, dashboard, shell, and Redis DB Explorer tabs). Clicking a tab activates it; the X button closes it.
+
+**Drag-and-drop reordering** — tabs can be reordered by dragging. Press and drag any tab onto another tab to drop it at that tab's position; the remaining tabs shift to make room. While dragging, the dragged tab dims and the tab currently under the cursor shows a primary-colored drop indicator on its left edge. Reordering is purely visual — it does not change which tab is active, open, or dirty. Cancelling a drag (releasing outside the strip) leaves the order unchanged.
+
 #### Table Sub-Categories (SQL Server)
 
 Expanding a table node reveals the following provider-specific sub-folders:

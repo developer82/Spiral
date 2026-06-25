@@ -534,6 +534,15 @@ html[data-theme='dark'] .explorer__dropdown-item:hover {
   border-bottom-color: transparent;
 }
 
+.explorer__tab--dragging {
+  opacity: 0.5;
+}
+
+.explorer__tab--drag-over {
+  background-color: var(--color-surface-hover);
+  box-shadow: inset 0.125rem 0 0 var(--color-primary);
+}
+
 .explorer__tab-env-border {
   position: absolute;
   left: 0;
