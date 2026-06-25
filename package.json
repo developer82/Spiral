@@ -108,10 +108,7 @@
         "dmg",
         "zip"
       ],
-      "gatekeeperAssess": false,
-      "extendInfo": {
-        "com.apple.security.cs.disable-library-validation": true
-      }
+      "gatekeeperAssess": false
     },
     "dmg": {
       "contents": [
