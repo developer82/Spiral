@@ -16,6 +16,10 @@ A small update adding finer control over the Explorer connection list.
 
 - **Reorder tabs by drag-and-drop** — drag any editor tab onto another to drop it at that position; the dragged tab dims and the drop target shows a colored indicator on its left edge. Reordering doesn't change which tab is active or open.
 
+## 🔌 Connections
+
+- **PostgreSQL TLS / SSL** — the connection dialog now has a **TLS / SSL** section for Postgres connections. Enable encryption, point at a **CA certificate** file (with a Browse… picker), set an optional **Server Name (SNI)**, and toggle certificate validation. This fixes the `no pg_hba.conf entry for host … no encryption` error when connecting to managed Postgres services such as Aiven, Heroku, and Amazon RDS that require SSL.
+
 ## 🧭 Navigation
 
 - **Profile in the title bar** — when the side navigation bar is hidden, the user profile button now moves up to the title bar instead of disappearing. On Windows and Linux it sits just left of the window control buttons; on macOS it sits just left of the Spiral logo. Click it to jump straight to **User Profile** settings.

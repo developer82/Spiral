@@ -1,6 +1,6 @@
 import { Pool, type PoolClient } from 'pg'
 import { spawn, execFile } from 'node:child_process'
-import { createReadStream, createWriteStream, statSync } from 'node:fs'
+import { createReadStream, createWriteStream, readFileSync, statSync } from 'node:fs'
 import { createGzip, createGunzip } from 'node:zlib'
 import type { ConnectionRecord } from '../../store'
 import type {
@@ -97,6 +97,7 @@ export class PostgresProvider implements DatabaseProvider {
       user: record.username,
       password: record.password,
       database: record.defaultDatabase || 'postgres',
+      ssl: this.buildSsl(),
       connectionTimeoutMillis: 10_000,
       max: 5
     })
@@ -122,6 +123,26 @@ export class PostgresProvider implements DatabaseProvider {
     return this.connectionRecord
   }
 
+  /**
+   * Builds the `ssl` option for a pg Pool from the connection record.
+   *
+   * Returns `false` (plaintext) when TLS is disabled.  When enabled it honours
+   * the certificate-validation toggle and, when supplied, loads a CA
+   * certificate from disk and sets an SNI server-name override.  Required for
+   * managed Postgres services (Aiven, Heroku, RDS, …) that reject unencrypted
+   * connections with `no pg_hba.conf entry … no encryption`.
+   */
+  private buildSsl(): false | { rejectUnauthorized: boolean; ca?: string; servername?: string } {
+    const r = this.record
+    if (!r.tlsEnabled) return false
+    const ssl: { rejectUnauthorized: boolean; ca?: string; servername?: string } = {
+      rejectUnauthorized: r.tlsRejectUnauthorized ?? true
+    }
+    if (r.tlsCAFile?.trim()) ssl.ca = readFileSync(r.tlsCAFile.trim(), 'utf8')
+    if (r.tlsServername?.trim()) ssl.servername = r.tlsServername.trim()
+    return ssl
+  }
+
   /** Returns (or lazily creates) a pool connected to the given database. */
   private getPool(databaseName: string): Pool {
     const defaultDb = this.record.defaultDatabase || 'postgres'
@@ -135,6 +156,7 @@ export class PostgresProvider implements DatabaseProvider {
         user: this.record.username,
         password: this.record.password,
         database: databaseName,
+        ssl: this.buildSsl(),
         connectionTimeoutMillis: 10_000,
         max: 5
       })

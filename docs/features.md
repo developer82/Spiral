@@ -447,6 +447,18 @@ Like MySQL, the feature is **local-only** and built on the PostgreSQL client bin
 
 The binary paths live in `AppSettings` (`pgDumpPath`, `pgRestorePath`, `psqlPath`); the Settings page **Test** button probes them via a connection-independent `postgres:probe-tools` handler and reports each tool's version or "not found".
 
+#### PostgreSQL TLS / SSL
+
+PostgreSQL connections support encrypted transport, required by managed services such as Aiven, Heroku Postgres, and Amazon RDS, which reject plaintext connections with `no pg_hba.conf entry for host … no encryption`.
+
+The New/Edit Connection dialog exposes a **TLS / SSL** section for Postgres connections:
+- **Enable TLS/SSL** — when off, `PostgresProvider` passes `ssl: false` to the `pg` Pool (plaintext, the previous behaviour). When on, it builds an `ssl` options object.
+- **CA Certificate File** — optional path to a CA certificate (PEM). When set, the file is read from disk (`readFileSync`) and supplied as `ssl.ca`, so the server certificate is verified against your own CA (the secure option for Aiven, which ships a project CA cert). A **Browse…** button opens a native file picker.
+- **Server Name (SNI)** — optional hostname override sent as `ssl.servername` for TLS Server Name Indication.
+- **Reject Unauthorized Certificates** — defaults **on** (`ssl.rejectUnauthorized: true`). Turn it off to accept self-signed or otherwise unverifiable certificates (works without a CA file, but is insecure).
+
+The same `ssl` options are applied to both the default pool and the per-database pools that `PostgresProvider` lazily creates while navigating the tree.
+
 #### SQLite Backup & Restore
 
 SQLite connections expose the same **Back Up…** and **Restore…** context-menu section (gated by `hasBackupRestore`, which `SqliteProvider` reports `true`). The database-node context menu branches on `connection.provider`: SQLite databases open the SQLite-specific dialogs. Calls flow through `window.api.database.sqlite*` → `sqlite:*` IPC → `DatabaseManager` (guarded by `provider instanceof SqliteProvider`) → `SqliteProvider`.
