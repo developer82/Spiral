@@ -597,6 +597,9 @@ describe('ExplorerPage – context menu', () => {
     vi.spyOn(window.api.database, 'disconnect').mockResolvedValue(undefined)
     vi.spyOn(window.api.connections, 'update').mockImplementation(async (r) => r as typeof MOCK_CONNECTION)
     vi.spyOn(window.api.connections, 'delete').mockResolvedValue(undefined)
+    vi.spyOn(window.api.connections, 'create').mockImplementation(
+      async (r) => ({ ...r, id: 'conn-copy-1' }) as typeof MOCK_CONNECTION
+    )
   })
 
   afterEach(() => {
@@ -858,6 +861,76 @@ describe('ExplorerPage – context menu', () => {
 
     expect(window.api.connections.delete).not.toHaveBeenCalled()
     expect(screen.getByText('My SQL Server')).toBeInTheDocument()
+  })
+
+  // ── Duplicate action ──────────────────────────────────────────────────────
+
+  it('right-clicking a connection shows the duplicate option', async () => {
+    const user = userEvent.setup()
+    render(<ExplorerPage />)
+
+    await rightClickConnection(user)
+
+    expect(screen.getByText('explorer.contextMenu.duplicate')).toBeInTheDocument()
+  })
+
+  it('duplicate action opens a dialog prefilled with "<name> - Copy"', async () => {
+    const user = userEvent.setup()
+    render(<ExplorerPage />)
+
+    await rightClickConnection(user)
+    await clickMenuItem('explorer.contextMenu.duplicate')
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('dialog', { name: 'explorer.duplicateConnection.dialogTitle' })
+      ).toBeInTheDocument()
+      expect(screen.getByDisplayValue('My SQL Server - Copy')).toBeInTheDocument()
+    })
+  })
+
+  it('confirming duplicate creates a new connection and adds it to the tree', async () => {
+    const user = userEvent.setup()
+    render(<ExplorerPage />)
+
+    await rightClickConnection(user)
+    await clickMenuItem('explorer.contextMenu.duplicate')
+
+    await waitFor(() => screen.getByRole('dialog'))
+    await user.click(screen.getByText('explorer.duplicateConnection.duplicateButton'))
+
+    await waitFor(() => {
+      expect(screen.getByText('My SQL Server - Copy')).toBeInTheDocument()
+    })
+    expect(window.api.connections.create).toHaveBeenCalledTimes(1)
+    const createArg = vi.mocked(window.api.connections.create).mock.calls[0][0]
+    expect(createArg).toMatchObject({
+      name: 'My SQL Server - Copy',
+      provider: 'sqlserver',
+      host: 'localhost',
+      port: 1433,
+      username: 'sa',
+      defaultDatabase: 'master'
+    })
+    expect(createArg).not.toHaveProperty('id')
+    // original connection is still present
+    expect(screen.getByText('My SQL Server')).toBeInTheDocument()
+  })
+
+  it('cancelling the duplicate dialog does not create a connection', async () => {
+    const user = userEvent.setup()
+    render(<ExplorerPage />)
+
+    await rightClickConnection(user)
+    await clickMenuItem('explorer.contextMenu.duplicate')
+
+    await waitFor(() => screen.getByRole('dialog'))
+    await user.click(screen.getByText('explorer.duplicateConnection.cancelButton'))
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+    expect(window.api.connections.create).not.toHaveBeenCalled()
   })
 })
 

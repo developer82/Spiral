@@ -9,6 +9,7 @@ import type { Tab } from '../explorer.types'
 import type { TrackedEventType } from '../../Profiler/profiler.types'
 
 import NewConnectionDialog from '../Dialogs/NewConnectionDialog/NewConnectionDialog'
+import DuplicateConnectionDialog from '../Dialogs/DuplicateConnectionDialog/DuplicateConnectionDialog'
 import CreateDatabaseDialog from '../Dialogs/CreateDatabaseDialog/CreateDatabaseDialog'
 import BackupDatabaseDialog from '../Dialogs/BackupDatabaseDialog/BackupDatabaseDialog'
 import RestoreDatabaseDialog from '../Dialogs/RestoreDatabaseDialog/RestoreDatabaseDialog'
@@ -61,6 +62,11 @@ interface DialogManagerProps {
   onSaveConnection: (record: Omit<ConnectionRecord, 'id'>) => Promise<void>
   onUpdateConnection: (record: Omit<ConnectionRecord, 'id'>) => Promise<void>
   onCloseDialog: () => void
+
+  // DuplicateConnectionDialog
+  duplicateConnectionDialog: ConnectionRecord | null
+  onDuplicateConnectionSubmit: (newName: string) => Promise<void>
+  onCloseDuplicateConnection: () => void
 
   // UnsavedChangesDialog
   unsavedCloseDialog: { tabId: string } | null
@@ -396,6 +402,9 @@ export default function DialogManager({
   onSaveConnection,
   onUpdateConnection,
   onCloseDialog,
+  duplicateConnectionDialog,
+  onDuplicateConnectionSubmit,
+  onCloseDuplicateConnection,
   unsavedCloseDialog,
   tabs,
   onSaveAndClose,
@@ -525,6 +534,14 @@ export default function DialogManager({
           onSave={editingConnection ? onUpdateConnection : onSaveConnection}
           onCancel={onCloseDialog}
           initialValues={editingConnection ?? undefined}
+        />
+      )}
+
+      {duplicateConnectionDialog && (
+        <DuplicateConnectionDialog
+          initialName={`${duplicateConnectionDialog.name} - Copy`}
+          onSubmit={onDuplicateConnectionSubmit}
+          onClose={onCloseDuplicateConnection}
         />
       )}
 

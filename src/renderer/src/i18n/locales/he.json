@@ -824,6 +824,7 @@
       "edit": "עריכה",
       "connect": "התחבר",
       "disconnect": "התנתק",
+      "duplicate": "שכפל",
       "delete": "מחק",
       "deleteConnectionTitle": "מחיקת חיבור",
       "confirmDelete": "האם אתה בטוח שברצונך למחוק את \"{{name}}\"?",
@@ -831,6 +832,17 @@
       "confirmDisconnectForEdit": "החיבור פעיל. לנתק לפני העריכה?",
       "confirmDisconnectForEditTitle": "חיבור פעיל",
       "confirmDisconnectForEditConfirm": "נתק ועריכה"
+    },
+    "duplicateConnection": {
+      "dialogTitle": "שכפול חיבור",
+      "nameLabel": "שם חדש",
+      "duplicateButton": "שכפל",
+      "duplicatingButton": "משכפל…",
+      "cancelButton": "ביטול",
+      "unknownError": "אירעה שגיאה בלתי צפויה",
+      "validation": {
+        "nameRequired": "נדרש שם חיבור"
+      }
     },
     "renameCollection": {
       "contextMenuLabel": "שנה שם",

@@ -966,15 +966,17 @@ Right-clicking any saved connection row in the Explorer panel opens a custom HTM
 
 | Connection state | Menu items shown |
 |---|---|
-| `disconnected` / `error` | Edit, Connect, Delete |
-| `connecting` | Edit, Delete |
-| `connected` | Edit, Disconnect, Delete |
+| `disconnected` / `error` | Edit, Connect, Duplicate, Delete |
+| `connecting` | Edit, Duplicate, Delete |
+| `connected` | Edit, Disconnect, Duplicate, Delete |
 
 **Edit** — opens the connection dialog pre-filled with the saved connection details. The dialog title changes to *Edit Connection* and the save button changes to *Update*. If the connection is currently active (`connected` or `connecting`), the user is asked to confirm disconnecting before the dialog opens. If declined, no action is taken. After saving, the connection remains disconnected; reconnecting requires an explicit click.
 
 **Connect** — connects to the database via the saved credentials and expands the connection row to show the Databases folder. Equivalent to the existing expand-to-connect flow.
 
 **Disconnect** — calls the backend disconnect API, collapses the connection row, clears all cached tree node state for that connection, and resets the runtime status to `disconnected`. The connection record is not deleted; it can be reconnected at any time.
+
+**Duplicate** — opens a small dialog (`DuplicateConnectionDialog`) with a single *New Name* field pre-filled with *"«name» - Copy"*. Choosing **Duplicate** creates a brand-new saved connection that carries over every setting of the source connection (host, port, credentials, and all provider-specific options), assigned a fresh `id` by the backend, and appends it to the tree. Identity/transient fields (`id`, `createdAt`, `lastUsedAt`) and the source's saved ERD file references (`erdFiles`) are *not* copied — the copy starts clean. The name field is required; **Cancel** closes the dialog without creating anything.
 
 **Delete** — removes the saved connection permanently. A confirmation prompt is shown first:
 - For disconnected connections: *"Are you sure you want to delete «name»?"*

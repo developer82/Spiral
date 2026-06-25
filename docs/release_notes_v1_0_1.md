@@ -16,6 +16,8 @@ A small update adding finer control over the Explorer connection list.
 
 - **Reorder tabs by drag-and-drop** — drag any editor tab onto another to drop it at that position; the dragged tab dims and the drop target shows a colored indicator on its left edge. Reordering doesn't change which tab is active or open.
 
+- **Duplicate a connection** — right-click any saved connection and choose **Duplicate** to clone all of its settings into a new connection. A small dialog asks for the new name (pre-filled with *"«name» - Copy"*); confirming adds the copy to the list instantly, carrying over the host, port, credentials, and every provider-specific option of the original.
+
 ## 🔌 Connections
 
 - **PostgreSQL SSL / TLS** — the connection dialog now has an **SSL Mode** dropdown for Postgres connections (`disable`, `allow`, `prefer`, `require`, `verify-ca`, `verify-full`), matching the standard PostgreSQL `sslmode` parameter. For the verify modes you can point at a **CA certificate** file (with a Browse… picker), and any encrypted mode accepts an optional **Server Name (SNI)**. New connections default to `prefer`, so encryption is used automatically when the server supports it. This fixes the `no pg_hba.conf entry for host … no encryption` error when connecting to managed Postgres services such as Aiven, Heroku, Supabase, Neon, and Amazon RDS that require SSL.

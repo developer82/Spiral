@@ -20,6 +20,7 @@ import {
   Pencil,
   Plug,
   PlugZap,
+  Copy,
   Trash2,
   DatabaseZap,
   RefreshCw,
@@ -229,6 +230,7 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
   // ── Dialog states (not managed by any hook) ───────────────────────────────
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingConnection, setEditingConnection] = useState<ConnectionRecord | null>(null)
+  const [duplicateConnectionDialog, setDuplicateConnectionDialog] = useState<ConnectionRecord | null>(null)
   const [createDbDialog, setCreateDbDialog] = useState<{ connectionId: string } | null>(null)
   const [createCollectionDialog, setCreateCollectionDialog] = useState<{
     connectionId: string
@@ -589,6 +591,24 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
   function closeDialog(): void {
     setIsDialogOpen(false)
     setEditingConnection(null)
+  }
+
+  async function handleDuplicateConnectionSubmit(newName: string): Promise<void> {
+    if (!duplicateConnectionDialog) return
+    // Drop identity/transient fields and ERD refs; the copy starts clean.
+    const { id, createdAt, lastUsedAt, erdFiles, ...rest } = duplicateConnectionDialog
+    void id
+    void createdAt
+    void lastUsedAt
+    void erdFiles
+    const saved = await window.api.connections.create({ ...rest, name: newName })
+    trackEvent('connection_created', {
+      provider: rest.provider,
+      has_ssh: rest.sshEnabled === true,
+      has_tls: rest.tlsEnabled === true
+    })
+    tree.setConnections((prev) => [...prev, saved])
+    setDuplicateConnectionDialog(null)
   }
 
   // ── Database / table operations ───────────────────────────────────────────
@@ -2123,6 +2143,13 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
       })
       items.push({ id: 'sep-shell', separator: true })
     }
+    items.push({
+      id: 'duplicate',
+      label: t('explorer.contextMenu.duplicate'),
+      icon: <Copy size={13} />,
+      onClick: () => setDuplicateConnectionDialog(conn)
+    })
+    items.push({ id: 'sep-delete', separator: true })
     items.push({
       id: 'delete',
       label: t('explorer.contextMenu.delete'),
@@ -3942,6 +3969,10 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
         onSaveConnection={handleSaveConnection}
         onUpdateConnection={handleUpdateConnection}
         onCloseDialog={closeDialog}
+        // DuplicateConnectionDialog
+        duplicateConnectionDialog={duplicateConnectionDialog}
+        onDuplicateConnectionSubmit={handleDuplicateConnectionSubmit}
+        onCloseDuplicateConnection={() => setDuplicateConnectionDialog(null)}
         // UnsavedChangesDialog
         unsavedCloseDialog={tabsMgr.unsavedCloseDialog}
         tabs={tabsMgr.tabs}

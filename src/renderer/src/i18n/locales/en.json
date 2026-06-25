@@ -919,6 +919,7 @@
       "edit": "Edit",
       "connect": "Connect",
       "disconnect": "Disconnect",
+      "duplicate": "Duplicate",
       "delete": "Delete",
       "deleteConnectionTitle": "Delete Connection",
       "confirmDelete": "Are you sure you want to delete \"{{name}}\"?",
@@ -1303,6 +1304,17 @@
       "validation": {
         "fileRequired": "Choose a backup file to restore.",
         "targetRequired": "Enter a target database name."
+      }
+    },
+    "duplicateConnection": {
+      "dialogTitle": "Duplicate Connection",
+      "nameLabel": "New Name",
+      "duplicateButton": "Duplicate",
+      "duplicatingButton": "Duplicating…",
+      "cancelButton": "Cancel",
+      "unknownError": "An unexpected error occurred",
+      "validation": {
+        "nameRequired": "Connection name is required"
       }
     },
     "renameCollection": {
