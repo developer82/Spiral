@@ -18,7 +18,7 @@ A small update adding finer control over the Explorer connection list.
 
 ## 🔌 Connections
 
-- **PostgreSQL TLS / SSL** — the connection dialog now has a **TLS / SSL** section for Postgres connections. Enable encryption, point at a **CA certificate** file (with a Browse… picker), set an optional **Server Name (SNI)**, and toggle certificate validation. This fixes the `no pg_hba.conf entry for host … no encryption` error when connecting to managed Postgres services such as Aiven, Heroku, and Amazon RDS that require SSL.
+- **PostgreSQL SSL / TLS** — the connection dialog now has an **SSL Mode** dropdown for Postgres connections (`disable`, `allow`, `prefer`, `require`, `verify-ca`, `verify-full`), matching the standard PostgreSQL `sslmode` parameter. For the verify modes you can point at a **CA certificate** file (with a Browse… picker), and any encrypted mode accepts an optional **Server Name (SNI)**. New connections default to `prefer`, so encryption is used automatically when the server supports it. This fixes the `no pg_hba.conf entry for host … no encryption` error when connecting to managed Postgres services such as Aiven, Heroku, Supabase, Neon, and Amazon RDS that require SSL.
 
 ## 🧭 Navigation
 

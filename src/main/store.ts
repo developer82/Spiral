@@ -237,6 +237,12 @@ export interface ConnectionRecord {
   tlsAllowInvalidHostnames?: boolean
   /** Whether to skip certificate validation entirely. */
   tlsAllowInvalidCertificates?: boolean
+  // ── PostgreSQL-specific fields ────────────────────────────────────────────
+  /**
+   * PostgreSQL SSL negotiation mode, mirroring libpq's `sslmode`.
+   * When unset, the provider falls back to the legacy `tlsEnabled` toggle.
+   */
+  postgresSslMode?: 'disable' | 'allow' | 'prefer' | 'require' | 'verify-ca' | 'verify-full'
 }
 
 interface ConnectionsData {

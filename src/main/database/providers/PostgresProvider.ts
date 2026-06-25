@@ -74,6 +74,19 @@ import type {
 /** System databases to filter when showSystemDatabases is false. */
 const SYSTEM_DATABASES = new Set(['postgres', 'template0', 'template1'])
 
+/** libpq-style SSL negotiation modes. */
+type SslMode = 'disable' | 'allow' | 'prefer' | 'require' | 'verify-ca' | 'verify-full'
+
+/** The `ssl` option accepted by a pg Pool — `false` means plaintext. */
+type PgSslOption =
+  | false
+  | {
+      rejectUnauthorized: boolean
+      ca?: string
+      servername?: string
+      checkServerIdentity?: () => undefined
+    }
+
 /**
  * PostgreSQL database provider.
  *
@@ -86,24 +99,41 @@ export class PostgresProvider implements DatabaseProvider {
   private defaultPool: Pool | null = null
   private dbPools = new Map<string, Pool>()
   private connectionRecord: ConnectionRecord | null = null
+  /** The SSL option that successfully connected, reused for per-database pools. */
+  private resolvedSsl: PgSslOption = false
 
   // ── Connection ────────────────────────────────────────────────────────────
 
   async connect(record: ConnectionRecord): Promise<void> {
     this.connectionRecord = record
-    this.defaultPool = new Pool({
-      host: record.host,
-      port: record.port,
-      user: record.username,
-      password: record.password,
-      database: record.defaultDatabase || 'postgres',
-      ssl: this.buildSsl(),
-      connectionTimeoutMillis: 10_000,
-      max: 5
-    })
-    // Verify connectivity immediately
-    const client = await this.defaultPool.connect()
-    client.release()
+
+    // `allow`/`prefer` negotiate by trying one transport then the other, so we
+    // attempt each candidate in order and keep the first pool that connects.
+    const candidates = this.sslCandidates()
+    let lastError: unknown
+    for (const ssl of candidates) {
+      const pool = new Pool({
+        host: record.host,
+        port: record.port,
+        user: record.username,
+        password: record.password,
+        database: record.defaultDatabase || 'postgres',
+        ssl,
+        connectionTimeoutMillis: 10_000,
+        max: 5
+      })
+      try {
+        const client = await pool.connect()
+        client.release()
+        this.defaultPool = pool
+        this.resolvedSsl = ssl
+        return
+      } catch (err) {
+        lastError = err
+        await pool.end().catch(() => {})
+      }
+    }
+    throw lastError
   }
 
   async disconnect(): Promise<void> {
@@ -124,23 +154,62 @@ export class PostgresProvider implements DatabaseProvider {
   }
 
   /**
-   * Builds the `ssl` option for a pg Pool from the connection record.
+   * Resolves the effective SSL mode for the current connection.
    *
-   * Returns `false` (plaintext) when TLS is disabled.  When enabled it honours
-   * the certificate-validation toggle and, when supplied, loads a CA
-   * certificate from disk and sets an SNI server-name override.  Required for
-   * managed Postgres services (Aiven, Heroku, RDS, …) that reject unencrypted
-   * connections with `no pg_hba.conf entry … no encryption`.
+   * Uses the explicit `postgresSslMode` when set; otherwise falls back to the
+   * legacy `tlsEnabled` / `tlsRejectUnauthorized` toggles so older saved
+   * connections keep working.
    */
-  private buildSsl(): false | { rejectUnauthorized: boolean; ca?: string; servername?: string } {
+  private sslMode(): SslMode {
     const r = this.record
-    if (!r.tlsEnabled) return false
-    const ssl: { rejectUnauthorized: boolean; ca?: string; servername?: string } = {
-      rejectUnauthorized: r.tlsRejectUnauthorized ?? true
-    }
-    if (r.tlsCAFile?.trim()) ssl.ca = readFileSync(r.tlsCAFile.trim(), 'utf8')
+    if (r.postgresSslMode) return r.postgresSslMode
+    if (r.tlsEnabled) return r.tlsRejectUnauthorized === false ? 'require' : 'verify-full'
+    return 'disable'
+  }
+
+  /**
+   * Builds an encrypted `ssl` option at the requested verification level.
+   *
+   * - `none` → encrypt only (`rejectUnauthorized: false`); no CA needed.
+   * - `ca`   → verify the certificate chain but skip the hostname check.
+   * - `full` → verify the certificate chain *and* the hostname.
+   *
+   * A CA certificate is loaded from `tlsCAFile` when provided (otherwise Node's
+   * default trust store is used); `tlsServername` sets the TLS SNI/host name.
+   */
+  private sslObject(verify: 'none' | 'ca' | 'full'): Exclude<PgSslOption, false> {
+    const r = this.record
+    const ssl: Exclude<PgSslOption, false> = { rejectUnauthorized: verify !== 'none' }
+    if (verify !== 'none' && r.tlsCAFile?.trim()) ssl.ca = readFileSync(r.tlsCAFile.trim(), 'utf8')
+    if (verify === 'ca') ssl.checkServerIdentity = () => undefined
     if (r.tlsServername?.trim()) ssl.servername = r.tlsServername.trim()
     return ssl
+  }
+
+  /**
+   * Ordered list of `ssl` options to try for the current SSL mode.
+   *
+   * Most modes resolve to a single option; `allow` and `prefer` return two so
+   * `connect` can fall back between encrypted and plaintext transport, matching
+   * libpq semantics.  Required for managed Postgres services (Aiven, Heroku,
+   * RDS, …) that reject unencrypted connections with
+   * `no pg_hba.conf entry … no encryption`.
+   */
+  private sslCandidates(): PgSslOption[] {
+    switch (this.sslMode()) {
+      case 'disable':
+        return [false]
+      case 'allow':
+        return [false, this.sslObject('none')]
+      case 'prefer':
+        return [this.sslObject('none'), false]
+      case 'require':
+        return [this.sslObject('none')]
+      case 'verify-ca':
+        return [this.sslObject('ca')]
+      case 'verify-full':
+        return [this.sslObject('full')]
+    }
   }
 
   /** Returns (or lazily creates) a pool connected to the given database. */
@@ -156,7 +225,7 @@ export class PostgresProvider implements DatabaseProvider {
         user: this.record.username,
         password: this.record.password,
         database: databaseName,
-        ssl: this.buildSsl(),
+        ssl: this.resolvedSsl,
         connectionTimeoutMillis: 10_000,
         max: 5
       })

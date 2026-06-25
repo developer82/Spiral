@@ -109,7 +109,9 @@ const EMPTY_FORM: FormData = {
   tlsCertificateKeyFile: '',
   tlsCertificateKeyFilePassword: '',
   tlsAllowInvalidHostnames: false,
-  tlsAllowInvalidCertificates: false
+  tlsAllowInvalidCertificates: false,
+  // PostgreSQL defaults
+  postgresSslMode: 'prefer'
 }
 
 function validate(form: FormData, t: (key: string) => string): FormErrors {
@@ -400,7 +402,15 @@ function NewConnectionDialog({
           tlsCertificateKeyFile: initialValues.tlsCertificateKeyFile ?? '',
           tlsCertificateKeyFilePassword: initialValues.tlsCertificateKeyFilePassword ?? '',
           tlsAllowInvalidHostnames: initialValues.tlsAllowInvalidHostnames ?? false,
-          tlsAllowInvalidCertificates: initialValues.tlsAllowInvalidCertificates ?? false
+          tlsAllowInvalidCertificates: initialValues.tlsAllowInvalidCertificates ?? false,
+          // PostgreSQL fields — fall back to the legacy TLS toggles when unset
+          postgresSslMode:
+            initialValues.postgresSslMode ??
+            (initialValues.tlsEnabled
+              ? initialValues.tlsRejectUnauthorized === false
+                ? 'require'
+                : 'verify-full'
+              : 'prefer')
         }
       : EMPTY_FORM
   )
@@ -1637,98 +1647,97 @@ function NewConnectionDialog({
                         />
                       </div>
 
-                      {/* ── TLS / SSL (PostgreSQL) ── */}
+                      {/* ── SSL / TLS (PostgreSQL) ── */}
                       {isPostgres && (
                         <>
+                          {/* SSL Mode */}
                           <div className="conn-dialog__field conn-dialog__field--span">
-                            <label className="conn-dialog__label">
-                              {t('explorer.dialog.fields.postgresTls')}
+                            <label className="conn-dialog__label" htmlFor="conn-pg-ssl-mode">
+                              {t('explorer.dialog.fields.postgresSslMode')}
                             </label>
-                            <label className="conn-dialog__checkbox-row">
-                              <input
-                                type="checkbox"
-                                className="conn-dialog__checkbox"
-                                checked={form.tlsEnabled ?? false}
-                                onChange={(e) => setField('tlsEnabled', e.target.checked)}
-                              />
-                              <span className="conn-dialog__checkbox-label">
-                                {t('explorer.dialog.fields.postgresTlsEnable')}
-                              </span>
-                            </label>
+                            <select
+                              id="conn-pg-ssl-mode"
+                              className="conn-dialog__select"
+                              value={form.postgresSslMode ?? 'prefer'}
+                              onChange={(e) =>
+                                setField(
+                                  'postgresSslMode',
+                                  e.target.value as NonNullable<FormData['postgresSslMode']>
+                                )
+                              }
+                            >
+                              <option value="disable">
+                                {t('explorer.dialog.fields.postgresSslModeDisable')}
+                              </option>
+                              <option value="allow">
+                                {t('explorer.dialog.fields.postgresSslModeAllow')}
+                              </option>
+                              <option value="prefer">
+                                {t('explorer.dialog.fields.postgresSslModePrefer')}
+                              </option>
+                              <option value="require">
+                                {t('explorer.dialog.fields.postgresSslModeRequire')}
+                              </option>
+                              <option value="verify-ca">
+                                {t('explorer.dialog.fields.postgresSslModeVerifyCa')}
+                              </option>
+                              <option value="verify-full">
+                                {t('explorer.dialog.fields.postgresSslModeVerifyFull')}
+                              </option>
+                            </select>
                           </div>
-                          {form.tlsEnabled && (
-                            <>
-                              {/* CA Certificate */}
-                              <div className="conn-dialog__field conn-dialog__field--span">
-                                <label
-                                  className="conn-dialog__label"
-                                  htmlFor="conn-pg-tls-ca-file"
-                                >
-                                  {t('explorer.dialog.fields.postgresTlsCAFile')}
-                                </label>
-                                <div className="conn-dialog__file-row">
-                                  <ConnectionInput
-                                    id="conn-pg-tls-ca-file"
-                                    className="conn-dialog__input"
-                                    type="text"
-                                    value={form.tlsCAFile ?? ''}
-                                    onChange={(e) => setField('tlsCAFile', e.target.value)}
-                                    placeholder="/path/to/ca.pem"
-                                  />
-                                  <Button
-                                    variant="secondary"
-                                    size="lg"
-                                    className="conn-dialog__file-browse"
-                                    onClick={async () => {
-                                      const result = await window.api.file.openFileDialog()
-                                      if (result.status === 'ok')
-                                        setField('tlsCAFile', result.filePath)
-                                    }}
-                                  >
-                                    <FolderOpen size={14} />
-                                    {t('explorer.dialog.fields.browseFile')}
-                                  </Button>
-                                </div>
-                              </div>
 
-                              {/* Server Name (SNI) */}
-                              <div className="conn-dialog__field">
-                                <label
-                                  className="conn-dialog__label"
-                                  htmlFor="conn-pg-tls-servername"
-                                >
-                                  {t('explorer.dialog.fields.postgresTlsServername')}
-                                </label>
+                          {/* CA Certificate – only for verify-ca / verify-full */}
+                          {(form.postgresSslMode === 'verify-ca' ||
+                            form.postgresSslMode === 'verify-full') && (
+                            <div className="conn-dialog__field conn-dialog__field--span">
+                              <label className="conn-dialog__label" htmlFor="conn-pg-tls-ca-file">
+                                {t('explorer.dialog.fields.postgresTlsCAFile')}
+                              </label>
+                              <div className="conn-dialog__file-row">
                                 <ConnectionInput
-                                  id="conn-pg-tls-servername"
+                                  id="conn-pg-tls-ca-file"
                                   className="conn-dialog__input"
                                   type="text"
-                                  value={form.tlsServername ?? ''}
-                                  onChange={(e) => setField('tlsServername', e.target.value)}
-                                  placeholder={form.host || 'optional'}
+                                  value={form.tlsCAFile ?? ''}
+                                  onChange={(e) => setField('tlsCAFile', e.target.value)}
+                                  placeholder="/path/to/ca.pem"
                                 />
+                                <Button
+                                  variant="secondary"
+                                  size="lg"
+                                  className="conn-dialog__file-browse"
+                                  onClick={async () => {
+                                    const result = await window.api.file.openFileDialog()
+                                    if (result.status === 'ok')
+                                      setField('tlsCAFile', result.filePath)
+                                  }}
+                                >
+                                  <FolderOpen size={14} />
+                                  {t('explorer.dialog.fields.browseFile')}
+                                </Button>
                               </div>
+                            </div>
+                          )}
 
-                              {/* Certificate Validation */}
-                              <div className="conn-dialog__field">
-                                <label className="conn-dialog__label">
-                                  {t('explorer.dialog.fields.postgresTlsValidation')}
-                                </label>
-                                <label className="conn-dialog__checkbox-row">
-                                  <input
-                                    type="checkbox"
-                                    className="conn-dialog__checkbox"
-                                    checked={form.tlsRejectUnauthorized ?? true}
-                                    onChange={(e) =>
-                                      setField('tlsRejectUnauthorized', e.target.checked)
-                                    }
-                                  />
-                                  <span className="conn-dialog__checkbox-label">
-                                    {t('explorer.dialog.fields.postgresTlsRejectUnauthorized')}
-                                  </span>
-                                </label>
-                              </div>
-                            </>
+                          {/* Server Name (SNI) – any encrypted mode */}
+                          {form.postgresSslMode && form.postgresSslMode !== 'disable' && (
+                            <div className="conn-dialog__field conn-dialog__field--span">
+                              <label
+                                className="conn-dialog__label"
+                                htmlFor="conn-pg-tls-servername"
+                              >
+                                {t('explorer.dialog.fields.postgresTlsServername')}
+                              </label>
+                              <ConnectionInput
+                                id="conn-pg-tls-servername"
+                                className="conn-dialog__input"
+                                type="text"
+                                value={form.tlsServername ?? ''}
+                                onChange={(e) => setField('tlsServername', e.target.value)}
+                                placeholder={form.host || 'optional'}
+                              />
+                            </div>
                           )}
                         </>
                       )}

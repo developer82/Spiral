@@ -51,6 +51,9 @@ export interface ConnectionRecord {
   tlsCertificateKeyFilePassword?: string
   tlsAllowInvalidHostnames?: boolean
   tlsAllowInvalidCertificates?: boolean
+  // PostgreSQL-specific
+  /** PostgreSQL SSL negotiation mode, mirroring libpq's `sslmode`. */
+  postgresSslMode?: 'disable' | 'allow' | 'prefer' | 'require' | 'verify-ca' | 'verify-full'
 }
 
 export type ExplorerNodeKind =
