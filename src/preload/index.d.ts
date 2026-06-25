@@ -1439,7 +1439,10 @@ export type ExecuteSqliteRestoreResult =
   | { status: 'error'; message: string }
 
 interface DatabaseAPI {
-  connect: (connectionId: string) => Promise<ConnectResult>
+  connect: (
+    connectionId: string,
+    credentials?: { username?: string; password: string }
+  ) => Promise<ConnectResult>
   disconnect: (connectionId: string) => Promise<void>
   getChildren: (connectionId: string, nodeId: string) => Promise<GetChildrenResult>
   getDatabases: (connectionId: string) => Promise<GetDatabasesResult>

@@ -1063,6 +1063,18 @@ Saved connections appear in the Explorer tree immediately after saving and persi
 
 **Shutdown** — `DatabaseManager.closeAll()` is called on `before-quit`, which calls `disconnect()` on every active provider session and drains their connection pools before the process exits.
 
+#### Enter Password Prompt (unsaved password)
+
+When a connection was saved **without remembering its password** (`rememberPassword: false`, so the stored password is empty), opening it would otherwise send an empty password to the server and fail. Instead, the app shows an **Enter Password** dialog (`EnterPasswordDialog`) before connecting:
+
+- **Username** — pre-filled from the stored connection when present (editable); otherwise entered by the user. The username field can be left blank for providers that don't require one (e.g. Redis).
+- **Password** — required; submitting empty shows an inline validation error.
+- **Remember password** — when ticked, a successful connect persists the credentials to the connection (`rememberPassword: true`, password stored encrypted via `connections:update`) so future connects skip the prompt.
+- **Connect** — connects using the entered credentials; an authentication failure is shown **inside the dialog**, which stays open for another attempt.
+- **Cancel** / Escape / backdrop — aborts the connect and leaves the connection disconnected.
+
+The credentials are passed to the credential-aware `database:connect` IPC (`connect(connectionId, { username, password })`) and used for that connect only — they are **not** persisted unless *Remember password* is checked. The prompt applies to all password-based providers; **SQLite** (file-based, no auth) never prompts, and background **auto-connect** on startup is silent and never prompts. The gating logic lives in `useExplorerTree` (`needsPasswordPrompt` predicate + `connectWithCredentials`), and the dialog is rendered via `DialogManager`.
+
 #### Views Context Menu
 
 Right-clicking the **Views** folder node in the Explorer tree opens a context menu with:

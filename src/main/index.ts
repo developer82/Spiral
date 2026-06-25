@@ -683,13 +683,23 @@ app.whenReady().then(async () => {
     await databaseManager.disconnect(connectionId)
   })
 
-  ipcMain.handle('database:connect', async (event: Electron.IpcMainInvokeEvent, connectionId: string) => {
+  ipcMain.handle('database:connect', async (
+    event: Electron.IpcMainInvokeEvent,
+    connectionId: string,
+    credentials?: { username?: string; password: string }
+  ) => {
     const connections = connectionsStore.get('connections')
     const record = connections.find((c) => c.id === connectionId)
     if (!record) {
       return { status: 'error', message: 'Connection not found' }
     }
-    const result = await databaseManager.connect(resolveConnectionPassword(record))
+    // When credentials are supplied (password not saved on the profile), use them
+    // for this connect only — they are never persisted here.
+    const resolved = resolveConnectionPassword(record)
+    const recordToConnect = credentials
+      ? { ...resolved, username: credentials.username ?? resolved.username, password: credentials.password }
+      : resolved
+    const result = await databaseManager.connect(recordToConnect)
     if (result.status === 'connected') {
       const lastUsedAt = new Date().toISOString()
       const updatedRecord: ConnectionRecord = { ...record, lastUsedAt }

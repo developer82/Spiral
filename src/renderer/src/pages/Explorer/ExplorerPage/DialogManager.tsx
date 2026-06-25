@@ -10,6 +10,7 @@ import type { TrackedEventType } from '../../Profiler/profiler.types'
 
 import NewConnectionDialog from '../Dialogs/NewConnectionDialog/NewConnectionDialog'
 import DuplicateConnectionDialog from '../Dialogs/DuplicateConnectionDialog/DuplicateConnectionDialog'
+import EnterPasswordDialog from '../Dialogs/EnterPasswordDialog/EnterPasswordDialog'
 import CreateDatabaseDialog from '../Dialogs/CreateDatabaseDialog/CreateDatabaseDialog'
 import BackupDatabaseDialog from '../Dialogs/BackupDatabaseDialog/BackupDatabaseDialog'
 import RestoreDatabaseDialog from '../Dialogs/RestoreDatabaseDialog/RestoreDatabaseDialog'
@@ -67,6 +68,11 @@ interface DialogManagerProps {
   duplicateConnectionDialog: ConnectionRecord | null
   onDuplicateConnectionSubmit: (newName: string) => Promise<void>
   onCloseDuplicateConnection: () => void
+
+  // EnterPasswordDialog
+  passwordPromptConnection: ConnectionRecord | null
+  onPasswordPromptConnect: (username: string, password: string, remember: boolean) => Promise<void>
+  onPasswordPromptCancel: () => void
 
   // UnsavedChangesDialog
   unsavedCloseDialog: { tabId: string } | null
@@ -405,6 +411,9 @@ export default function DialogManager({
   duplicateConnectionDialog,
   onDuplicateConnectionSubmit,
   onCloseDuplicateConnection,
+  passwordPromptConnection,
+  onPasswordPromptConnect,
+  onPasswordPromptCancel,
   unsavedCloseDialog,
   tabs,
   onSaveAndClose,
@@ -542,6 +551,14 @@ export default function DialogManager({
           initialName={`${duplicateConnectionDialog.name} - Copy`}
           onSubmit={onDuplicateConnectionSubmit}
           onClose={onCloseDuplicateConnection}
+        />
+      )}
+
+      {passwordPromptConnection && (
+        <EnterPasswordDialog
+          connection={passwordPromptConnection}
+          onConnect={onPasswordPromptConnect}
+          onCancel={onPasswordPromptCancel}
         />
       )}
 

@@ -593,6 +593,27 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
     setEditingConnection(null)
   }
 
+  // Connect using credentials entered in the Enter Password dialog. Rethrows on
+  // failure so the dialog can show the error; on "Remember" persists the password.
+  async function handlePasswordPromptConnect(
+    username: string,
+    password: string,
+    remember: boolean
+  ): Promise<void> {
+    const conn = tree.passwordPromptConnection
+    if (!conn) return
+    await tree.connectWithCredentials(conn.id, username, password)
+    if (remember) {
+      const updated = await window.api.connections.update({
+        ...conn,
+        username,
+        password,
+        rememberPassword: true
+      })
+      tree.setConnections((prev) => prev.map((c) => (c.id === updated.id ? updated : c)))
+    }
+  }
+
   async function handleDuplicateConnectionSubmit(newName: string): Promise<void> {
     if (!duplicateConnectionDialog) return
     // Drop identity/transient fields and ERD refs; the copy starts clean.
@@ -3973,6 +3994,10 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
         duplicateConnectionDialog={duplicateConnectionDialog}
         onDuplicateConnectionSubmit={handleDuplicateConnectionSubmit}
         onCloseDuplicateConnection={() => setDuplicateConnectionDialog(null)}
+        // EnterPasswordDialog
+        passwordPromptConnection={tree.passwordPromptConnection}
+        onPasswordPromptConnect={handlePasswordPromptConnect}
+        onPasswordPromptCancel={tree.cancelPasswordPrompt}
         // UnsavedChangesDialog
         unsavedCloseDialog={tabsMgr.unsavedCloseDialog}
         tabs={tabsMgr.tabs}

@@ -943,6 +943,21 @@
         "nameInvalidChars": "Database name cannot contain [, ], or ' characters"
       }
     },
+    "enterPassword": {
+      "dialogTitle": "Enter Credentials",
+      "usernameLabel": "Username",
+      "usernamePlaceholder": "Enter username",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter password",
+      "rememberLabel": "Remember password",
+      "connectButton": "Connect",
+      "connectingButton": "Connecting…",
+      "cancelButton": "Cancel",
+      "unknownError": "An unexpected error occurred",
+      "validation": {
+        "passwordRequired": "Password is required"
+      }
+    },
     "serverFileBrowser": {
       "title": "Browse Server Files",
       "select": "Select",

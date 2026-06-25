@@ -20,6 +20,8 @@ A small update adding finer control over the Explorer connection list.
 
 ## 🔌 Connections
 
+- **Enter Password on connect** — opening a connection whose password isn't saved now prompts for credentials instead of silently failing. The **Enter Password** dialog pre-fills the username when one is stored (otherwise you can type it), takes the password, and connects with the entered credentials. Tick **Remember password** to save it (encrypted) so future connects skip the prompt. SQLite connections — which have no authentication — never prompt, and background auto-connect on startup stays silent.
+
 - **PostgreSQL SSL / TLS** — the connection dialog now has an **SSL Mode** dropdown for Postgres connections (`disable`, `allow`, `prefer`, `require`, `verify-ca`, `verify-full`), matching the standard PostgreSQL `sslmode` parameter. For the verify modes you can point at a **CA certificate** file (with a Browse… picker), and any encrypted mode accepts an optional **Server Name (SNI)**. New connections default to `prefer`, so encryption is used automatically when the server supports it. This fixes the `no pg_hba.conf entry for host … no encryption` error when connecting to managed Postgres services such as Aiven, Heroku, Supabase, Neon, and Amazon RDS that require SSL.
 
 ## 🧭 Navigation

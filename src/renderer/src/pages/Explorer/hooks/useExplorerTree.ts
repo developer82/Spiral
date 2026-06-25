@@ -18,6 +18,15 @@ import {
 } from '../../../events/connectionEvents'
 import { trackEvent } from '../../../analytics/track'
 
+/**
+ * A connection needs an interactive password prompt when its password was not
+ * saved (rememberPassword === false). SQLite is file-based with no auth, so it
+ * never prompts.
+ */
+export function needsPasswordPrompt(conn: ConnectionRecord): boolean {
+  return !conn.rememberPassword && conn.provider !== 'sqlite'
+}
+
 export interface UseExplorerTreeReturn {
   connections: ConnectionRecord[]
   setConnections: React.Dispatch<React.SetStateAction<ConnectionRecord[]>>
@@ -41,6 +50,9 @@ export interface UseExplorerTreeReturn {
   loadNodeChildren: (connectionId: string, nodeId: string) => Promise<void>
   silentRefreshNodeChildren: (connectionId: string, nodeId: string) => Promise<void>
   connectToDatabase: (id: string, silent?: boolean) => Promise<void>
+  connectWithCredentials: (id: string, username: string, password: string) => Promise<void>
+  passwordPromptConnection: ConnectionRecord | null
+  cancelPasswordPrompt: () => void
   disconnectConnection: (connectionId: string) => Promise<void>
   handleConnectAction: (connectionId: string) => void
   handleDisconnectAction: (connectionId: string) => Promise<void>
@@ -66,6 +78,7 @@ export function useExplorerTree(showSystemDatabases: boolean): UseExplorerTreeRe
   const [expandedErdFolders, setExpandedErdFolders] = useState<Set<string>>(new Set())
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [activeConnectionId, setActiveConnectionId] = useState<string | null>(null)
+  const [passwordPromptConnection, setPasswordPromptConnection] = useState<ConnectionRecord | null>(null)
 
   // Always-current ref used by event listeners to avoid stale closures
   const nodeStatesRef = useRef(nodeStates)
@@ -328,26 +341,41 @@ export function useExplorerTree(showSystemDatabases: boolean): UseExplorerTreeRe
     }
   }
 
+  // Shared post-connect success handling: mark connected, track, fetch capabilities.
+  async function applyConnectSuccess(id: string): Promise<void> {
+    setRuntimeState(id, { status: 'connected' })
+    const provider = connections.find((c) => c.id === id)?.provider
+    if (provider) trackEvent('connection_opened', { provider })
+    try {
+      const caps = await window.api.database.getCapabilities(id)
+      if (caps) {
+        setConnectionsCapabilities((prev) => {
+          const next = new Map(prev)
+          next.set(id, { ...DEFAULT_CAPABILITIES, ...caps })
+          return next
+        })
+      }
+    } catch {
+      // Non-critical; ignore capability fetch failures
+    }
+  }
+
   async function connectToDatabase(id: string, silent = false): Promise<void> {
+    // When the password was not saved, prompt the user for credentials instead
+    // of attempting a connect that would fail. Background (silent) connects skip
+    // the prompt and just stay disconnected.
+    if (!silent) {
+      const conn = connections.find((c) => c.id === id)
+      if (conn && needsPasswordPrompt(conn)) {
+        setPasswordPromptConnection(conn)
+        return
+      }
+    }
     if (!silent) setRuntimeState(id, { status: 'connecting' })
     try {
       const result = await window.api.database.connect(id)
       if (result.status === 'connected') {
-        setRuntimeState(id, { status: 'connected' })
-        const provider = connections.find((c) => c.id === id)?.provider
-        if (provider) trackEvent('connection_opened', { provider })
-        try {
-          const caps = await window.api.database.getCapabilities(id)
-          if (caps) {
-            setConnectionsCapabilities((prev) => {
-              const next = new Map(prev)
-              next.set(id, { ...DEFAULT_CAPABILITIES, ...caps })
-              return next
-            })
-          }
-        } catch {
-          // Non-critical; ignore capability fetch failures
-        }
+        await applyConnectSuccess(id)
       } else {
         setRuntimeState(id, silent ? { status: 'disconnected' } : { status: 'error', errorMessage: result.message })
       }
@@ -356,6 +384,24 @@ export function useExplorerTree(showSystemDatabases: boolean): UseExplorerTreeRe
         setRuntimeState(id, { status: 'error', errorMessage: 'Connection failed' })
       }
     }
+  }
+
+  // Connect using credentials entered in the Enter Password dialog. Throws on
+  // failure so the dialog can surface the error and stay open.
+  async function connectWithCredentials(id: string, username: string, password: string): Promise<void> {
+    setRuntimeState(id, { status: 'connecting' })
+    const result = await window.api.database.connect(id, { username, password })
+    if (result.status === 'connected') {
+      await applyConnectSuccess(id)
+      setPasswordPromptConnection(null)
+      return
+    }
+    setRuntimeState(id, { status: 'error', errorMessage: result.message })
+    throw new Error(result.message)
+  }
+
+  function cancelPasswordPrompt(): void {
+    setPasswordPromptConnection(null)
   }
 
   function clearConnectionState(connectionId: string): void {
@@ -495,6 +541,9 @@ export function useExplorerTree(showSystemDatabases: boolean): UseExplorerTreeRe
     loadNodeChildren,
     silentRefreshNodeChildren,
     connectToDatabase,
+    connectWithCredentials,
+    passwordPromptConnection,
+    cancelPasswordPrompt,
     disconnectConnection,
     handleConnectAction,
     handleDisconnectAction,

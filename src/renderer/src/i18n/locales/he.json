@@ -893,6 +893,21 @@
         "nameInvalidChars": "שם מסד הנתונים לא יכול להכיל את התווים [, ], או '"
       }
     },
+    "enterPassword": {
+      "dialogTitle": "הזן פרטי התחברות",
+      "usernameLabel": "שם משתמש",
+      "usernamePlaceholder": "הזן שם משתמש",
+      "passwordLabel": "סיסמה",
+      "passwordPlaceholder": "הזן סיסמה",
+      "rememberLabel": "זכור סיסמה",
+      "connectButton": "התחבר",
+      "connectingButton": "מתחבר…",
+      "cancelButton": "ביטול",
+      "unknownError": "אירעה שגיאה בלתי צפויה",
+      "validation": {
+        "passwordRequired": "סיסמה היא שדה חובה"
+      }
+    },
     "serverFileBrowser": {
       "title": "עיון בקבצי השרת",
       "select": "בחר",

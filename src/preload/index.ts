@@ -50,7 +50,8 @@ const api = {
       ipcRenderer.invoke('comparisons:execute-sync', id, report, direction, generateRevertScript)
   },
   database: {
-    connect: (connectionId: string) => ipcRenderer.invoke('database:connect', connectionId),
+    connect: (connectionId: string, credentials?: { username?: string; password: string }) =>
+      ipcRenderer.invoke('database:connect', connectionId, credentials),
     disconnect: (connectionId: string) => ipcRenderer.invoke('database:disconnect', connectionId),
     getChildren: (connectionId: string, nodeId: string) =>
       ipcRenderer.invoke('database:get-children', connectionId, nodeId),
