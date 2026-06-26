@@ -11,6 +11,10 @@ files:
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
 asarUnpack:
   - resources/**
+  # Native binaries must live outside the asar so electron-builder can sign each
+  # one individually; unsigned native code inside the asar fails notarization.
+  - node_modules/node-llama-cpp/**/*.node
+  - node_modules/node-llama-cpp/bins/**
 win:
   executableName: spiral
 nsis:
@@ -19,13 +23,23 @@ nsis:
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
 mac:
+  # Developer ID (outside the Mac App Store) signing + notarization. Required for
+  # Squirrel.Mac auto-update to actually apply downloaded updates — unsigned mac
+  # builds silently refuse to install and the in-app "Installing…" pill hangs.
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: build/entitlements.mac.plist
   entitlementsInherit: build/entitlements.mac.plist
+  # The signing identity ("Developer ID Application: … (TEAMID)") is auto-discovered
+  # from the login keychain. In CI, provide it via CSC_LINK + CSC_KEY_PASSWORD.
+  # Notarization (notarytool) reads APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD and
+  # APPLE_TEAM_ID from the environment.
+  notarize: true
   extendInfo:
     - NSCameraUsageDescription: Application requests access to the device's camera.
     - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
-  notarize: false
   target:
     - dmg
     - zip

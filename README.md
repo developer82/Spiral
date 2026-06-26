@@ -39,6 +39,9 @@ Developed by [Ophir Oren](https://www.linkedin.com/in/ophiroren/) using AI agent
 - **Customization** — dark/light themes, resizable panels, native-feeling toolbars (macOS capsule style / Windows & Linux flat style), and a Tips & Tricks notification system.
 - **Auto-Update** — built-in release checking and update flow.
 
+> [!NOTE]
+> **macOS users:** Spiral is now signed and notarized by Apple. As a result, **auto-update does not work on macOS** — you'll need to **manually download** the latest release from the [releases page](https://github.com/developer82/Spiral/releases) and reinstall to update.
+
 ### AI Assistant *(experimental)*
 
 <img src="screenshots/spiral-ai.png" align="left" width="45%" alt="Spiral AI assistant" />

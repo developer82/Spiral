@@ -6,7 +6,7 @@
   "main": "./out/main/index.js",
   "author": "Ophir Oren",
   "homepage": "http://spiral.susita.com",
-  "desktopName": "com.susita.Spiral",
+  "desktopName": "com.susita.spiral",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",
@@ -83,7 +83,7 @@
     "vitest": "^2.1.0"
   },
   "build": {
-    "appId": "com.susita.Spiral",
+    "appId": "com.susita.spiral",
     "productName": "Spiral",
     "asar": true,
     "asarUnpack": [
