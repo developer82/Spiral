@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { ChangeEvent, InputHTMLAttributes } from 'react'
-import { CheckCircle, FolderOpen, FolderKey, X } from 'lucide-react'
+import { CheckCircle, FolderOpen, FolderKey, Pencil, Trash2, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { ConnectionRecord, ConnectionUserProfile } from '../../connections.types'
 import { PROVIDER_LIST, PROVIDER_METADATA } from '../../providerMetadata'
@@ -11,6 +11,7 @@ import BaseDialog from '../../../../components/BaseDialog/BaseDialog'
 import Button from '../../../../components/Button/Button'
 import ErrorBox from '../../../../components/ErrorBox/ErrorBox'
 import { useConfetti } from '../../../../hooks/useConfetti'
+import AddEditUserModal from './AddEditUserModal'
 import './NewConnectionDialog.css'
 
 type FormData = Omit<ConnectionRecord, 'id'>
@@ -22,7 +23,7 @@ type ConnectionDialogTab = 'details' | 'connectionString' | 'options' | 'users'
 
 type ConnectionInputProps = InputHTMLAttributes<HTMLInputElement>
 
-function ConnectionInput({
+export function ConnectionInput({
   className = '',
   type = 'text',
   value,
@@ -496,23 +497,32 @@ function NewConnectionDialog({
   }
 
   // ── Additional user profiles ("Users" tab) ─────────────────────────────────
-  function addUser(): void {
-    const newUser: ConnectionUserProfile = {
-      id: crypto.randomUUID(),
-      profileName: '',
-      username: '',
-      password: ''
-    }
-    setForm((prev) => ({ ...prev, additionalUsers: [...(prev.additionalUsers ?? []), newUser] }))
+  type UserModalState = { mode: 'add' } | { mode: 'edit'; user: ConnectionUserProfile }
+  const [userModal, setUserModal] = useState<UserModalState | null>(null)
+
+  function openAddUserModal(): void {
+    setUserModal({ mode: 'add' })
   }
 
-  function updateUser(id: string, patch: Partial<ConnectionUserProfile>): void {
-    setForm((prev) => ({
-      ...prev,
-      additionalUsers: (prev.additionalUsers ?? []).map((u) =>
-        u.id === id ? { ...u, ...patch } : u
-      )
-    }))
+  function openEditUserModal(user: ConnectionUserProfile): void {
+    setUserModal({ mode: 'edit', user })
+  }
+
+  function closeUserModal(): void {
+    setUserModal(null)
+  }
+
+  function saveUserFromModal(profile: ConnectionUserProfile): void {
+    setForm((prev) => {
+      const existing = prev.additionalUsers ?? []
+      const isReplacing = existing.some((u) => u.id === profile.id)
+      return {
+        ...prev,
+        additionalUsers: isReplacing
+          ? existing.map((u) => (u.id === profile.id ? profile : u))
+          : [...existing, profile]
+      }
+    })
     if (errors.additionalUsers) setErrors((prev) => ({ ...prev, additionalUsers: undefined }))
   }
 
@@ -595,147 +605,580 @@ function NewConnectionDialog({
   }
 
   return (
-    <BaseDialog
-      analyticsId={isEdit ? 'edit_connection' : 'new_connection'}
-      title={isEdit ? t('explorer.dialog.editTitle') : t('explorer.dialog.title')}
-      onClose={onCancel}
-      closeDisabled={isSaving}
-    >
-      <form className="conn-dialog__body" onSubmit={handleSubmit} noValidate>
-        <div className="conn-dialog__scroll-area">
-          {/* Name – always visible above the tabs */}
-          <div className="conn-dialog__field">
-            <label className="conn-dialog__label" htmlFor="conn-name">
-              {t('explorer.dialog.fields.name')}
-            </label>
-            <ConnectionInput
-              id="conn-name"
-              className={`conn-dialog__input${errors.name ? ' conn-dialog__input--error' : ''}`}
-              type="text"
-              value={form.name}
-              onChange={(e) => setField('name', e.target.value)}
-              placeholder="My SQL Server"
-              autoFocus
-            />
-            {errors.name && <span className="conn-dialog__error">{errors.name}</span>}
-          </div>
+    <>
+      <BaseDialog
+        analyticsId={isEdit ? 'edit_connection' : 'new_connection'}
+        title={isEdit ? t('explorer.dialog.editTitle') : t('explorer.dialog.title')}
+        onClose={onCancel}
+        closeDisabled={isSaving}
+      >
+        <form className="conn-dialog__body" onSubmit={handleSubmit} noValidate>
+          <div className="conn-dialog__scroll-area">
+            {/* Name – always visible above the tabs */}
+            <div className="conn-dialog__field">
+              <label className="conn-dialog__label" htmlFor="conn-name">
+                {t('explorer.dialog.fields.name')}
+              </label>
+              <ConnectionInput
+                id="conn-name"
+                className={`conn-dialog__input${errors.name ? ' conn-dialog__input--error' : ''}`}
+                type="text"
+                value={form.name}
+                onChange={(e) => setField('name', e.target.value)}
+                placeholder="My SQL Server"
+                autoFocus
+              />
+              {errors.name && <span className="conn-dialog__error">{errors.name}</span>}
+            </div>
 
-          {/* Tab bar */}
-          <div className="conn-dialog__tabs-section">
-            <div className="conn-dialog__tabs" role="tablist">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={activeTab === 'details'}
-                className={`conn-dialog__tab${activeTab === 'details' ? ' conn-dialog__tab--active' : ''}`}
-                onClick={() => setActiveTab('details')}
-              >
-                {t('explorer.dialog.tabs.connectionDetails')}
-              </button>
-              {!isSqlite && (
+            {/* Tab bar */}
+            <div className="conn-dialog__tabs-section">
+              <div className="conn-dialog__tabs" role="tablist">
                 <button
                   type="button"
                   role="tab"
-                  aria-selected={activeTab === 'connectionString'}
-                  className={`conn-dialog__tab${activeTab === 'connectionString' ? ' conn-dialog__tab--active' : ''}`}
-                  onClick={() => setActiveTab('connectionString')}
+                  aria-selected={activeTab === 'details'}
+                  className={`conn-dialog__tab${activeTab === 'details' ? ' conn-dialog__tab--active' : ''}`}
+                  onClick={() => setActiveTab('details')}
                 >
-                  {t('explorer.dialog.tabs.connectionString')}
+                  {t('explorer.dialog.tabs.connectionDetails')}
                 </button>
-              )}
-              <button
-                type="button"
-                role="tab"
-                aria-selected={activeTab === 'options'}
-                className={`conn-dialog__tab${activeTab === 'options' ? ' conn-dialog__tab--active' : ''}`}
-                onClick={() => setActiveTab('options')}
-              >
-                {t('explorer.dialog.tabs.options')}
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={activeTab === 'users'}
-                className={`conn-dialog__tab${activeTab === 'users' ? ' conn-dialog__tab--active' : ''}`}
-                onClick={() => setActiveTab('users')}
-              >
-                {t('explorer.dialog.tabs.users')}
-              </button>
-            </div>
+                {!isSqlite && (
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={activeTab === 'connectionString'}
+                    className={`conn-dialog__tab${activeTab === 'connectionString' ? ' conn-dialog__tab--active' : ''}`}
+                    onClick={() => setActiveTab('connectionString')}
+                  >
+                    {t('explorer.dialog.tabs.connectionString')}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === 'options'}
+                  className={`conn-dialog__tab${activeTab === 'options' ? ' conn-dialog__tab--active' : ''}`}
+                  onClick={() => setActiveTab('options')}
+                >
+                  {t('explorer.dialog.tabs.options')}
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === 'users'}
+                  className={`conn-dialog__tab${activeTab === 'users' ? ' conn-dialog__tab--active' : ''}`}
+                  onClick={() => setActiveTab('users')}
+                >
+                  {t('explorer.dialog.tabs.users')}
+                </button>
+              </div>
 
-            {/* Connection Details tab panel */}
-            {activeTab === 'details' && (
-              <div className="conn-dialog__tab-panel" role="tabpanel">
-                <div className="conn-dialog__form-grid">
-                  {/* Provider – full width */}
-                  <div className="conn-dialog__field conn-dialog__field--span">
-                    <label className="conn-dialog__label" htmlFor="conn-provider">
-                      {t('explorer.dialog.fields.provider')}
-                    </label>
-                    <select
-                      id="conn-provider"
-                      className="conn-dialog__select"
-                      value={form.provider}
-                      onChange={(e) => setField('provider', e.target.value as FormData['provider'])}
-                    >
-                      {PROVIDER_LIST.map(({ value, meta }) => (
-                        <option key={value} value={value}>
-                          {meta.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+              {/* Connection Details tab panel */}
+              {activeTab === 'details' && (
+                <div className="conn-dialog__tab-panel" role="tabpanel">
+                  <div className="conn-dialog__form-grid">
+                    {/* Provider – full width */}
+                    <div className="conn-dialog__field conn-dialog__field--span">
+                      <label className="conn-dialog__label" htmlFor="conn-provider">
+                        {t('explorer.dialog.fields.provider')}
+                      </label>
+                      <select
+                        id="conn-provider"
+                        className="conn-dialog__select"
+                        value={form.provider}
+                        onChange={(e) =>
+                          setField('provider', e.target.value as FormData['provider'])
+                        }
+                      >
+                        {PROVIDER_LIST.map(({ value, meta }) => (
+                          <option key={value} value={value}>
+                            {meta.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                  {isRedis ? (
-                    /* Redis: mode, auth, TLS, SSH tunnel */
-                    <>
-                      {/* Deployment mode */}
-                      <div className="conn-dialog__field conn-dialog__field--span">
-                        <label className="conn-dialog__label" htmlFor="conn-redis-mode">
-                          {t('explorer.dialog.fields.redisMode')}
-                        </label>
-                        <select
-                          id="conn-redis-mode"
-                          className="conn-dialog__select"
-                          value={form.redisMode ?? 'standalone'}
-                          onChange={(e) =>
-                            setField(
-                              'redisMode',
-                              e.target.value as 'standalone' | 'cluster' | 'sentinel'
-                            )
-                          }
-                        >
-                          <option value="standalone">
-                            {t('explorer.dialog.fields.redisModeStandalone')}
-                          </option>
-                          <option value="cluster">
-                            {t('explorer.dialog.fields.redisModeCluster')}
-                          </option>
-                          <option value="sentinel">
-                            {t('explorer.dialog.fields.redisModeSentinel')}
-                          </option>
-                        </select>
-                      </div>
+                    {isRedis ? (
+                      /* Redis: mode, auth, TLS, SSH tunnel */
+                      <>
+                        {/* Deployment mode */}
+                        <div className="conn-dialog__field conn-dialog__field--span">
+                          <label className="conn-dialog__label" htmlFor="conn-redis-mode">
+                            {t('explorer.dialog.fields.redisMode')}
+                          </label>
+                          <select
+                            id="conn-redis-mode"
+                            className="conn-dialog__select"
+                            value={form.redisMode ?? 'standalone'}
+                            onChange={(e) =>
+                              setField(
+                                'redisMode',
+                                e.target.value as 'standalone' | 'cluster' | 'sentinel'
+                              )
+                            }
+                          >
+                            <option value="standalone">
+                              {t('explorer.dialog.fields.redisModeStandalone')}
+                            </option>
+                            <option value="cluster">
+                              {t('explorer.dialog.fields.redisModeCluster')}
+                            </option>
+                            <option value="sentinel">
+                              {t('explorer.dialog.fields.redisModeSentinel')}
+                            </option>
+                          </select>
+                        </div>
 
-                      {form.redisMode !== 'sentinel' ? (
-                        <>
-                          {/* Standalone / Cluster: host + port */}
-                          <div className="conn-dialog__field">
-                            <label className="conn-dialog__label" htmlFor="conn-host">
-                              {t('explorer.dialog.fields.host')}
+                        {form.redisMode !== 'sentinel' ? (
+                          <>
+                            {/* Standalone / Cluster: host + port */}
+                            <div className="conn-dialog__field">
+                              <label className="conn-dialog__label" htmlFor="conn-host">
+                                {t('explorer.dialog.fields.host')}
+                              </label>
+                              <ConnectionInput
+                                id="conn-host"
+                                className={`conn-dialog__input${errors.host ? ' conn-dialog__input--error' : ''}`}
+                                type="text"
+                                value={form.host}
+                                onChange={(e) => setField('host', e.target.value)}
+                                placeholder="localhost"
+                              />
+                              {errors.host && (
+                                <span className="conn-dialog__error">{errors.host}</span>
+                              )}
+                            </div>
+                            <div className="conn-dialog__field">
+                              <label className="conn-dialog__label" htmlFor="conn-port">
+                                {t('explorer.dialog.fields.port')}
+                              </label>
+                              <ConnectionInput
+                                id="conn-port"
+                                className={`conn-dialog__input${errors.port ? ' conn-dialog__input--error' : ''}`}
+                                type="number"
+                                min={1}
+                                max={65535}
+                                value={form.port}
+                                onChange={(e) => {
+                                  const val = parseInt(e.target.value, 10)
+                                  setField('port', isNaN(val) ? 0 : val)
+                                }}
+                              />
+                              {errors.port && (
+                                <span className="conn-dialog__error">{errors.port}</span>
+                              )}
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            {/* Sentinel: master name + node list */}
+                            <div className="conn-dialog__field conn-dialog__field--span">
+                              <label className="conn-dialog__label" htmlFor="conn-sentinel-master">
+                                {t('explorer.dialog.fields.sentinelMasterName')}
+                              </label>
+                              <ConnectionInput
+                                id="conn-sentinel-master"
+                                className={`conn-dialog__input${errors.sentinelMasterName ? ' conn-dialog__input--error' : ''}`}
+                                type="text"
+                                value={form.sentinelMasterName ?? ''}
+                                onChange={(e) => setField('sentinelMasterName', e.target.value)}
+                                placeholder="mymaster"
+                              />
+                              {errors.sentinelMasterName && (
+                                <span className="conn-dialog__error">
+                                  {errors.sentinelMasterName}
+                                </span>
+                              )}
+                            </div>
+                            <div className="conn-dialog__field conn-dialog__field--span">
+                              <label className="conn-dialog__label" htmlFor="conn-sentinel-nodes">
+                                {t('explorer.dialog.fields.sentinelNodes')}
+                              </label>
+                              <ConnectionInput
+                                id="conn-sentinel-nodes"
+                                className={`conn-dialog__input${errors.sentinelNodes ? ' conn-dialog__input--error' : ''}`}
+                                type="text"
+                                value={form.sentinelNodes ?? ''}
+                                onChange={(e) => setField('sentinelNodes', e.target.value)}
+                                placeholder="host1:26379,host2:26379"
+                              />
+                              {errors.sentinelNodes && (
+                                <span className="conn-dialog__error">{errors.sentinelNodes}</span>
+                              )}
+                            </div>
+                          </>
+                        )}
+
+                        {/* Auth: ACL username (optional) + password */}
+                        <div className="conn-dialog__field">
+                          <label className="conn-dialog__label" htmlFor="conn-username">
+                            {t('explorer.dialog.fields.redisUsername')}
+                          </label>
+                          <ConnectionInput
+                            id="conn-username"
+                            className="conn-dialog__input"
+                            type="text"
+                            value={form.username}
+                            onChange={(e) => setField('username', e.target.value)}
+                            placeholder="default"
+                          />
+                        </div>
+                        <div className="conn-dialog__field">
+                          <label className="conn-dialog__label" htmlFor="conn-password">
+                            {t('explorer.dialog.fields.password')}
+                          </label>
+                          <ConnectionInput
+                            id="conn-password"
+                            className="conn-dialog__input"
+                            type="password"
+                            value={form.password}
+                            onChange={(e) => setField('password', e.target.value)}
+                            placeholder="••••••••"
+                          />
+                          <label className="conn-dialog__checkbox-row">
+                            <input
+                              type="checkbox"
+                              className="conn-dialog__checkbox"
+                              checked={form.rememberPassword}
+                              onChange={(e) => setField('rememberPassword', e.target.checked)}
+                            />
+                            <span className="conn-dialog__checkbox-label">
+                              {t('explorer.dialog.fields.rememberPassword')}
+                            </span>
+                          </label>
+                        </div>
+
+                        {/* Default DB index (standalone only) */}
+                        {form.redisMode !== 'cluster' && (
+                          <div className="conn-dialog__field conn-dialog__field--span">
+                            <label className="conn-dialog__label" htmlFor="conn-default-db">
+                              {t('explorer.dialog.fields.redisDatabaseIndex')}
                             </label>
                             <ConnectionInput
-                              id="conn-host"
-                              className={`conn-dialog__input${errors.host ? ' conn-dialog__input--error' : ''}`}
-                              type="text"
-                              value={form.host}
-                              onChange={(e) => setField('host', e.target.value)}
-                              placeholder="localhost"
+                              id="conn-default-db"
+                              className="conn-dialog__input"
+                              type="number"
+                              min={0}
+                              max={15}
+                              value={form.defaultDatabase}
+                              onChange={(e) => setField('defaultDatabase', e.target.value)}
+                              placeholder="0"
                             />
-                            {errors.host && (
-                              <span className="conn-dialog__error">{errors.host}</span>
-                            )}
                           </div>
+                        )}
+
+                        {/* ── TLS / SSL ── */}
+                        <div className="conn-dialog__field conn-dialog__field--span">
+                          <label className="conn-dialog__label">
+                            {t('explorer.dialog.fields.redisTls')}
+                          </label>
+                          <label className="conn-dialog__checkbox-row">
+                            <input
+                              type="checkbox"
+                              className="conn-dialog__checkbox"
+                              checked={form.tlsEnabled ?? false}
+                              onChange={(e) => setField('tlsEnabled', e.target.checked)}
+                            />
+                            <span className="conn-dialog__checkbox-label">
+                              {t('explorer.dialog.fields.redisTlsEnable')}
+                            </span>
+                          </label>
+                        </div>
+                        {form.tlsEnabled && (
+                          <>
+                            <div className="conn-dialog__field">
+                              <label className="conn-dialog__label" htmlFor="conn-tls-servername">
+                                {t('explorer.dialog.fields.redisTlsServername')}
+                              </label>
+                              <ConnectionInput
+                                id="conn-tls-servername"
+                                className="conn-dialog__input"
+                                type="text"
+                                value={form.tlsServername ?? ''}
+                                onChange={(e) => setField('tlsServername', e.target.value)}
+                                placeholder={form.host || 'optional'}
+                              />
+                            </div>
+                            <div className="conn-dialog__field">
+                              <label className="conn-dialog__label">
+                                {t('explorer.dialog.fields.redisTlsValidation')}
+                              </label>
+                              <label className="conn-dialog__checkbox-row">
+                                <input
+                                  type="checkbox"
+                                  className="conn-dialog__checkbox"
+                                  checked={form.tlsRejectUnauthorized ?? true}
+                                  onChange={(e) =>
+                                    setField('tlsRejectUnauthorized', e.target.checked)
+                                  }
+                                />
+                                <span className="conn-dialog__checkbox-label">
+                                  {t('explorer.dialog.fields.redisTlsRejectUnauthorized')}
+                                </span>
+                              </label>
+                            </div>
+                          </>
+                        )}
+
+                        {/* ── SSH Tunnel ── */}
+                        <div className="conn-dialog__field conn-dialog__field--span">
+                          <label className="conn-dialog__label">
+                            {t('explorer.dialog.fields.sshTunnel')}
+                          </label>
+                          <label className="conn-dialog__checkbox-row">
+                            <input
+                              type="checkbox"
+                              className="conn-dialog__checkbox"
+                              checked={form.sshEnabled ?? false}
+                              onChange={(e) => setField('sshEnabled', e.target.checked)}
+                            />
+                            <span className="conn-dialog__checkbox-label">
+                              {t('explorer.dialog.fields.sshTunnelEnable')}
+                            </span>
+                          </label>
+                        </div>
+                        {form.sshEnabled && (
+                          <>
+                            <div className="conn-dialog__field">
+                              <label className="conn-dialog__label" htmlFor="conn-ssh-host">
+                                {t('explorer.dialog.fields.sshHost')}
+                              </label>
+                              <ConnectionInput
+                                id="conn-ssh-host"
+                                className={`conn-dialog__input${errors.sshHost ? ' conn-dialog__input--error' : ''}`}
+                                type="text"
+                                value={form.sshHost ?? ''}
+                                onChange={(e) => setField('sshHost', e.target.value)}
+                                placeholder="bastion.example.com"
+                              />
+                              {errors.sshHost && (
+                                <span className="conn-dialog__error">{errors.sshHost}</span>
+                              )}
+                            </div>
+                            <div className="conn-dialog__field">
+                              <label className="conn-dialog__label" htmlFor="conn-ssh-port">
+                                {t('explorer.dialog.fields.sshPort')}
+                              </label>
+                              <ConnectionInput
+                                id="conn-ssh-port"
+                                className="conn-dialog__input"
+                                type="number"
+                                min={1}
+                                max={65535}
+                                value={form.sshPort ?? 22}
+                                onChange={(e) => {
+                                  const val = parseInt(e.target.value, 10)
+                                  setField('sshPort', isNaN(val) ? 22 : val)
+                                }}
+                              />
+                            </div>
+                            <div className="conn-dialog__field">
+                              <label className="conn-dialog__label" htmlFor="conn-ssh-username">
+                                {t('explorer.dialog.fields.sshUsername')}
+                              </label>
+                              <ConnectionInput
+                                id="conn-ssh-username"
+                                className={`conn-dialog__input${errors.sshUsername ? ' conn-dialog__input--error' : ''}`}
+                                type="text"
+                                value={form.sshUsername ?? ''}
+                                onChange={(e) => setField('sshUsername', e.target.value)}
+                                placeholder="ec2-user"
+                              />
+                              {errors.sshUsername && (
+                                <span className="conn-dialog__error">{errors.sshUsername}</span>
+                              )}
+                            </div>
+                            <div className="conn-dialog__field">
+                              <label className="conn-dialog__label" htmlFor="conn-ssh-auth-mode">
+                                {t('explorer.dialog.fields.sshAuthMode')}
+                              </label>
+                              <select
+                                id="conn-ssh-auth-mode"
+                                className="conn-dialog__select"
+                                value={form.sshAuthMode ?? 'password'}
+                                onChange={(e) =>
+                                  setField(
+                                    'sshAuthMode',
+                                    e.target.value as 'password' | 'privateKey'
+                                  )
+                                }
+                              >
+                                <option value="password">
+                                  {t('explorer.dialog.fields.sshAuthModePassword')}
+                                </option>
+                                <option value="privateKey">
+                                  {t('explorer.dialog.fields.sshAuthModeKey')}
+                                </option>
+                              </select>
+                            </div>
+                            {form.sshAuthMode === 'password' ? (
+                              <div className="conn-dialog__field conn-dialog__field--span">
+                                <label className="conn-dialog__label" htmlFor="conn-ssh-password">
+                                  {t('explorer.dialog.fields.sshPassword')}
+                                </label>
+                                <ConnectionInput
+                                  id="conn-ssh-password"
+                                  className="conn-dialog__input"
+                                  type="password"
+                                  value={form.sshPassword ?? ''}
+                                  onChange={(e) => setField('sshPassword', e.target.value)}
+                                  placeholder="••••••••"
+                                />
+                              </div>
+                            ) : (
+                              <>
+                                <div className="conn-dialog__field conn-dialog__field--span">
+                                  <label className="conn-dialog__label" htmlFor="conn-ssh-key-path">
+                                    {t('explorer.dialog.fields.sshPrivateKeyPath')}
+                                  </label>
+                                  <div className="conn-dialog__file-row">
+                                    <ConnectionInput
+                                      id="conn-ssh-key-path"
+                                      className={`conn-dialog__input${errors.sshPrivateKeyPath ? ' conn-dialog__input--error' : ''}`}
+                                      type="text"
+                                      value={form.sshPrivateKeyPath ?? ''}
+                                      onChange={(e) =>
+                                        setField('sshPrivateKeyPath', e.target.value)
+                                      }
+                                      placeholder="~/.ssh/id_rsa"
+                                    />
+                                    <Button
+                                      variant="secondary"
+                                      size="lg"
+                                      className="conn-dialog__file-browse"
+                                      onClick={async () => {
+                                        const result = await window.api.file.openFileDialog()
+                                        if (result.status === 'ok') {
+                                          setField('sshPrivateKeyPath', result.filePath)
+                                        }
+                                      }}
+                                    >
+                                      <FolderKey size={14} />
+                                      {t('explorer.dialog.fields.browseFile')}
+                                    </Button>
+                                  </div>
+                                  {errors.sshPrivateKeyPath && (
+                                    <span className="conn-dialog__error">
+                                      {errors.sshPrivateKeyPath}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="conn-dialog__field conn-dialog__field--span">
+                                  <label
+                                    className="conn-dialog__label"
+                                    htmlFor="conn-ssh-passphrase"
+                                  >
+                                    {t('explorer.dialog.fields.sshPassphrase')}
+                                  </label>
+                                  <ConnectionInput
+                                    id="conn-ssh-passphrase"
+                                    className="conn-dialog__input"
+                                    type="password"
+                                    value={form.sshPassphrase ?? ''}
+                                    onChange={(e) => setField('sshPassphrase', e.target.value)}
+                                    placeholder={t(
+                                      'explorer.dialog.fields.sshPassphrasePlaceholder'
+                                    )}
+                                  />
+                                </div>
+                              </>
+                            )}
+                          </>
+                        )}
+                      </>
+                    ) : isSqlite ? (
+                      /* SQLite: file path picker instead of host/port/credentials */
+                      <div className="conn-dialog__field conn-dialog__field--span">
+                        <label className="conn-dialog__label" htmlFor="conn-filepath">
+                          {t('explorer.dialog.fields.filePath')}
+                        </label>
+                        <div className="conn-dialog__file-row">
+                          <ConnectionInput
+                            id="conn-filepath"
+                            className={`conn-dialog__input${errors.filePath ? ' conn-dialog__input--error' : ''}`}
+                            type="text"
+                            value={form.filePath ?? ''}
+                            onChange={(e) => setField('filePath', e.target.value)}
+                            placeholder="/path/to/database.db"
+                          />
+                          <Button
+                            variant="secondary"
+                            size="lg"
+                            className="conn-dialog__file-browse"
+                            onClick={async () => {
+                              const result = await window.api.file.openSqliteDialog()
+                              if (result.status === 'ok') {
+                                setField('filePath', result.filePath)
+                              }
+                            }}
+                          >
+                            <FolderOpen size={14} />
+                            {t('explorer.dialog.fields.browseFile')}
+                          </Button>
+                        </div>
+                        {errors.filePath && (
+                          <span className="conn-dialog__error">{errors.filePath}</span>
+                        )}
+                        {showCreatePrompt && (
+                          <div className="conn-dialog__create-prompt">
+                            <span className="conn-dialog__create-prompt-message">
+                              {t('explorer.dialog.createPrompt.message')}
+                            </span>
+                            <div className="conn-dialog__create-prompt-actions">
+                              <Button variant="primary" size="lg" onClick={handleConfirmCreate}>
+                                {t('explorer.dialog.createPrompt.confirm')}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="lg"
+                                onClick={() => setShowCreatePrompt(false)}
+                              >
+                                {t('explorer.dialog.createPrompt.cancel')}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : isMongoDB ? (
+                      /* MongoDB: host/port, auth mechanism, TLS certs, SSH tunnel */
+                      <>
+                        {/* SRV toggle */}
+                        <div className="conn-dialog__field conn-dialog__field--span">
+                          <label className="conn-dialog__label">
+                            {t('explorer.dialog.fields.mongodbSrv')}
+                          </label>
+                          <label className="conn-dialog__checkbox-row">
+                            <input
+                              type="checkbox"
+                              className="conn-dialog__checkbox"
+                              checked={form.mongodbSrv ?? false}
+                              onChange={(e) => setField('mongodbSrv', e.target.checked)}
+                            />
+                            <span className="conn-dialog__checkbox-label">
+                              {t('explorer.dialog.fields.mongodbSrvEnable')}
+                            </span>
+                          </label>
+                        </div>
+
+                        {/* Host + Port */}
+                        <div className="conn-dialog__field">
+                          <label className="conn-dialog__label" htmlFor="conn-host">
+                            {t('explorer.dialog.fields.host')}
+                          </label>
+                          <ConnectionInput
+                            id="conn-host"
+                            className={`conn-dialog__input${errors.host ? ' conn-dialog__input--error' : ''}`}
+                            type="text"
+                            value={form.host}
+                            onChange={(e) => setField('host', e.target.value)}
+                            placeholder={
+                              form.mongodbSrv ? 'cluster.example.mongodb.net' : 'localhost'
+                            }
+                          />
+                          {errors.host && <span className="conn-dialog__error">{errors.host}</span>}
+                        </div>
+                        {!form.mongodbSrv && (
                           <div className="conn-dialog__field">
                             <label className="conn-dialog__label" htmlFor="conn-port">
                               {t('explorer.dialog.fields.port')}
@@ -756,996 +1199,171 @@ function NewConnectionDialog({
                               <span className="conn-dialog__error">{errors.port}</span>
                             )}
                           </div>
-                        </>
-                      ) : (
-                        <>
-                          {/* Sentinel: master name + node list */}
-                          <div className="conn-dialog__field conn-dialog__field--span">
-                            <label className="conn-dialog__label" htmlFor="conn-sentinel-master">
-                              {t('explorer.dialog.fields.sentinelMasterName')}
-                            </label>
-                            <ConnectionInput
-                              id="conn-sentinel-master"
-                              className={`conn-dialog__input${errors.sentinelMasterName ? ' conn-dialog__input--error' : ''}`}
-                              type="text"
-                              value={form.sentinelMasterName ?? ''}
-                              onChange={(e) => setField('sentinelMasterName', e.target.value)}
-                              placeholder="mymaster"
-                            />
-                            {errors.sentinelMasterName && (
-                              <span className="conn-dialog__error">
-                                {errors.sentinelMasterName}
-                              </span>
-                            )}
-                          </div>
-                          <div className="conn-dialog__field conn-dialog__field--span">
-                            <label className="conn-dialog__label" htmlFor="conn-sentinel-nodes">
-                              {t('explorer.dialog.fields.sentinelNodes')}
-                            </label>
-                            <ConnectionInput
-                              id="conn-sentinel-nodes"
-                              className={`conn-dialog__input${errors.sentinelNodes ? ' conn-dialog__input--error' : ''}`}
-                              type="text"
-                              value={form.sentinelNodes ?? ''}
-                              onChange={(e) => setField('sentinelNodes', e.target.value)}
-                              placeholder="host1:26379,host2:26379"
-                            />
-                            {errors.sentinelNodes && (
-                              <span className="conn-dialog__error">{errors.sentinelNodes}</span>
-                            )}
-                          </div>
-                        </>
-                      )}
+                        )}
 
-                      {/* Auth: ACL username (optional) + password */}
-                      <div className="conn-dialog__field">
-                        <label className="conn-dialog__label" htmlFor="conn-username">
-                          {t('explorer.dialog.fields.redisUsername')}
-                        </label>
-                        <ConnectionInput
-                          id="conn-username"
-                          className="conn-dialog__input"
-                          type="text"
-                          value={form.username}
-                          onChange={(e) => setField('username', e.target.value)}
-                          placeholder="default"
-                        />
-                      </div>
-                      <div className="conn-dialog__field">
-                        <label className="conn-dialog__label" htmlFor="conn-password">
-                          {t('explorer.dialog.fields.password')}
-                        </label>
-                        <ConnectionInput
-                          id="conn-password"
-                          className="conn-dialog__input"
-                          type="password"
-                          value={form.password}
-                          onChange={(e) => setField('password', e.target.value)}
-                          placeholder="••••••••"
-                        />
-                        <label className="conn-dialog__checkbox-row">
-                          <input
-                            type="checkbox"
-                            className="conn-dialog__checkbox"
-                            checked={form.rememberPassword}
-                            onChange={(e) => setField('rememberPassword', e.target.checked)}
+                        {/* Auth Mechanism */}
+                        <div className="conn-dialog__field">
+                          <label
+                            className="conn-dialog__label"
+                            htmlFor="conn-mongodb-auth-mechanism"
+                          >
+                            {t('explorer.dialog.fields.mongodbAuthMechanism')}
+                          </label>
+                          <select
+                            id="conn-mongodb-auth-mechanism"
+                            className="conn-dialog__select"
+                            value={form.mongodbAuthMechanism ?? 'SCRAM-SHA-256'}
+                            onChange={(e) =>
+                              setField(
+                                'mongodbAuthMechanism',
+                                e.target.value as FormData['mongodbAuthMechanism']
+                              )
+                            }
+                          >
+                            <option value="SCRAM-SHA-256">SCRAM-SHA-256 (default)</option>
+                            <option value="SCRAM-SHA-1">SCRAM-SHA-1</option>
+                            <option value="MONGODB-X509">X.509 Certificate</option>
+                            <option value="GSSAPI">Kerberos (GSSAPI)</option>
+                            <option value="PLAIN">LDAP (PLAIN)</option>
+                            <option value="MONGODB-AWS">AWS IAM</option>
+                          </select>
+                        </div>
+
+                        {/* Auth Source */}
+                        <div className="conn-dialog__field">
+                          <label className="conn-dialog__label" htmlFor="conn-mongodb-auth-source">
+                            {t('explorer.dialog.fields.mongodbAuthSource')}
+                          </label>
+                          <ConnectionInput
+                            id="conn-mongodb-auth-source"
+                            className="conn-dialog__input"
+                            type="text"
+                            value={form.mongodbAuthSource ?? ''}
+                            onChange={(e) => setField('mongodbAuthSource', e.target.value)}
+                            placeholder="admin"
                           />
-                          <span className="conn-dialog__checkbox-label">
-                            {t('explorer.dialog.fields.rememberPassword')}
-                          </span>
-                        </label>
-                      </div>
+                        </div>
 
-                      {/* Default DB index (standalone only) */}
-                      {form.redisMode !== 'cluster' && (
+                        {/* Username + Password (not needed for X.509) */}
+                        {form.mongodbAuthMechanism !== 'MONGODB-X509' && (
+                          <>
+                            <div className="conn-dialog__field">
+                              <label className="conn-dialog__label" htmlFor="conn-username">
+                                {t('explorer.dialog.fields.username')}
+                              </label>
+                              <ConnectionInput
+                                id="conn-username"
+                                className="conn-dialog__input"
+                                type="text"
+                                value={form.username}
+                                onChange={(e) => setField('username', e.target.value)}
+                                placeholder="admin"
+                              />
+                            </div>
+                            <div className="conn-dialog__field">
+                              <label className="conn-dialog__label" htmlFor="conn-password">
+                                {t('explorer.dialog.fields.password')}
+                              </label>
+                              <ConnectionInput
+                                id="conn-password"
+                                className="conn-dialog__input"
+                                type="password"
+                                value={form.password}
+                                onChange={(e) => setField('password', e.target.value)}
+                                placeholder="••••••••"
+                              />
+                              <label className="conn-dialog__checkbox-row">
+                                <input
+                                  type="checkbox"
+                                  className="conn-dialog__checkbox"
+                                  checked={form.rememberPassword}
+                                  onChange={(e) => setField('rememberPassword', e.target.checked)}
+                                />
+                                <span className="conn-dialog__checkbox-label">
+                                  {t('explorer.dialog.fields.rememberPassword')}
+                                </span>
+                              </label>
+                            </div>
+                          </>
+                        )}
+
+                        {/* Default Database */}
                         <div className="conn-dialog__field conn-dialog__field--span">
                           <label className="conn-dialog__label" htmlFor="conn-default-db">
-                            {t('explorer.dialog.fields.redisDatabaseIndex')}
+                            {t('explorer.dialog.fields.defaultDatabase')}
                           </label>
                           <ConnectionInput
                             id="conn-default-db"
                             className="conn-dialog__input"
-                            type="number"
-                            min={0}
-                            max={15}
+                            type="text"
                             value={form.defaultDatabase}
                             onChange={(e) => setField('defaultDatabase', e.target.value)}
-                            placeholder="0"
+                            placeholder="admin"
                           />
                         </div>
-                      )}
 
-                      {/* ── TLS / SSL ── */}
-                      <div className="conn-dialog__field conn-dialog__field--span">
-                        <label className="conn-dialog__label">
-                          {t('explorer.dialog.fields.redisTls')}
-                        </label>
-                        <label className="conn-dialog__checkbox-row">
-                          <input
-                            type="checkbox"
-                            className="conn-dialog__checkbox"
-                            checked={form.tlsEnabled ?? false}
-                            onChange={(e) => setField('tlsEnabled', e.target.checked)}
-                          />
-                          <span className="conn-dialog__checkbox-label">
-                            {t('explorer.dialog.fields.redisTlsEnable')}
-                          </span>
-                        </label>
-                      </div>
-                      {form.tlsEnabled && (
-                        <>
-                          <div className="conn-dialog__field">
-                            <label className="conn-dialog__label" htmlFor="conn-tls-servername">
-                              {t('explorer.dialog.fields.redisTlsServername')}
-                            </label>
-                            <ConnectionInput
-                              id="conn-tls-servername"
-                              className="conn-dialog__input"
-                              type="text"
-                              value={form.tlsServername ?? ''}
-                              onChange={(e) => setField('tlsServername', e.target.value)}
-                              placeholder={form.host || 'optional'}
-                            />
-                          </div>
-                          <div className="conn-dialog__field">
-                            <label className="conn-dialog__label">
-                              {t('explorer.dialog.fields.redisTlsValidation')}
-                            </label>
-                            <label className="conn-dialog__checkbox-row">
-                              <input
-                                type="checkbox"
-                                className="conn-dialog__checkbox"
-                                checked={form.tlsRejectUnauthorized ?? true}
-                                onChange={(e) =>
-                                  setField('tlsRejectUnauthorized', e.target.checked)
-                                }
-                              />
-                              <span className="conn-dialog__checkbox-label">
-                                {t('explorer.dialog.fields.redisTlsRejectUnauthorized')}
-                              </span>
-                            </label>
-                          </div>
-                        </>
-                      )}
-
-                      {/* ── SSH Tunnel ── */}
-                      <div className="conn-dialog__field conn-dialog__field--span">
-                        <label className="conn-dialog__label">
-                          {t('explorer.dialog.fields.sshTunnel')}
-                        </label>
-                        <label className="conn-dialog__checkbox-row">
-                          <input
-                            type="checkbox"
-                            className="conn-dialog__checkbox"
-                            checked={form.sshEnabled ?? false}
-                            onChange={(e) => setField('sshEnabled', e.target.checked)}
-                          />
-                          <span className="conn-dialog__checkbox-label">
-                            {t('explorer.dialog.fields.sshTunnelEnable')}
-                          </span>
-                        </label>
-                      </div>
-                      {form.sshEnabled && (
-                        <>
-                          <div className="conn-dialog__field">
-                            <label className="conn-dialog__label" htmlFor="conn-ssh-host">
-                              {t('explorer.dialog.fields.sshHost')}
-                            </label>
-                            <ConnectionInput
-                              id="conn-ssh-host"
-                              className={`conn-dialog__input${errors.sshHost ? ' conn-dialog__input--error' : ''}`}
-                              type="text"
-                              value={form.sshHost ?? ''}
-                              onChange={(e) => setField('sshHost', e.target.value)}
-                              placeholder="bastion.example.com"
-                            />
-                            {errors.sshHost && (
-                              <span className="conn-dialog__error">{errors.sshHost}</span>
-                            )}
-                          </div>
-                          <div className="conn-dialog__field">
-                            <label className="conn-dialog__label" htmlFor="conn-ssh-port">
-                              {t('explorer.dialog.fields.sshPort')}
-                            </label>
-                            <ConnectionInput
-                              id="conn-ssh-port"
-                              className="conn-dialog__input"
-                              type="number"
-                              min={1}
-                              max={65535}
-                              value={form.sshPort ?? 22}
-                              onChange={(e) => {
-                                const val = parseInt(e.target.value, 10)
-                                setField('sshPort', isNaN(val) ? 22 : val)
-                              }}
-                            />
-                          </div>
-                          <div className="conn-dialog__field">
-                            <label className="conn-dialog__label" htmlFor="conn-ssh-username">
-                              {t('explorer.dialog.fields.sshUsername')}
-                            </label>
-                            <ConnectionInput
-                              id="conn-ssh-username"
-                              className={`conn-dialog__input${errors.sshUsername ? ' conn-dialog__input--error' : ''}`}
-                              type="text"
-                              value={form.sshUsername ?? ''}
-                              onChange={(e) => setField('sshUsername', e.target.value)}
-                              placeholder="ec2-user"
-                            />
-                            {errors.sshUsername && (
-                              <span className="conn-dialog__error">{errors.sshUsername}</span>
-                            )}
-                          </div>
-                          <div className="conn-dialog__field">
-                            <label className="conn-dialog__label" htmlFor="conn-ssh-auth-mode">
-                              {t('explorer.dialog.fields.sshAuthMode')}
-                            </label>
-                            <select
-                              id="conn-ssh-auth-mode"
-                              className="conn-dialog__select"
-                              value={form.sshAuthMode ?? 'password'}
-                              onChange={(e) =>
-                                setField('sshAuthMode', e.target.value as 'password' | 'privateKey')
-                              }
-                            >
-                              <option value="password">
-                                {t('explorer.dialog.fields.sshAuthModePassword')}
-                              </option>
-                              <option value="privateKey">
-                                {t('explorer.dialog.fields.sshAuthModeKey')}
-                              </option>
-                            </select>
-                          </div>
-                          {form.sshAuthMode === 'password' ? (
-                            <div className="conn-dialog__field conn-dialog__field--span">
-                              <label className="conn-dialog__label" htmlFor="conn-ssh-password">
-                                {t('explorer.dialog.fields.sshPassword')}
-                              </label>
-                              <ConnectionInput
-                                id="conn-ssh-password"
-                                className="conn-dialog__input"
-                                type="password"
-                                value={form.sshPassword ?? ''}
-                                onChange={(e) => setField('sshPassword', e.target.value)}
-                                placeholder="••••••••"
-                              />
-                            </div>
-                          ) : (
-                            <>
-                              <div className="conn-dialog__field conn-dialog__field--span">
-                                <label className="conn-dialog__label" htmlFor="conn-ssh-key-path">
-                                  {t('explorer.dialog.fields.sshPrivateKeyPath')}
-                                </label>
-                                <div className="conn-dialog__file-row">
-                                  <ConnectionInput
-                                    id="conn-ssh-key-path"
-                                    className={`conn-dialog__input${errors.sshPrivateKeyPath ? ' conn-dialog__input--error' : ''}`}
-                                    type="text"
-                                    value={form.sshPrivateKeyPath ?? ''}
-                                    onChange={(e) => setField('sshPrivateKeyPath', e.target.value)}
-                                    placeholder="~/.ssh/id_rsa"
-                                  />
-                                  <Button
-                                    variant="secondary"
-                                    size="lg"
-                                    className="conn-dialog__file-browse"
-                                    onClick={async () => {
-                                      const result = await window.api.file.openFileDialog()
-                                      if (result.status === 'ok') {
-                                        setField('sshPrivateKeyPath', result.filePath)
-                                      }
-                                    }}
-                                  >
-                                    <FolderKey size={14} />
-                                    {t('explorer.dialog.fields.browseFile')}
-                                  </Button>
-                                </div>
-                                {errors.sshPrivateKeyPath && (
-                                  <span className="conn-dialog__error">
-                                    {errors.sshPrivateKeyPath}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="conn-dialog__field conn-dialog__field--span">
-                                <label className="conn-dialog__label" htmlFor="conn-ssh-passphrase">
-                                  {t('explorer.dialog.fields.sshPassphrase')}
-                                </label>
-                                <ConnectionInput
-                                  id="conn-ssh-passphrase"
-                                  className="conn-dialog__input"
-                                  type="password"
-                                  value={form.sshPassphrase ?? ''}
-                                  onChange={(e) => setField('sshPassphrase', e.target.value)}
-                                  placeholder={t('explorer.dialog.fields.sshPassphrasePlaceholder')}
-                                />
-                              </div>
-                            </>
-                          )}
-                        </>
-                      )}
-                    </>
-                  ) : isSqlite ? (
-                    /* SQLite: file path picker instead of host/port/credentials */
-                    <div className="conn-dialog__field conn-dialog__field--span">
-                      <label className="conn-dialog__label" htmlFor="conn-filepath">
-                        {t('explorer.dialog.fields.filePath')}
-                      </label>
-                      <div className="conn-dialog__file-row">
-                        <ConnectionInput
-                          id="conn-filepath"
-                          className={`conn-dialog__input${errors.filePath ? ' conn-dialog__input--error' : ''}`}
-                          type="text"
-                          value={form.filePath ?? ''}
-                          onChange={(e) => setField('filePath', e.target.value)}
-                          placeholder="/path/to/database.db"
-                        />
-                        <Button
-                          variant="secondary"
-                          size="lg"
-                          className="conn-dialog__file-browse"
-                          onClick={async () => {
-                            const result = await window.api.file.openSqliteDialog()
-                            if (result.status === 'ok') {
-                              setField('filePath', result.filePath)
-                            }
-                          }}
-                        >
-                          <FolderOpen size={14} />
-                          {t('explorer.dialog.fields.browseFile')}
-                        </Button>
-                      </div>
-                      {errors.filePath && (
-                        <span className="conn-dialog__error">{errors.filePath}</span>
-                      )}
-                      {showCreatePrompt && (
-                        <div className="conn-dialog__create-prompt">
-                          <span className="conn-dialog__create-prompt-message">
-                            {t('explorer.dialog.createPrompt.message')}
-                          </span>
-                          <div className="conn-dialog__create-prompt-actions">
-                            <Button variant="primary" size="lg" onClick={handleConfirmCreate}>
-                              {t('explorer.dialog.createPrompt.confirm')}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="lg"
-                              onClick={() => setShowCreatePrompt(false)}
-                            >
-                              {t('explorer.dialog.createPrompt.cancel')}
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ) : isMongoDB ? (
-                    /* MongoDB: host/port, auth mechanism, TLS certs, SSH tunnel */
-                    <>
-                      {/* SRV toggle */}
-                      <div className="conn-dialog__field conn-dialog__field--span">
-                        <label className="conn-dialog__label">
-                          {t('explorer.dialog.fields.mongodbSrv')}
-                        </label>
-                        <label className="conn-dialog__checkbox-row">
-                          <input
-                            type="checkbox"
-                            className="conn-dialog__checkbox"
-                            checked={form.mongodbSrv ?? false}
-                            onChange={(e) => setField('mongodbSrv', e.target.checked)}
-                          />
-                          <span className="conn-dialog__checkbox-label">
-                            {t('explorer.dialog.fields.mongodbSrvEnable')}
-                          </span>
-                        </label>
-                      </div>
-
-                      {/* Host + Port */}
-                      <div className="conn-dialog__field">
-                        <label className="conn-dialog__label" htmlFor="conn-host">
-                          {t('explorer.dialog.fields.host')}
-                        </label>
-                        <ConnectionInput
-                          id="conn-host"
-                          className={`conn-dialog__input${errors.host ? ' conn-dialog__input--error' : ''}`}
-                          type="text"
-                          value={form.host}
-                          onChange={(e) => setField('host', e.target.value)}
-                          placeholder={
-                            form.mongodbSrv ? 'cluster.example.mongodb.net' : 'localhost'
-                          }
-                        />
-                        {errors.host && <span className="conn-dialog__error">{errors.host}</span>}
-                      </div>
-                      {!form.mongodbSrv && (
+                        {/* Replica Set */}
                         <div className="conn-dialog__field">
-                          <label className="conn-dialog__label" htmlFor="conn-port">
-                            {t('explorer.dialog.fields.port')}
+                          <label className="conn-dialog__label" htmlFor="conn-mongodb-replica-set">
+                            {t('explorer.dialog.fields.mongodbReplicaSet')}
                           </label>
                           <ConnectionInput
-                            id="conn-port"
-                            className={`conn-dialog__input${errors.port ? ' conn-dialog__input--error' : ''}`}
-                            type="number"
-                            min={1}
-                            max={65535}
-                            value={form.port}
-                            onChange={(e) => {
-                              const val = parseInt(e.target.value, 10)
-                              setField('port', isNaN(val) ? 0 : val)
-                            }}
+                            id="conn-mongodb-replica-set"
+                            className="conn-dialog__input"
+                            type="text"
+                            value={form.mongodbReplicaSet ?? ''}
+                            onChange={(e) => setField('mongodbReplicaSet', e.target.value)}
+                            placeholder="rs0"
                           />
-                          {errors.port && <span className="conn-dialog__error">{errors.port}</span>}
                         </div>
-                      )}
 
-                      {/* Auth Mechanism */}
-                      <div className="conn-dialog__field">
-                        <label className="conn-dialog__label" htmlFor="conn-mongodb-auth-mechanism">
-                          {t('explorer.dialog.fields.mongodbAuthMechanism')}
-                        </label>
-                        <select
-                          id="conn-mongodb-auth-mechanism"
-                          className="conn-dialog__select"
-                          value={form.mongodbAuthMechanism ?? 'SCRAM-SHA-256'}
-                          onChange={(e) =>
-                            setField(
-                              'mongodbAuthMechanism',
-                              e.target.value as FormData['mongodbAuthMechanism']
-                            )
-                          }
-                        >
-                          <option value="SCRAM-SHA-256">SCRAM-SHA-256 (default)</option>
-                          <option value="SCRAM-SHA-1">SCRAM-SHA-1</option>
-                          <option value="MONGODB-X509">X.509 Certificate</option>
-                          <option value="GSSAPI">Kerberos (GSSAPI)</option>
-                          <option value="PLAIN">LDAP (PLAIN)</option>
-                          <option value="MONGODB-AWS">AWS IAM</option>
-                        </select>
-                      </div>
-
-                      {/* Auth Source */}
-                      <div className="conn-dialog__field">
-                        <label className="conn-dialog__label" htmlFor="conn-mongodb-auth-source">
-                          {t('explorer.dialog.fields.mongodbAuthSource')}
-                        </label>
-                        <ConnectionInput
-                          id="conn-mongodb-auth-source"
-                          className="conn-dialog__input"
-                          type="text"
-                          value={form.mongodbAuthSource ?? ''}
-                          onChange={(e) => setField('mongodbAuthSource', e.target.value)}
-                          placeholder="admin"
-                        />
-                      </div>
-
-                      {/* Username + Password (not needed for X.509) */}
-                      {form.mongodbAuthMechanism !== 'MONGODB-X509' && (
-                        <>
-                          <div className="conn-dialog__field">
-                            <label className="conn-dialog__label" htmlFor="conn-username">
-                              {t('explorer.dialog.fields.username')}
-                            </label>
-                            <ConnectionInput
-                              id="conn-username"
-                              className="conn-dialog__input"
-                              type="text"
-                              value={form.username}
-                              onChange={(e) => setField('username', e.target.value)}
-                              placeholder="admin"
-                            />
-                          </div>
-                          <div className="conn-dialog__field">
-                            <label className="conn-dialog__label" htmlFor="conn-password">
-                              {t('explorer.dialog.fields.password')}
-                            </label>
-                            <ConnectionInput
-                              id="conn-password"
-                              className="conn-dialog__input"
-                              type="password"
-                              value={form.password}
-                              onChange={(e) => setField('password', e.target.value)}
-                              placeholder="••••••••"
-                            />
-                            <label className="conn-dialog__checkbox-row">
-                              <input
-                                type="checkbox"
-                                className="conn-dialog__checkbox"
-                                checked={form.rememberPassword}
-                                onChange={(e) => setField('rememberPassword', e.target.checked)}
-                              />
-                              <span className="conn-dialog__checkbox-label">
-                                {t('explorer.dialog.fields.rememberPassword')}
-                              </span>
-                            </label>
-                          </div>
-                        </>
-                      )}
-
-                      {/* Default Database */}
-                      <div className="conn-dialog__field conn-dialog__field--span">
-                        <label className="conn-dialog__label" htmlFor="conn-default-db">
-                          {t('explorer.dialog.fields.defaultDatabase')}
-                        </label>
-                        <ConnectionInput
-                          id="conn-default-db"
-                          className="conn-dialog__input"
-                          type="text"
-                          value={form.defaultDatabase}
-                          onChange={(e) => setField('defaultDatabase', e.target.value)}
-                          placeholder="admin"
-                        />
-                      </div>
-
-                      {/* Replica Set */}
-                      <div className="conn-dialog__field">
-                        <label className="conn-dialog__label" htmlFor="conn-mongodb-replica-set">
-                          {t('explorer.dialog.fields.mongodbReplicaSet')}
-                        </label>
-                        <ConnectionInput
-                          id="conn-mongodb-replica-set"
-                          className="conn-dialog__input"
-                          type="text"
-                          value={form.mongodbReplicaSet ?? ''}
-                          onChange={(e) => setField('mongodbReplicaSet', e.target.value)}
-                          placeholder="rs0"
-                        />
-                      </div>
-
-                      {/* Direct Connection */}
-                      <div className="conn-dialog__field">
-                        <label className="conn-dialog__label">
-                          {t('explorer.dialog.fields.mongodbDirectConnection')}
-                        </label>
-                        <label className="conn-dialog__checkbox-row">
-                          <input
-                            type="checkbox"
-                            className="conn-dialog__checkbox"
-                            checked={form.mongodbDirectConnection ?? false}
-                            onChange={(e) => setField('mongodbDirectConnection', e.target.checked)}
-                          />
-                          <span className="conn-dialog__checkbox-label">
-                            {t('explorer.dialog.fields.mongodbDirectConnectionEnable')}
-                          </span>
-                        </label>
-                      </div>
-
-                      {/* ── TLS / SSL ── */}
-                      <div className="conn-dialog__field conn-dialog__field--span">
-                        <label className="conn-dialog__label">
-                          {t('explorer.dialog.fields.mongodbTls')}
-                        </label>
-                        <label className="conn-dialog__checkbox-row">
-                          <input
-                            type="checkbox"
-                            className="conn-dialog__checkbox"
-                            checked={form.tlsEnabled ?? false}
-                            onChange={(e) => setField('tlsEnabled', e.target.checked)}
-                          />
-                          <span className="conn-dialog__checkbox-label">
-                            {t('explorer.dialog.fields.mongodbTlsEnable')}
-                          </span>
-                        </label>
-                      </div>
-                      {form.tlsEnabled && (
-                        <>
-                          {/* CA Certificate */}
-                          <div className="conn-dialog__field conn-dialog__field--span">
-                            <label className="conn-dialog__label" htmlFor="conn-tls-ca-file">
-                              {t('explorer.dialog.fields.mongodbTlsCAFile')}
-                            </label>
-                            <div className="conn-dialog__file-row">
-                              <ConnectionInput
-                                id="conn-tls-ca-file"
-                                className="conn-dialog__input"
-                                type="text"
-                                value={form.tlsCAFile ?? ''}
-                                onChange={(e) => setField('tlsCAFile', e.target.value)}
-                                placeholder="/path/to/ca.pem"
-                              />
-                              <Button
-                                variant="secondary"
-                                size="lg"
-                                className="conn-dialog__file-browse"
-                                onClick={async () => {
-                                  const result = await window.api.file.openFileDialog()
-                                  if (result.status === 'ok') setField('tlsCAFile', result.filePath)
-                                }}
-                              >
-                                <FolderOpen size={14} />
-                                {t('explorer.dialog.fields.browseFile')}
-                              </Button>
-                            </div>
-                          </div>
-
-                          {/* Client Certificate / Key */}
-                          <div className="conn-dialog__field conn-dialog__field--span">
-                            <label className="conn-dialog__label" htmlFor="conn-tls-cert-key-file">
-                              {t('explorer.dialog.fields.mongodbTlsCertKeyFile')}
-                            </label>
-                            <div className="conn-dialog__file-row">
-                              <ConnectionInput
-                                id="conn-tls-cert-key-file"
-                                className={`conn-dialog__input${errors.tlsCertificateKeyFile ? ' conn-dialog__input--error' : ''}`}
-                                type="text"
-                                value={form.tlsCertificateKeyFile ?? ''}
-                                onChange={(e) => setField('tlsCertificateKeyFile', e.target.value)}
-                                placeholder="/path/to/client.pem"
-                              />
-                              <Button
-                                variant="secondary"
-                                size="lg"
-                                className="conn-dialog__file-browse"
-                                onClick={async () => {
-                                  const result = await window.api.file.openFileDialog()
-                                  if (result.status === 'ok')
-                                    setField('tlsCertificateKeyFile', result.filePath)
-                                }}
-                              >
-                                <FolderKey size={14} />
-                                {t('explorer.dialog.fields.browseFile')}
-                              </Button>
-                            </div>
-                            {errors.tlsCertificateKeyFile && (
-                              <span className="conn-dialog__error">
-                                {errors.tlsCertificateKeyFile}
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Cert Key Passphrase */}
-                          <div className="conn-dialog__field conn-dialog__field--span">
-                            <label
-                              className="conn-dialog__label"
-                              htmlFor="conn-tls-cert-key-password"
-                            >
-                              {t('explorer.dialog.fields.mongodbTlsCertKeyPassword')}
-                            </label>
-                            <ConnectionInput
-                              id="conn-tls-cert-key-password"
-                              className="conn-dialog__input"
-                              type="password"
-                              value={form.tlsCertificateKeyFilePassword ?? ''}
+                        {/* Direct Connection */}
+                        <div className="conn-dialog__field">
+                          <label className="conn-dialog__label">
+                            {t('explorer.dialog.fields.mongodbDirectConnection')}
+                          </label>
+                          <label className="conn-dialog__checkbox-row">
+                            <input
+                              type="checkbox"
+                              className="conn-dialog__checkbox"
+                              checked={form.mongodbDirectConnection ?? false}
                               onChange={(e) =>
-                                setField('tlsCertificateKeyFilePassword', e.target.value)
+                                setField('mongodbDirectConnection', e.target.checked)
                               }
-                              placeholder="••••••••"
                             />
-                          </div>
+                            <span className="conn-dialog__checkbox-label">
+                              {t('explorer.dialog.fields.mongodbDirectConnectionEnable')}
+                            </span>
+                          </label>
+                        </div>
 
-                          {/* Validation options */}
-                          <div className="conn-dialog__field conn-dialog__field--span">
-                            <label className="conn-dialog__checkbox-row">
-                              <input
-                                type="checkbox"
-                                className="conn-dialog__checkbox"
-                                checked={form.tlsAllowInvalidHostnames ?? false}
-                                onChange={(e) =>
-                                  setField('tlsAllowInvalidHostnames', e.target.checked)
-                                }
-                              />
-                              <span className="conn-dialog__checkbox-label">
-                                {t('explorer.dialog.fields.mongodbTlsAllowInvalidHostnames')}
-                              </span>
-                            </label>
-                          </div>
-                          <div className="conn-dialog__field conn-dialog__field--span">
-                            <label className="conn-dialog__checkbox-row">
-                              <input
-                                type="checkbox"
-                                className="conn-dialog__checkbox"
-                                checked={form.tlsAllowInvalidCertificates ?? false}
-                                onChange={(e) =>
-                                  setField('tlsAllowInvalidCertificates', e.target.checked)
-                                }
-                              />
-                              <span className="conn-dialog__checkbox-label">
-                                {t('explorer.dialog.fields.mongodbTlsAllowInvalidCerts')}
-                              </span>
-                            </label>
-                          </div>
-                        </>
-                      )}
-
-                      {/* ── SSH Tunnel ── */}
-                      <div className="conn-dialog__field conn-dialog__field--span">
-                        <label className="conn-dialog__label">
-                          {t('explorer.dialog.fields.sshTunnel')}
-                        </label>
-                        <label className="conn-dialog__checkbox-row">
-                          <input
-                            type="checkbox"
-                            className="conn-dialog__checkbox"
-                            checked={form.sshEnabled ?? false}
-                            onChange={(e) => setField('sshEnabled', e.target.checked)}
-                          />
-                          <span className="conn-dialog__checkbox-label">
-                            {t('explorer.dialog.fields.sshTunnelEnable')}
-                          </span>
-                        </label>
-                      </div>
-                      {form.sshEnabled && (
-                        <>
-                          <div className="conn-dialog__field">
-                            <label className="conn-dialog__label" htmlFor="conn-ssh-host">
-                              {t('explorer.dialog.fields.sshHost')}
-                            </label>
-                            <ConnectionInput
-                              id="conn-ssh-host"
-                              className={`conn-dialog__input${errors.sshHost ? ' conn-dialog__input--error' : ''}`}
-                              type="text"
-                              value={form.sshHost ?? ''}
-                              onChange={(e) => setField('sshHost', e.target.value)}
-                              placeholder="bastion.example.com"
+                        {/* ── TLS / SSL ── */}
+                        <div className="conn-dialog__field conn-dialog__field--span">
+                          <label className="conn-dialog__label">
+                            {t('explorer.dialog.fields.mongodbTls')}
+                          </label>
+                          <label className="conn-dialog__checkbox-row">
+                            <input
+                              type="checkbox"
+                              className="conn-dialog__checkbox"
+                              checked={form.tlsEnabled ?? false}
+                              onChange={(e) => setField('tlsEnabled', e.target.checked)}
                             />
-                            {errors.sshHost && (
-                              <span className="conn-dialog__error">{errors.sshHost}</span>
-                            )}
-                          </div>
-                          <div className="conn-dialog__field">
-                            <label className="conn-dialog__label" htmlFor="conn-ssh-port">
-                              {t('explorer.dialog.fields.sshPort')}
-                            </label>
-                            <ConnectionInput
-                              id="conn-ssh-port"
-                              className="conn-dialog__input"
-                              type="number"
-                              min={1}
-                              max={65535}
-                              value={form.sshPort ?? 22}
-                              onChange={(e) => {
-                                const val = parseInt(e.target.value, 10)
-                                setField('sshPort', isNaN(val) ? 22 : val)
-                              }}
-                            />
-                          </div>
-                          <div className="conn-dialog__field">
-                            <label className="conn-dialog__label" htmlFor="conn-ssh-username">
-                              {t('explorer.dialog.fields.sshUsername')}
-                            </label>
-                            <ConnectionInput
-                              id="conn-ssh-username"
-                              className={`conn-dialog__input${errors.sshUsername ? ' conn-dialog__input--error' : ''}`}
-                              type="text"
-                              value={form.sshUsername ?? ''}
-                              onChange={(e) => setField('sshUsername', e.target.value)}
-                              placeholder="ec2-user"
-                            />
-                            {errors.sshUsername && (
-                              <span className="conn-dialog__error">{errors.sshUsername}</span>
-                            )}
-                          </div>
-                          <div className="conn-dialog__field">
-                            <label className="conn-dialog__label" htmlFor="conn-ssh-auth-mode">
-                              {t('explorer.dialog.fields.sshAuthMode')}
-                            </label>
-                            <select
-                              id="conn-ssh-auth-mode"
-                              className="conn-dialog__select"
-                              value={form.sshAuthMode ?? 'password'}
-                              onChange={(e) =>
-                                setField('sshAuthMode', e.target.value as 'password' | 'privateKey')
-                              }
-                            >
-                              <option value="password">
-                                {t('explorer.dialog.fields.sshAuthModePassword')}
-                              </option>
-                              <option value="privateKey">
-                                {t('explorer.dialog.fields.sshAuthModeKey')}
-                              </option>
-                            </select>
-                          </div>
-                          {form.sshAuthMode === 'password' ? (
+                            <span className="conn-dialog__checkbox-label">
+                              {t('explorer.dialog.fields.mongodbTlsEnable')}
+                            </span>
+                          </label>
+                        </div>
+                        {form.tlsEnabled && (
+                          <>
+                            {/* CA Certificate */}
                             <div className="conn-dialog__field conn-dialog__field--span">
-                              <label className="conn-dialog__label" htmlFor="conn-ssh-password">
-                                {t('explorer.dialog.fields.sshPassword')}
-                              </label>
-                              <ConnectionInput
-                                id="conn-ssh-password"
-                                className="conn-dialog__input"
-                                type="password"
-                                value={form.sshPassword ?? ''}
-                                onChange={(e) => setField('sshPassword', e.target.value)}
-                                placeholder="••••••••"
-                              />
-                            </div>
-                          ) : (
-                            <>
-                              <div className="conn-dialog__field conn-dialog__field--span">
-                                <label className="conn-dialog__label" htmlFor="conn-ssh-key-path">
-                                  {t('explorer.dialog.fields.sshPrivateKeyPath')}
-                                </label>
-                                <div className="conn-dialog__file-row">
-                                  <ConnectionInput
-                                    id="conn-ssh-key-path"
-                                    className={`conn-dialog__input${errors.sshPrivateKeyPath ? ' conn-dialog__input--error' : ''}`}
-                                    type="text"
-                                    value={form.sshPrivateKeyPath ?? ''}
-                                    onChange={(e) => setField('sshPrivateKeyPath', e.target.value)}
-                                    placeholder="~/.ssh/id_rsa"
-                                  />
-                                  <Button
-                                    variant="secondary"
-                                    size="lg"
-                                    className="conn-dialog__file-browse"
-                                    onClick={async () => {
-                                      const result = await window.api.file.openFileDialog()
-                                      if (result.status === 'ok')
-                                        setField('sshPrivateKeyPath', result.filePath)
-                                    }}
-                                  >
-                                    <FolderKey size={14} />
-                                    {t('explorer.dialog.fields.browseFile')}
-                                  </Button>
-                                </div>
-                                {errors.sshPrivateKeyPath && (
-                                  <span className="conn-dialog__error">
-                                    {errors.sshPrivateKeyPath}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="conn-dialog__field conn-dialog__field--span">
-                                <label className="conn-dialog__label" htmlFor="conn-ssh-passphrase">
-                                  {t('explorer.dialog.fields.sshPassphrase')}
-                                </label>
-                                <ConnectionInput
-                                  id="conn-ssh-passphrase"
-                                  className="conn-dialog__input"
-                                  type="password"
-                                  value={form.sshPassphrase ?? ''}
-                                  onChange={(e) => setField('sshPassphrase', e.target.value)}
-                                  placeholder={t('explorer.dialog.fields.sshPassphrasePlaceholder')}
-                                />
-                              </div>
-                            </>
-                          )}
-                        </>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      {/* Host */}
-                      <div className="conn-dialog__field">
-                        <label className="conn-dialog__label" htmlFor="conn-host">
-                          {t('explorer.dialog.fields.host')}
-                        </label>
-                        <ConnectionInput
-                          id="conn-host"
-                          className={`conn-dialog__input${errors.host ? ' conn-dialog__input--error' : ''}`}
-                          type="text"
-                          value={form.host}
-                          onChange={(e) => setField('host', e.target.value)}
-                          placeholder="localhost"
-                        />
-                        {errors.host && <span className="conn-dialog__error">{errors.host}</span>}
-                      </div>
-
-                      {/* Port */}
-                      <div className="conn-dialog__field">
-                        <label className="conn-dialog__label" htmlFor="conn-port">
-                          {t('explorer.dialog.fields.port')}
-                        </label>
-                        <ConnectionInput
-                          id="conn-port"
-                          className={`conn-dialog__input${errors.port ? ' conn-dialog__input--error' : ''}`}
-                          type="number"
-                          min={1}
-                          max={65535}
-                          value={form.port}
-                          onChange={(e) => {
-                            const val = parseInt(e.target.value, 10)
-                            setField('port', isNaN(val) ? 0 : val)
-                          }}
-                        />
-                        {errors.port && <span className="conn-dialog__error">{errors.port}</span>}
-                      </div>
-
-                      {/* Username */}
-                      <div className="conn-dialog__field">
-                        <label className="conn-dialog__label" htmlFor="conn-username">
-                          {t('explorer.dialog.fields.username')}
-                        </label>
-                        <ConnectionInput
-                          id="conn-username"
-                          className={`conn-dialog__input${errors.username ? ' conn-dialog__input--error' : ''}`}
-                          type="text"
-                          value={form.username}
-                          onChange={(e) => setField('username', e.target.value)}
-                          placeholder="sa"
-                        />
-                        {errors.username && (
-                          <span className="conn-dialog__error">{errors.username}</span>
-                        )}
-                      </div>
-
-                      {/* Password + Remember Password */}
-                      <div className="conn-dialog__field">
-                        <label className="conn-dialog__label" htmlFor="conn-password">
-                          {t('explorer.dialog.fields.password')}
-                        </label>
-                        <ConnectionInput
-                          id="conn-password"
-                          className="conn-dialog__input"
-                          type="password"
-                          value={form.password}
-                          onChange={(e) => setField('password', e.target.value)}
-                          placeholder="••••••••"
-                        />
-                        <label className="conn-dialog__checkbox-row">
-                          <input
-                            type="checkbox"
-                            className="conn-dialog__checkbox"
-                            checked={form.rememberPassword}
-                            onChange={(e) => setField('rememberPassword', e.target.checked)}
-                          />
-                          <span className="conn-dialog__checkbox-label">
-                            {t('explorer.dialog.fields.rememberPassword')}
-                          </span>
-                        </label>
-                      </div>
-
-                      {/* Default Database – full width */}
-                      <div className="conn-dialog__field conn-dialog__field--span">
-                        <label className="conn-dialog__label" htmlFor="conn-default-db">
-                          {t('explorer.dialog.fields.defaultDatabase')}
-                        </label>
-                        <ConnectionInput
-                          id="conn-default-db"
-                          className="conn-dialog__input"
-                          type="text"
-                          value={form.defaultDatabase}
-                          onChange={(e) => setField('defaultDatabase', e.target.value)}
-                          placeholder="master"
-                        />
-                      </div>
-
-                      {/* ── SSL / TLS (PostgreSQL) ── */}
-                      {isPostgres && (
-                        <>
-                          {/* SSL Mode */}
-                          <div className="conn-dialog__field conn-dialog__field--span">
-                            <label className="conn-dialog__label" htmlFor="conn-pg-ssl-mode">
-                              {t('explorer.dialog.fields.postgresSslMode')}
-                            </label>
-                            <select
-                              id="conn-pg-ssl-mode"
-                              className="conn-dialog__select"
-                              value={form.postgresSslMode ?? 'prefer'}
-                              onChange={(e) =>
-                                setField(
-                                  'postgresSslMode',
-                                  e.target.value as NonNullable<FormData['postgresSslMode']>
-                                )
-                              }
-                            >
-                              <option value="disable">
-                                {t('explorer.dialog.fields.postgresSslModeDisable')}
-                              </option>
-                              <option value="allow">
-                                {t('explorer.dialog.fields.postgresSslModeAllow')}
-                              </option>
-                              <option value="prefer">
-                                {t('explorer.dialog.fields.postgresSslModePrefer')}
-                              </option>
-                              <option value="require">
-                                {t('explorer.dialog.fields.postgresSslModeRequire')}
-                              </option>
-                              <option value="verify-ca">
-                                {t('explorer.dialog.fields.postgresSslModeVerifyCa')}
-                              </option>
-                              <option value="verify-full">
-                                {t('explorer.dialog.fields.postgresSslModeVerifyFull')}
-                              </option>
-                            </select>
-                          </div>
-
-                          {/* CA Certificate – only for verify-ca / verify-full */}
-                          {(form.postgresSslMode === 'verify-ca' ||
-                            form.postgresSslMode === 'verify-full') && (
-                            <div className="conn-dialog__field conn-dialog__field--span">
-                              <label className="conn-dialog__label" htmlFor="conn-pg-tls-ca-file">
-                                {t('explorer.dialog.fields.postgresTlsCAFile')}
+                              <label className="conn-dialog__label" htmlFor="conn-tls-ca-file">
+                                {t('explorer.dialog.fields.mongodbTlsCAFile')}
                               </label>
                               <div className="conn-dialog__file-row">
                                 <ConnectionInput
-                                  id="conn-pg-tls-ca-file"
+                                  id="conn-tls-ca-file"
                                   className="conn-dialog__input"
                                   type="text"
                                   value={form.tlsCAFile ?? ''}
@@ -1767,321 +1385,737 @@ function NewConnectionDialog({
                                 </Button>
                               </div>
                             </div>
-                          )}
 
-                          {/* Server Name (SNI) – any encrypted mode */}
-                          {form.postgresSslMode && form.postgresSslMode !== 'disable' && (
+                            {/* Client Certificate / Key */}
                             <div className="conn-dialog__field conn-dialog__field--span">
                               <label
                                 className="conn-dialog__label"
-                                htmlFor="conn-pg-tls-servername"
+                                htmlFor="conn-tls-cert-key-file"
                               >
-                                {t('explorer.dialog.fields.postgresTlsServername')}
+                                {t('explorer.dialog.fields.mongodbTlsCertKeyFile')}
+                              </label>
+                              <div className="conn-dialog__file-row">
+                                <ConnectionInput
+                                  id="conn-tls-cert-key-file"
+                                  className={`conn-dialog__input${errors.tlsCertificateKeyFile ? ' conn-dialog__input--error' : ''}`}
+                                  type="text"
+                                  value={form.tlsCertificateKeyFile ?? ''}
+                                  onChange={(e) =>
+                                    setField('tlsCertificateKeyFile', e.target.value)
+                                  }
+                                  placeholder="/path/to/client.pem"
+                                />
+                                <Button
+                                  variant="secondary"
+                                  size="lg"
+                                  className="conn-dialog__file-browse"
+                                  onClick={async () => {
+                                    const result = await window.api.file.openFileDialog()
+                                    if (result.status === 'ok')
+                                      setField('tlsCertificateKeyFile', result.filePath)
+                                  }}
+                                >
+                                  <FolderKey size={14} />
+                                  {t('explorer.dialog.fields.browseFile')}
+                                </Button>
+                              </div>
+                              {errors.tlsCertificateKeyFile && (
+                                <span className="conn-dialog__error">
+                                  {errors.tlsCertificateKeyFile}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Cert Key Passphrase */}
+                            <div className="conn-dialog__field conn-dialog__field--span">
+                              <label
+                                className="conn-dialog__label"
+                                htmlFor="conn-tls-cert-key-password"
+                              >
+                                {t('explorer.dialog.fields.mongodbTlsCertKeyPassword')}
                               </label>
                               <ConnectionInput
-                                id="conn-pg-tls-servername"
+                                id="conn-tls-cert-key-password"
                                 className="conn-dialog__input"
-                                type="text"
-                                value={form.tlsServername ?? ''}
-                                onChange={(e) => setField('tlsServername', e.target.value)}
-                                placeholder={form.host || 'optional'}
+                                type="password"
+                                value={form.tlsCertificateKeyFilePassword ?? ''}
+                                onChange={(e) =>
+                                  setField('tlsCertificateKeyFilePassword', e.target.value)
+                                }
+                                placeholder="••••••••"
                               />
                             </div>
+
+                            {/* Validation options */}
+                            <div className="conn-dialog__field conn-dialog__field--span">
+                              <label className="conn-dialog__checkbox-row">
+                                <input
+                                  type="checkbox"
+                                  className="conn-dialog__checkbox"
+                                  checked={form.tlsAllowInvalidHostnames ?? false}
+                                  onChange={(e) =>
+                                    setField('tlsAllowInvalidHostnames', e.target.checked)
+                                  }
+                                />
+                                <span className="conn-dialog__checkbox-label">
+                                  {t('explorer.dialog.fields.mongodbTlsAllowInvalidHostnames')}
+                                </span>
+                              </label>
+                            </div>
+                            <div className="conn-dialog__field conn-dialog__field--span">
+                              <label className="conn-dialog__checkbox-row">
+                                <input
+                                  type="checkbox"
+                                  className="conn-dialog__checkbox"
+                                  checked={form.tlsAllowInvalidCertificates ?? false}
+                                  onChange={(e) =>
+                                    setField('tlsAllowInvalidCertificates', e.target.checked)
+                                  }
+                                />
+                                <span className="conn-dialog__checkbox-label">
+                                  {t('explorer.dialog.fields.mongodbTlsAllowInvalidCerts')}
+                                </span>
+                              </label>
+                            </div>
+                          </>
+                        )}
+
+                        {/* ── SSH Tunnel ── */}
+                        <div className="conn-dialog__field conn-dialog__field--span">
+                          <label className="conn-dialog__label">
+                            {t('explorer.dialog.fields.sshTunnel')}
+                          </label>
+                          <label className="conn-dialog__checkbox-row">
+                            <input
+                              type="checkbox"
+                              className="conn-dialog__checkbox"
+                              checked={form.sshEnabled ?? false}
+                              onChange={(e) => setField('sshEnabled', e.target.checked)}
+                            />
+                            <span className="conn-dialog__checkbox-label">
+                              {t('explorer.dialog.fields.sshTunnelEnable')}
+                            </span>
+                          </label>
+                        </div>
+                        {form.sshEnabled && (
+                          <>
+                            <div className="conn-dialog__field">
+                              <label className="conn-dialog__label" htmlFor="conn-ssh-host">
+                                {t('explorer.dialog.fields.sshHost')}
+                              </label>
+                              <ConnectionInput
+                                id="conn-ssh-host"
+                                className={`conn-dialog__input${errors.sshHost ? ' conn-dialog__input--error' : ''}`}
+                                type="text"
+                                value={form.sshHost ?? ''}
+                                onChange={(e) => setField('sshHost', e.target.value)}
+                                placeholder="bastion.example.com"
+                              />
+                              {errors.sshHost && (
+                                <span className="conn-dialog__error">{errors.sshHost}</span>
+                              )}
+                            </div>
+                            <div className="conn-dialog__field">
+                              <label className="conn-dialog__label" htmlFor="conn-ssh-port">
+                                {t('explorer.dialog.fields.sshPort')}
+                              </label>
+                              <ConnectionInput
+                                id="conn-ssh-port"
+                                className="conn-dialog__input"
+                                type="number"
+                                min={1}
+                                max={65535}
+                                value={form.sshPort ?? 22}
+                                onChange={(e) => {
+                                  const val = parseInt(e.target.value, 10)
+                                  setField('sshPort', isNaN(val) ? 22 : val)
+                                }}
+                              />
+                            </div>
+                            <div className="conn-dialog__field">
+                              <label className="conn-dialog__label" htmlFor="conn-ssh-username">
+                                {t('explorer.dialog.fields.sshUsername')}
+                              </label>
+                              <ConnectionInput
+                                id="conn-ssh-username"
+                                className={`conn-dialog__input${errors.sshUsername ? ' conn-dialog__input--error' : ''}`}
+                                type="text"
+                                value={form.sshUsername ?? ''}
+                                onChange={(e) => setField('sshUsername', e.target.value)}
+                                placeholder="ec2-user"
+                              />
+                              {errors.sshUsername && (
+                                <span className="conn-dialog__error">{errors.sshUsername}</span>
+                              )}
+                            </div>
+                            <div className="conn-dialog__field">
+                              <label className="conn-dialog__label" htmlFor="conn-ssh-auth-mode">
+                                {t('explorer.dialog.fields.sshAuthMode')}
+                              </label>
+                              <select
+                                id="conn-ssh-auth-mode"
+                                className="conn-dialog__select"
+                                value={form.sshAuthMode ?? 'password'}
+                                onChange={(e) =>
+                                  setField(
+                                    'sshAuthMode',
+                                    e.target.value as 'password' | 'privateKey'
+                                  )
+                                }
+                              >
+                                <option value="password">
+                                  {t('explorer.dialog.fields.sshAuthModePassword')}
+                                </option>
+                                <option value="privateKey">
+                                  {t('explorer.dialog.fields.sshAuthModeKey')}
+                                </option>
+                              </select>
+                            </div>
+                            {form.sshAuthMode === 'password' ? (
+                              <div className="conn-dialog__field conn-dialog__field--span">
+                                <label className="conn-dialog__label" htmlFor="conn-ssh-password">
+                                  {t('explorer.dialog.fields.sshPassword')}
+                                </label>
+                                <ConnectionInput
+                                  id="conn-ssh-password"
+                                  className="conn-dialog__input"
+                                  type="password"
+                                  value={form.sshPassword ?? ''}
+                                  onChange={(e) => setField('sshPassword', e.target.value)}
+                                  placeholder="••••••••"
+                                />
+                              </div>
+                            ) : (
+                              <>
+                                <div className="conn-dialog__field conn-dialog__field--span">
+                                  <label className="conn-dialog__label" htmlFor="conn-ssh-key-path">
+                                    {t('explorer.dialog.fields.sshPrivateKeyPath')}
+                                  </label>
+                                  <div className="conn-dialog__file-row">
+                                    <ConnectionInput
+                                      id="conn-ssh-key-path"
+                                      className={`conn-dialog__input${errors.sshPrivateKeyPath ? ' conn-dialog__input--error' : ''}`}
+                                      type="text"
+                                      value={form.sshPrivateKeyPath ?? ''}
+                                      onChange={(e) =>
+                                        setField('sshPrivateKeyPath', e.target.value)
+                                      }
+                                      placeholder="~/.ssh/id_rsa"
+                                    />
+                                    <Button
+                                      variant="secondary"
+                                      size="lg"
+                                      className="conn-dialog__file-browse"
+                                      onClick={async () => {
+                                        const result = await window.api.file.openFileDialog()
+                                        if (result.status === 'ok')
+                                          setField('sshPrivateKeyPath', result.filePath)
+                                      }}
+                                    >
+                                      <FolderKey size={14} />
+                                      {t('explorer.dialog.fields.browseFile')}
+                                    </Button>
+                                  </div>
+                                  {errors.sshPrivateKeyPath && (
+                                    <span className="conn-dialog__error">
+                                      {errors.sshPrivateKeyPath}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="conn-dialog__field conn-dialog__field--span">
+                                  <label
+                                    className="conn-dialog__label"
+                                    htmlFor="conn-ssh-passphrase"
+                                  >
+                                    {t('explorer.dialog.fields.sshPassphrase')}
+                                  </label>
+                                  <ConnectionInput
+                                    id="conn-ssh-passphrase"
+                                    className="conn-dialog__input"
+                                    type="password"
+                                    value={form.sshPassphrase ?? ''}
+                                    onChange={(e) => setField('sshPassphrase', e.target.value)}
+                                    placeholder={t(
+                                      'explorer.dialog.fields.sshPassphrasePlaceholder'
+                                    )}
+                                  />
+                                </div>
+                              </>
+                            )}
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        {/* Host */}
+                        <div className="conn-dialog__field">
+                          <label className="conn-dialog__label" htmlFor="conn-host">
+                            {t('explorer.dialog.fields.host')}
+                          </label>
+                          <ConnectionInput
+                            id="conn-host"
+                            className={`conn-dialog__input${errors.host ? ' conn-dialog__input--error' : ''}`}
+                            type="text"
+                            value={form.host}
+                            onChange={(e) => setField('host', e.target.value)}
+                            placeholder="localhost"
+                          />
+                          {errors.host && <span className="conn-dialog__error">{errors.host}</span>}
+                        </div>
+
+                        {/* Port */}
+                        <div className="conn-dialog__field">
+                          <label className="conn-dialog__label" htmlFor="conn-port">
+                            {t('explorer.dialog.fields.port')}
+                          </label>
+                          <ConnectionInput
+                            id="conn-port"
+                            className={`conn-dialog__input${errors.port ? ' conn-dialog__input--error' : ''}`}
+                            type="number"
+                            min={1}
+                            max={65535}
+                            value={form.port}
+                            onChange={(e) => {
+                              const val = parseInt(e.target.value, 10)
+                              setField('port', isNaN(val) ? 0 : val)
+                            }}
+                          />
+                          {errors.port && <span className="conn-dialog__error">{errors.port}</span>}
+                        </div>
+
+                        {/* Username */}
+                        <div className="conn-dialog__field">
+                          <label className="conn-dialog__label" htmlFor="conn-username">
+                            {t('explorer.dialog.fields.username')}
+                          </label>
+                          <ConnectionInput
+                            id="conn-username"
+                            className={`conn-dialog__input${errors.username ? ' conn-dialog__input--error' : ''}`}
+                            type="text"
+                            value={form.username}
+                            onChange={(e) => setField('username', e.target.value)}
+                            placeholder="sa"
+                          />
+                          {errors.username && (
+                            <span className="conn-dialog__error">{errors.username}</span>
                           )}
-                        </>
-                      )}
-                    </>
+                        </div>
+
+                        {/* Password + Remember Password */}
+                        <div className="conn-dialog__field">
+                          <label className="conn-dialog__label" htmlFor="conn-password">
+                            {t('explorer.dialog.fields.password')}
+                          </label>
+                          <ConnectionInput
+                            id="conn-password"
+                            className="conn-dialog__input"
+                            type="password"
+                            value={form.password}
+                            onChange={(e) => setField('password', e.target.value)}
+                            placeholder="••••••••"
+                          />
+                          <label className="conn-dialog__checkbox-row">
+                            <input
+                              type="checkbox"
+                              className="conn-dialog__checkbox"
+                              checked={form.rememberPassword}
+                              onChange={(e) => setField('rememberPassword', e.target.checked)}
+                            />
+                            <span className="conn-dialog__checkbox-label">
+                              {t('explorer.dialog.fields.rememberPassword')}
+                            </span>
+                          </label>
+                        </div>
+
+                        {/* Default Database – full width */}
+                        <div className="conn-dialog__field conn-dialog__field--span">
+                          <label className="conn-dialog__label" htmlFor="conn-default-db">
+                            {t('explorer.dialog.fields.defaultDatabase')}
+                          </label>
+                          <ConnectionInput
+                            id="conn-default-db"
+                            className="conn-dialog__input"
+                            type="text"
+                            value={form.defaultDatabase}
+                            onChange={(e) => setField('defaultDatabase', e.target.value)}
+                            placeholder="master"
+                          />
+                        </div>
+
+                        {/* ── SSL / TLS (PostgreSQL) ── */}
+                        {isPostgres && (
+                          <>
+                            {/* SSL Mode */}
+                            <div className="conn-dialog__field conn-dialog__field--span">
+                              <label className="conn-dialog__label" htmlFor="conn-pg-ssl-mode">
+                                {t('explorer.dialog.fields.postgresSslMode')}
+                              </label>
+                              <select
+                                id="conn-pg-ssl-mode"
+                                className="conn-dialog__select"
+                                value={form.postgresSslMode ?? 'prefer'}
+                                onChange={(e) =>
+                                  setField(
+                                    'postgresSslMode',
+                                    e.target.value as NonNullable<FormData['postgresSslMode']>
+                                  )
+                                }
+                              >
+                                <option value="disable">
+                                  {t('explorer.dialog.fields.postgresSslModeDisable')}
+                                </option>
+                                <option value="allow">
+                                  {t('explorer.dialog.fields.postgresSslModeAllow')}
+                                </option>
+                                <option value="prefer">
+                                  {t('explorer.dialog.fields.postgresSslModePrefer')}
+                                </option>
+                                <option value="require">
+                                  {t('explorer.dialog.fields.postgresSslModeRequire')}
+                                </option>
+                                <option value="verify-ca">
+                                  {t('explorer.dialog.fields.postgresSslModeVerifyCa')}
+                                </option>
+                                <option value="verify-full">
+                                  {t('explorer.dialog.fields.postgresSslModeVerifyFull')}
+                                </option>
+                              </select>
+                            </div>
+
+                            {/* CA Certificate – only for verify-ca / verify-full */}
+                            {(form.postgresSslMode === 'verify-ca' ||
+                              form.postgresSslMode === 'verify-full') && (
+                              <div className="conn-dialog__field conn-dialog__field--span">
+                                <label className="conn-dialog__label" htmlFor="conn-pg-tls-ca-file">
+                                  {t('explorer.dialog.fields.postgresTlsCAFile')}
+                                </label>
+                                <div className="conn-dialog__file-row">
+                                  <ConnectionInput
+                                    id="conn-pg-tls-ca-file"
+                                    className="conn-dialog__input"
+                                    type="text"
+                                    value={form.tlsCAFile ?? ''}
+                                    onChange={(e) => setField('tlsCAFile', e.target.value)}
+                                    placeholder="/path/to/ca.pem"
+                                  />
+                                  <Button
+                                    variant="secondary"
+                                    size="lg"
+                                    className="conn-dialog__file-browse"
+                                    onClick={async () => {
+                                      const result = await window.api.file.openFileDialog()
+                                      if (result.status === 'ok')
+                                        setField('tlsCAFile', result.filePath)
+                                    }}
+                                  >
+                                    <FolderOpen size={14} />
+                                    {t('explorer.dialog.fields.browseFile')}
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Server Name (SNI) – any encrypted mode */}
+                            {form.postgresSslMode && form.postgresSslMode !== 'disable' && (
+                              <div className="conn-dialog__field conn-dialog__field--span">
+                                <label
+                                  className="conn-dialog__label"
+                                  htmlFor="conn-pg-tls-servername"
+                                >
+                                  {t('explorer.dialog.fields.postgresTlsServername')}
+                                </label>
+                                <ConnectionInput
+                                  id="conn-pg-tls-servername"
+                                  className="conn-dialog__input"
+                                  type="text"
+                                  value={form.tlsServername ?? ''}
+                                  onChange={(e) => setField('tlsServername', e.target.value)}
+                                  placeholder={form.host || 'optional'}
+                                />
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Connection String tab panel */}
+              {activeTab === 'connectionString' && (
+                <div className="conn-dialog__tab-panel" role="tabpanel">
+                  <textarea
+                    className="conn-dialog__conn-string-area"
+                    value={connectionString}
+                    onChange={(e) => handleConnectionStringChange(e.target.value)}
+                    spellCheck={false}
+                    aria-label={t('explorer.dialog.tabs.connectionString')}
+                  />
+                  {connectionStringError && (
+                    <span className="conn-dialog__conn-string-error">{connectionStringError}</span>
                   )}
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Connection String tab panel */}
-            {activeTab === 'connectionString' && (
-              <div className="conn-dialog__tab-panel" role="tabpanel">
-                <textarea
-                  className="conn-dialog__conn-string-area"
-                  value={connectionString}
-                  onChange={(e) => handleConnectionStringChange(e.target.value)}
-                  spellCheck={false}
-                  aria-label={t('explorer.dialog.tabs.connectionString')}
-                />
-                {connectionStringError && (
-                  <span className="conn-dialog__conn-string-error">{connectionStringError}</span>
-                )}
-              </div>
-            )}
-
-            {/* Options tab panel */}
-            {activeTab === 'options' && (
-              <div className="conn-dialog__tab-panel conn-dialog__options" role="tabpanel">
-                {/* Icon Color */}
-                <div className="conn-dialog__options-row">
-                  <div className="conn-dialog__options-row-info">
-                    <span className="conn-dialog__options-label">
-                      {t('explorer.dialog.fields.color')}
-                    </span>
-                  </div>
-                  <div className="conn-dialog__color-field">
-                    <input
-                      id="conn-color"
-                      type="color"
-                      className="conn-dialog__color-input"
-                      value={form.color || PROVIDER_METADATA[form.provider].color}
-                      onChange={(e) => setField('color', e.target.value)}
-                      aria-label={t('explorer.dialog.fields.color')}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="lg"
-                      className="conn-dialog__color-reset"
-                      onClick={() => setField('color', '')}
-                      disabled={!form.color}
-                    >
-                      {t('explorer.dialog.fields.colorResetDefault')}
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="conn-dialog__options-row conn-dialog__options-row--stacked">
-                  <div className="conn-dialog__options-row-info">
-                    <span className="conn-dialog__options-label">
-                      {t('explorer.dialog.fields.environment')}
-                    </span>
-                    <span className="conn-dialog__options-desc">
-                      {t('explorer.dialog.fields.environmentDesc')}
-                    </span>
-                  </div>
-                  <SearchableSelect
-                    ariaLabel={t('explorer.dialog.fields.environment')}
-                    value={form.environmentId ?? ''}
-                    onChange={(value) => setField('environmentId', value || undefined)}
-                    emptyOptionLabel={t('explorer.dialog.fields.environmentUnset')}
-                    searchPlaceholder={t('explorer.dialog.fields.environmentSearchPlaceholder')}
-                    noResultsLabel={t('explorer.dialog.fields.environmentNoResults')}
-                    options={availableEnvironments.map((environment) => ({
-                      value: environment.id,
-                      label: environment.name,
-                      description: environment.description
-                    }))}
-                  />
-                </div>
-
-                {/* Auto Connect */}
-                <div className="conn-dialog__options-row">
-                  <div className="conn-dialog__options-row-info">
-                    <span className="conn-dialog__options-label">
-                      {t('explorer.dialog.fields.autoConnect')}
-                    </span>
-                    <span className="conn-dialog__options-desc">
-                      {t('explorer.dialog.fields.autoConnectDesc')}
-                    </span>
-                  </div>
-                  <Toggle
-                    id="conn-auto-connect"
-                    label={t('explorer.dialog.fields.autoConnect')}
-                    checked={form.autoConnect ?? false}
-                    onChange={(checked) => setField('autoConnect', checked)}
-                    size="sm"
-                  />
-                </div>
-
-                {/* Eager Loading */}
-                <div className="conn-dialog__options-row">
-                  <div className="conn-dialog__options-row-info">
-                    <span className="conn-dialog__options-label">
-                      {t('explorer.dialog.fields.eagerLoading')}
-                    </span>
-                    <span className="conn-dialog__options-desc">
-                      {t('explorer.dialog.fields.eagerLoadingDesc')}
-                    </span>
-                  </div>
-                  <Toggle
-                    id="conn-eager-loading"
-                    label={t('explorer.dialog.fields.eagerLoading')}
-                    checked={form.eagerLoading ?? false}
-                    onChange={(checked) => setField('eagerLoading', checked)}
-                    size="sm"
-                  />
-                </div>
-
-                {/* Background Auto Refresh */}
-                <div className="conn-dialog__options-row">
-                  <div className="conn-dialog__options-row-info">
-                    <span className="conn-dialog__options-label">
-                      {t('explorer.dialog.fields.backgroundAutoRefresh')}
-                    </span>
-                    <span className="conn-dialog__options-desc">
-                      {t('explorer.dialog.fields.backgroundAutoRefreshDesc')}
-                    </span>
-                  </div>
-                  <Toggle
-                    id="conn-background-auto-refresh"
-                    label={t('explorer.dialog.fields.backgroundAutoRefresh')}
-                    checked={form.backgroundAutoRefresh ?? false}
-                    onChange={(checked) => setField('backgroundAutoRefresh', checked)}
-                    size="sm"
-                  />
-                </div>
-
-                {/* Hide Empty Logical Databases (Redis only) */}
-                {isRedis && (
+              {/* Options tab panel */}
+              {activeTab === 'options' && (
+                <div className="conn-dialog__tab-panel conn-dialog__options" role="tabpanel">
+                  {/* Icon Color */}
                   <div className="conn-dialog__options-row">
                     <div className="conn-dialog__options-row-info">
                       <span className="conn-dialog__options-label">
-                        {t('explorer.dialog.fields.redisHideEmptyDatabases')}
+                        {t('explorer.dialog.fields.color')}
+                      </span>
+                    </div>
+                    <div className="conn-dialog__color-field">
+                      <input
+                        id="conn-color"
+                        type="color"
+                        className="conn-dialog__color-input"
+                        value={form.color || PROVIDER_METADATA[form.provider].color}
+                        onChange={(e) => setField('color', e.target.value)}
+                        aria-label={t('explorer.dialog.fields.color')}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="lg"
+                        className="conn-dialog__color-reset"
+                        onClick={() => setField('color', '')}
+                        disabled={!form.color}
+                      >
+                        {t('explorer.dialog.fields.colorResetDefault')}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="conn-dialog__options-row conn-dialog__options-row--stacked">
+                    <div className="conn-dialog__options-row-info">
+                      <span className="conn-dialog__options-label">
+                        {t('explorer.dialog.fields.environment')}
                       </span>
                       <span className="conn-dialog__options-desc">
-                        {t('explorer.dialog.fields.redisHideEmptyDatabasesDesc')}
+                        {t('explorer.dialog.fields.environmentDesc')}
+                      </span>
+                    </div>
+                    <SearchableSelect
+                      ariaLabel={t('explorer.dialog.fields.environment')}
+                      value={form.environmentId ?? ''}
+                      onChange={(value) => setField('environmentId', value || undefined)}
+                      emptyOptionLabel={t('explorer.dialog.fields.environmentUnset')}
+                      searchPlaceholder={t('explorer.dialog.fields.environmentSearchPlaceholder')}
+                      noResultsLabel={t('explorer.dialog.fields.environmentNoResults')}
+                      options={availableEnvironments.map((environment) => ({
+                        value: environment.id,
+                        label: environment.name,
+                        description: environment.description
+                      }))}
+                    />
+                  </div>
+
+                  {/* Auto Connect */}
+                  <div className="conn-dialog__options-row">
+                    <div className="conn-dialog__options-row-info">
+                      <span className="conn-dialog__options-label">
+                        {t('explorer.dialog.fields.autoConnect')}
+                      </span>
+                      <span className="conn-dialog__options-desc">
+                        {t('explorer.dialog.fields.autoConnectDesc')}
                       </span>
                     </div>
                     <Toggle
-                      id="conn-redis-hide-empty-databases"
-                      label={t('explorer.dialog.fields.redisHideEmptyDatabases')}
-                      checked={form.redisHideEmptyDatabases ?? false}
-                      onChange={(checked) => setField('redisHideEmptyDatabases', checked)}
+                      id="conn-auto-connect"
+                      label={t('explorer.dialog.fields.autoConnect')}
+                      checked={form.autoConnect ?? false}
+                      onChange={(checked) => setField('autoConnect', checked)}
                       size="sm"
                     />
                   </div>
-                )}
-              </div>
-            )}
 
-            {/* Users tab panel */}
-            {activeTab === 'users' && (
-              <div className="conn-dialog__tab-panel conn-dialog__users" role="tabpanel">
-                <p className="conn-dialog__users-intro">
-                  {t('explorer.dialog.users.intro')}
-                </p>
-                {(form.additionalUsers ?? []).length === 0 ? (
-                  <p className="conn-dialog__users-empty">{t('explorer.dialog.users.empty')}</p>
-                ) : (
-                  <div className="conn-dialog__users-list">
-                    {(form.additionalUsers ?? []).map((user) => {
-                      const usernameMissing = !user.username.trim()
-                      return (
-                        <div key={user.id} className="conn-dialog__user-row">
-                          <div className="conn-dialog__user-fields">
-                            <div className="conn-dialog__field">
-                              <label className="conn-dialog__label" htmlFor={`user-profile-${user.id}`}>
-                                {t('explorer.dialog.users.profileName')}
-                              </label>
-                              <ConnectionInput
-                                id={`user-profile-${user.id}`}
-                                className="conn-dialog__input"
-                                type="text"
-                                value={user.profileName ?? ''}
-                                onChange={(e) => updateUser(user.id, { profileName: e.target.value })}
-                                placeholder={t('explorer.dialog.users.profileNamePlaceholder')}
-                              />
-                            </div>
-                            <div className="conn-dialog__field">
-                              <label className="conn-dialog__label" htmlFor={`user-username-${user.id}`}>
-                                {t('explorer.dialog.users.username')}
-                              </label>
-                              <ConnectionInput
-                                id={`user-username-${user.id}`}
-                                className={`conn-dialog__input${usernameMissing && errors.additionalUsers ? ' conn-dialog__input--error' : ''}`}
-                                type="text"
-                                value={user.username}
-                                onChange={(e) => updateUser(user.id, { username: e.target.value })}
-                                placeholder={t('explorer.dialog.users.usernamePlaceholder')}
-                              />
-                            </div>
-                            <div className="conn-dialog__field">
-                              <label className="conn-dialog__label" htmlFor={`user-password-${user.id}`}>
-                                {t('explorer.dialog.users.password')}
-                              </label>
-                              <ConnectionInput
-                                id={`user-password-${user.id}`}
-                                className="conn-dialog__input"
-                                type="password"
-                                value={user.password ?? ''}
-                                onChange={(e) => updateUser(user.id, { password: e.target.value })}
-                                placeholder={t('explorer.dialog.users.passwordPlaceholder')}
-                                autoComplete="off"
-                              />
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            className="conn-dialog__user-remove"
-                            aria-label={t('explorer.dialog.users.remove')}
-                            onClick={() => removeUser(user.id)}
-                          >
-                            <X size={15} aria-hidden="true" />
-                          </button>
-                        </div>
-                      )
-                    })}
+                  {/* Eager Loading */}
+                  <div className="conn-dialog__options-row">
+                    <div className="conn-dialog__options-row-info">
+                      <span className="conn-dialog__options-label">
+                        {t('explorer.dialog.fields.eagerLoading')}
+                      </span>
+                      <span className="conn-dialog__options-desc">
+                        {t('explorer.dialog.fields.eagerLoadingDesc')}
+                      </span>
+                    </div>
+                    <Toggle
+                      id="conn-eager-loading"
+                      label={t('explorer.dialog.fields.eagerLoading')}
+                      checked={form.eagerLoading ?? false}
+                      onChange={(checked) => setField('eagerLoading', checked)}
+                      size="sm"
+                    />
                   </div>
-                )}
-                {errors.additionalUsers && (
-                  <span className="conn-dialog__error">{errors.additionalUsers}</span>
-                )}
+
+                  {/* Background Auto Refresh */}
+                  <div className="conn-dialog__options-row">
+                    <div className="conn-dialog__options-row-info">
+                      <span className="conn-dialog__options-label">
+                        {t('explorer.dialog.fields.backgroundAutoRefresh')}
+                      </span>
+                      <span className="conn-dialog__options-desc">
+                        {t('explorer.dialog.fields.backgroundAutoRefreshDesc')}
+                      </span>
+                    </div>
+                    <Toggle
+                      id="conn-background-auto-refresh"
+                      label={t('explorer.dialog.fields.backgroundAutoRefresh')}
+                      checked={form.backgroundAutoRefresh ?? false}
+                      onChange={(checked) => setField('backgroundAutoRefresh', checked)}
+                      size="sm"
+                    />
+                  </div>
+
+                  {/* Hide Empty Logical Databases (Redis only) */}
+                  {isRedis && (
+                    <div className="conn-dialog__options-row">
+                      <div className="conn-dialog__options-row-info">
+                        <span className="conn-dialog__options-label">
+                          {t('explorer.dialog.fields.redisHideEmptyDatabases')}
+                        </span>
+                        <span className="conn-dialog__options-desc">
+                          {t('explorer.dialog.fields.redisHideEmptyDatabasesDesc')}
+                        </span>
+                      </div>
+                      <Toggle
+                        id="conn-redis-hide-empty-databases"
+                        label={t('explorer.dialog.fields.redisHideEmptyDatabases')}
+                        checked={form.redisHideEmptyDatabases ?? false}
+                        onChange={(checked) => setField('redisHideEmptyDatabases', checked)}
+                        size="sm"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Users tab panel */}
+              {activeTab === 'users' && (
+                <div className="conn-dialog__tab-panel conn-dialog__users" role="tabpanel">
+                  <p className="conn-dialog__users-intro">{t('explorer.dialog.users.intro')}</p>
+                  {(form.additionalUsers ?? []).length === 0 ? (
+                    <p className="conn-dialog__users-empty">{t('explorer.dialog.users.empty')}</p>
+                  ) : (
+                    <div className="conn-dialog__users-table-wrap">
+                      <table className="conn-dialog__users-table">
+                        <thead>
+                          <tr>
+                            <th>{t('explorer.dialog.users.profileName')}</th>
+                            <th>{t('explorer.dialog.users.username')}</th>
+                            <th>{t('explorer.dialog.users.password')}</th>
+                            <th aria-hidden="true"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(form.additionalUsers ?? []).map((user) => (
+                            <tr key={user.id} className="conn-dialog__users-row">
+                              <td>{user.profileName?.trim() || user.username}</td>
+                              <td>{user.username}</td>
+                              <td>{user.password ? '••••••••' : '—'}</td>
+                              <td>
+                                <div className="conn-dialog__user-actions">
+                                  <button
+                                    type="button"
+                                    className="conn-dialog__user-action-btn"
+                                    aria-label={t('explorer.dialog.users.edit')}
+                                    onClick={() => openEditUserModal(user)}
+                                  >
+                                    <Pencil size={13} aria-hidden="true" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="conn-dialog__user-action-btn conn-dialog__user-action-btn--danger"
+                                    aria-label={t('explorer.dialog.users.remove')}
+                                    onClick={() => removeUser(user.id)}
+                                  >
+                                    <Trash2 size={13} aria-hidden="true" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                  {errors.additionalUsers && (
+                    <span className="conn-dialog__error">{errors.additionalUsers}</span>
+                  )}
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    className="conn-dialog__users-add"
+                    onClick={openAddUserModal}
+                  >
+                    {t('explorer.dialog.users.add')}
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+          {/* end conn-dialog__scroll-area */}
+
+          <div className="conn-dialog__footer">
+            <div className="conn-dialog__actions">
+              <div className="conn-dialog__actions-left">
                 <Button
                   variant="secondary"
                   size="lg"
-                  className="conn-dialog__users-add"
-                  onClick={addUser}
+                  onClick={() => {
+                    void handleTestConnection()
+                  }}
+                  isLoading={testStatus === 'testing'}
+                  disabled={
+                    testStatus === 'testing' ||
+                    isSaving ||
+                    (isSqlite
+                      ? !form.filePath?.trim()
+                      : isRedis
+                        ? form.redisMode !== 'sentinel'
+                          ? !form.host.trim()
+                          : !form.sentinelNodes?.trim()
+                        : isMongoDB
+                          ? !form.host.trim()
+                          : !form.host.trim() || !form.username.trim())
+                  }
                 >
-                  {t('explorer.dialog.users.add')}
+                  {testStatus === 'testing'
+                    ? t('explorer.dialog.actions.testingConnection')
+                    : t('explorer.dialog.actions.testConnection')}
                 </Button>
               </div>
+              <div className="conn-dialog__actions-right">
+                <Button variant="ghost" size="lg" onClick={onCancel}>
+                  {t('explorer.dialog.actions.cancel')}
+                </Button>
+                <Button type="submit" variant="primary" size="lg" disabled={isSaving}>
+                  {isEdit ? t('explorer.dialog.actions.update') : t('explorer.dialog.actions.save')}
+                </Button>
+              </div>
+            </div>
+            {testStatus === 'success' && (
+              <div className="conn-dialog__test-result conn-dialog__test-result--success">
+                <CheckCircle size={14} className="conn-dialog__test-result-icon" />
+                <span>{testMessage}</span>
+              </div>
             )}
+            {testStatus === 'error' && testMessage && <ErrorBox error={testMessage} />}
           </div>
-        </div>
-        {/* end conn-dialog__scroll-area */}
-
-        <div className="conn-dialog__footer">
-          <div className="conn-dialog__actions">
-            <div className="conn-dialog__actions-left">
-              <Button
-                variant="secondary"
-                size="lg"
-                onClick={() => {
-                  void handleTestConnection()
-                }}
-                isLoading={testStatus === 'testing'}
-                disabled={
-                  testStatus === 'testing' ||
-                  isSaving ||
-                  (isSqlite
-                    ? !form.filePath?.trim()
-                    : isRedis
-                      ? form.redisMode !== 'sentinel'
-                        ? !form.host.trim()
-                        : !form.sentinelNodes?.trim()
-                      : isMongoDB
-                        ? !form.host.trim()
-                        : !form.host.trim() || !form.username.trim())
-                }
-              >
-                {testStatus === 'testing'
-                  ? t('explorer.dialog.actions.testingConnection')
-                  : t('explorer.dialog.actions.testConnection')}
-              </Button>
-            </div>
-            <div className="conn-dialog__actions-right">
-              <Button variant="ghost" size="lg" onClick={onCancel}>
-                {t('explorer.dialog.actions.cancel')}
-              </Button>
-              <Button type="submit" variant="primary" size="lg" disabled={isSaving}>
-                {isEdit ? t('explorer.dialog.actions.update') : t('explorer.dialog.actions.save')}
-              </Button>
-            </div>
-          </div>
-          {testStatus === 'success' && (
-            <div className="conn-dialog__test-result conn-dialog__test-result--success">
-              <CheckCircle size={14} className="conn-dialog__test-result-icon" />
-              <span>{testMessage}</span>
-            </div>
-          )}
-          {testStatus === 'error' && testMessage && <ErrorBox error={testMessage} />}
-        </div>
-        {/* end conn-dialog__footer */}
-      </form>
-    </BaseDialog>
+          {/* end conn-dialog__footer */}
+        </form>
+      </BaseDialog>
+      {userModal && (
+        <AddEditUserModal
+          user={userModal.mode === 'edit' ? userModal.user : undefined}
+          onSave={saveUserFromModal}
+          onClose={closeUserModal}
+        />
+      )}
+    </>
   )
 }
 

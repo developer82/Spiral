@@ -798,7 +798,9 @@
         "password": "סיסמה",
         "passwordPlaceholder": "השאר ריק כדי להישאל",
         "add": "הוסף משתמש",
-        "remove": "הסר משתמש"
+        "remove": "הסר משתמש",
+        "edit": "ערוך משתמש",
+        "editTitle": "עריכת משתמש"
       },
       "connectionStringTab": {
         "parseError": "לא ניתן לנתח את מחרוזת החיבור"

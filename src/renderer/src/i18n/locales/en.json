@@ -893,7 +893,9 @@
         "password": "Password",
         "passwordPlaceholder": "Leave empty to be prompted",
         "add": "Add User",
-        "remove": "Remove user"
+        "remove": "Remove user",
+        "edit": "Edit user",
+        "editTitle": "Edit User"
       },
       "connectionStringTab": {
         "parseError": "Could not parse connection string"

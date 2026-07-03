@@ -1,4 +1,4 @@
-import { render, screen, waitFor, cleanup } from '@testing-library/react'
+import { render, screen, waitFor, cleanup, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import NewConnectionDialog from '../NewConnectionDialog'
@@ -147,9 +147,7 @@ describe('NewConnectionDialog', () => {
     await user.click(screen.getByText('explorer.dialog.actions.save'))
 
     await waitFor(() => {
-      expect(mockOnSave).toHaveBeenCalledWith(
-        expect.objectContaining({ rememberPassword: false })
-      )
+      expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ rememberPassword: false }))
     })
   })
 
@@ -309,7 +307,9 @@ describe('NewConnectionDialog', () => {
   })
 
   it('calls testConnection with the current form values', async () => {
-    const testSpy = vi.spyOn(window.api.database, 'testConnection').mockResolvedValue({ status: 'connected' })
+    const testSpy = vi
+      .spyOn(window.api.database, 'testConnection')
+      .mockResolvedValue({ status: 'connected' })
     const user = userEvent.setup()
     render(<NewConnectionDialog onSave={mockOnSave} onCancel={mockOnCancel} />)
 
@@ -437,8 +437,12 @@ describe('NewConnectionDialog – tabs', () => {
   const mockOnSave = vi.fn()
   const mockOnCancel = vi.fn()
 
-  beforeEach(() => { vi.clearAllMocks() })
-  afterEach(() => { cleanup() })
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+  afterEach(() => {
+    cleanup()
+  })
 
   it('shows Connection Details tab as active by default', () => {
     render(<NewConnectionDialog onSave={mockOnSave} onCancel={mockOnCancel} />)
@@ -489,8 +493,12 @@ describe('NewConnectionDialog – connection string generation', () => {
   const mockOnSave = vi.fn()
   const mockOnCancel = vi.fn()
 
-  beforeEach(() => { vi.clearAllMocks() })
-  afterEach(() => { cleanup() })
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+  afterEach(() => {
+    cleanup()
+  })
 
   it('generates connection string from initial form values', async () => {
     const user = userEvent.setup()
@@ -501,7 +509,9 @@ describe('NewConnectionDialog – connection string generation', () => {
 
     await user.click(screen.getByRole('tab', { name: 'explorer.dialog.tabs.connectionString' }))
 
-    const textarea = screen.getByLabelText('explorer.dialog.tabs.connectionString') as HTMLTextAreaElement
+    const textarea = screen.getByLabelText(
+      'explorer.dialog.tabs.connectionString'
+    ) as HTMLTextAreaElement
     expect(textarea.value).toContain('Server=myserver,1433')
     expect(textarea.value).toContain('User Id=admin')
     expect(textarea.value).toContain('TrustServerCertificate=True')
@@ -529,7 +539,9 @@ describe('NewConnectionDialog – connection string generation', () => {
 
     await user.click(screen.getByRole('tab', { name: 'explorer.dialog.tabs.connectionString' }))
 
-    const textarea = screen.getByLabelText('explorer.dialog.tabs.connectionString') as HTMLTextAreaElement
+    const textarea = screen.getByLabelText(
+      'explorer.dialog.tabs.connectionString'
+    ) as HTMLTextAreaElement
     expect(textarea.value).toBe(
       'Server=prod.db.local,1433;Database=mydb;User Id=sa;Password=p@ss;TrustServerCertificate=True;'
     )
@@ -542,7 +554,9 @@ describe('NewConnectionDialog – connection string generation', () => {
     await user.type(screen.getByLabelText('explorer.dialog.fields.host'), 'newhost')
 
     await user.click(screen.getByRole('tab', { name: 'explorer.dialog.tabs.connectionString' }))
-    const textarea = screen.getByLabelText('explorer.dialog.tabs.connectionString') as HTMLTextAreaElement
+    const textarea = screen.getByLabelText(
+      'explorer.dialog.tabs.connectionString'
+    ) as HTMLTextAreaElement
     expect(textarea.value).toContain('Server=newhost,1433')
   })
 })
@@ -553,8 +567,12 @@ describe('NewConnectionDialog – connection string parsing', () => {
   const mockOnSave = vi.fn()
   const mockOnCancel = vi.fn()
 
-  beforeEach(() => { vi.clearAllMocks() })
-  afterEach(() => { cleanup() })
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+  afterEach(() => {
+    cleanup()
+  })
 
   it('parses a valid connection string and updates form fields', async () => {
     const user = userEvent.setup()
@@ -563,14 +581,25 @@ describe('NewConnectionDialog – connection string parsing', () => {
     await user.click(screen.getByRole('tab', { name: 'explorer.dialog.tabs.connectionString' }))
     const textarea = screen.getByLabelText('explorer.dialog.tabs.connectionString')
     await user.clear(textarea)
-    await user.type(textarea, 'Server=remotehost,5433;Database=mydb;User Id=devuser;Password=devpass;TrustServerCertificate=True;')
+    await user.type(
+      textarea,
+      'Server=remotehost,5433;Database=mydb;User Id=devuser;Password=devpass;TrustServerCertificate=True;'
+    )
 
     await user.click(screen.getByRole('tab', { name: 'explorer.dialog.tabs.connectionDetails' }))
 
-    expect((screen.getByLabelText('explorer.dialog.fields.host') as HTMLInputElement).value).toBe('remotehost')
-    expect((screen.getByLabelText('explorer.dialog.fields.port') as HTMLInputElement).value).toBe('5433')
-    expect((screen.getByLabelText('explorer.dialog.fields.username') as HTMLInputElement).value).toBe('devuser')
-    expect((screen.getByLabelText('explorer.dialog.fields.defaultDatabase') as HTMLInputElement).value).toBe('mydb')
+    expect((screen.getByLabelText('explorer.dialog.fields.host') as HTMLInputElement).value).toBe(
+      'remotehost'
+    )
+    expect((screen.getByLabelText('explorer.dialog.fields.port') as HTMLInputElement).value).toBe(
+      '5433'
+    )
+    expect(
+      (screen.getByLabelText('explorer.dialog.fields.username') as HTMLInputElement).value
+    ).toBe('devuser')
+    expect(
+      (screen.getByLabelText('explorer.dialog.fields.defaultDatabase') as HTMLInputElement).value
+    ).toBe('mydb')
   })
 
   it('shows parse error when connection string is invalid', async () => {
@@ -582,9 +611,7 @@ describe('NewConnectionDialog – connection string parsing', () => {
     await user.clear(textarea)
     await user.type(textarea, 'this is not a valid connection string')
 
-    expect(
-      screen.getByText('explorer.dialog.connectionStringTab.parseError')
-    ).toBeInTheDocument()
+    expect(screen.getByText('explorer.dialog.connectionStringTab.parseError')).toBeInTheDocument()
   })
 
   it('does not change form fields when connection string is invalid', async () => {
@@ -600,8 +627,12 @@ describe('NewConnectionDialog – connection string parsing', () => {
     await user.type(textarea, 'not valid')
 
     await user.click(screen.getByRole('tab', { name: 'explorer.dialog.tabs.connectionDetails' }))
-    expect((screen.getByLabelText('explorer.dialog.fields.host') as HTMLInputElement).value).toBe('originalhost')
-    expect((screen.getByLabelText('explorer.dialog.fields.username') as HTMLInputElement).value).toBe('originaluser')
+    expect((screen.getByLabelText('explorer.dialog.fields.host') as HTMLInputElement).value).toBe(
+      'originalhost'
+    )
+    expect(
+      (screen.getByLabelText('explorer.dialog.fields.username') as HTMLInputElement).value
+    ).toBe('originaluser')
   })
 
   it('clears parse error after a valid connection string is entered', async () => {
@@ -619,7 +650,9 @@ describe('NewConnectionDialog – connection string parsing', () => {
     // Now type valid
     await user.clear(textarea)
     await user.type(textarea, 'Server=localhost,1433;User Id=sa;')
-    expect(screen.queryByText('explorer.dialog.connectionStringTab.parseError')).not.toBeInTheDocument()
+    expect(
+      screen.queryByText('explorer.dialog.connectionStringTab.parseError')
+    ).not.toBeInTheDocument()
   })
 })
 
@@ -629,8 +662,12 @@ describe('NewConnectionDialog – options tab', () => {
   const mockOnSave = vi.fn()
   const mockOnCancel = vi.fn()
 
-  beforeEach(() => { vi.clearAllMocks() })
-  afterEach(() => { cleanup() })
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+  afterEach(() => {
+    cleanup()
+  })
 
   async function openOptionsTab(user: ReturnType<typeof userEvent.setup>): Promise<void> {
     await user.click(screen.getByRole('tab', { name: 'explorer.dialog.tabs.options' }))
@@ -639,9 +676,7 @@ describe('NewConnectionDialog – options tab', () => {
   it('renders the Options tab button', () => {
     render(<NewConnectionDialog onSave={mockOnSave} onCancel={mockOnCancel} />)
 
-    expect(
-      screen.getByRole('tab', { name: 'explorer.dialog.tabs.options' })
-    ).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'explorer.dialog.tabs.options' })).toBeInTheDocument()
   })
 
   it('switches to Options tab and shows color and auto-connect controls', async () => {
@@ -650,7 +685,10 @@ describe('NewConnectionDialog – options tab', () => {
 
     await openOptionsTab(user)
 
-    expect(screen.getByRole('tab', { name: 'explorer.dialog.tabs.options' })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('tab', { name: 'explorer.dialog.tabs.options' })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    )
     expect(screen.getByLabelText('explorer.dialog.fields.color')).toBeInTheDocument()
     expect(screen.getByLabelText('explorer.dialog.fields.autoConnect')).toBeInTheDocument()
   })
@@ -850,7 +888,9 @@ describe('NewConnectionDialog – options tab', () => {
 
     await openOptionsTab(user)
 
-    expect(screen.getByRole('button', { name: 'explorer.dialog.fields.environment' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'explorer.dialog.fields.environment' })
+    ).toBeInTheDocument()
     expect(screen.getByText('explorer.dialog.fields.environmentUnset')).toBeInTheDocument()
   })
 
@@ -866,7 +906,9 @@ describe('NewConnectionDialog – options tab', () => {
     )
     await user.click(screen.getByRole('button', { name: /QA/i }))
 
-    expect(screen.getByRole('button', { name: 'explorer.dialog.fields.environment' })).toHaveTextContent('QA')
+    expect(
+      screen.getByRole('button', { name: 'explorer.dialog.fields.environment' })
+    ).toHaveTextContent('QA')
   })
 
   it('shows the selected environment in edit mode', async () => {
@@ -892,7 +934,9 @@ describe('NewConnectionDialog – options tab', () => {
 
     await openOptionsTab(user)
 
-    expect(screen.getByRole('button', { name: 'explorer.dialog.fields.environment' })).toHaveTextContent('QA')
+    expect(
+      screen.getByRole('button', { name: 'explorer.dialog.fields.environment' })
+    ).toHaveTextContent('QA')
   })
 
   it('onSave includes environmentId when an environment is selected', async () => {
@@ -981,9 +1025,7 @@ describe('NewConnectionDialog – options tab', () => {
     await user.click(screen.getByText('explorer.dialog.actions.save'))
 
     await waitFor(() => {
-      expect(mockOnSave).toHaveBeenCalledWith(
-        expect.objectContaining({ eagerLoading: true })
-      )
+      expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ eagerLoading: true }))
     })
   })
 
@@ -999,9 +1041,7 @@ describe('NewConnectionDialog – options tab', () => {
     await user.click(screen.getByText('explorer.dialog.actions.save'))
 
     await waitFor(() => {
-      expect(mockOnSave).toHaveBeenCalledWith(
-        expect.objectContaining({ eagerLoading: false })
-      )
+      expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ eagerLoading: false }))
     })
   })
 
@@ -1022,7 +1062,9 @@ describe('NewConnectionDialog – options tab', () => {
 
     await openOptionsTab(user)
 
-    expect(screen.getByLabelText('explorer.dialog.fields.backgroundAutoRefresh')).toBeInTheDocument()
+    expect(
+      screen.getByLabelText('explorer.dialog.fields.backgroundAutoRefresh')
+    ).toBeInTheDocument()
   })
 
   it('background auto refresh toggle is unchecked by default', async () => {
@@ -1031,7 +1073,9 @@ describe('NewConnectionDialog – options tab', () => {
 
     await openOptionsTab(user)
 
-    const toggle = screen.getByLabelText('explorer.dialog.fields.backgroundAutoRefresh') as HTMLInputElement
+    const toggle = screen.getByLabelText(
+      'explorer.dialog.fields.backgroundAutoRefresh'
+    ) as HTMLInputElement
     expect(toggle.checked).toBe(false)
   })
 
@@ -1058,7 +1102,9 @@ describe('NewConnectionDialog – options tab', () => {
 
     await openOptionsTab(user)
 
-    const toggle = screen.getByLabelText('explorer.dialog.fields.backgroundAutoRefresh') as HTMLInputElement
+    const toggle = screen.getByLabelText(
+      'explorer.dialog.fields.backgroundAutoRefresh'
+    ) as HTMLInputElement
     expect(toggle.checked).toBe(true)
   })
 
@@ -1218,9 +1264,7 @@ describe('NewConnectionDialog – options tab', () => {
     )
 
     await openOptionsTab(user)
-    await user.click(
-      screen.getByLabelText('explorer.dialog.fields.redisHideEmptyDatabases')
-    )
+    await user.click(screen.getByLabelText('explorer.dialog.fields.redisHideEmptyDatabases'))
 
     await user.click(screen.getByText('explorer.dialog.actions.save'))
 
@@ -1268,8 +1312,12 @@ describe('NewConnectionDialog – Redis connection string tab', () => {
   const mockOnSave = vi.fn()
   const mockOnCancel = vi.fn()
 
-  beforeEach(() => { vi.clearAllMocks() })
-  afterEach(() => { cleanup() })
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+  afterEach(() => {
+    cleanup()
+  })
 
   async function switchToRedis(user: ReturnType<typeof userEvent.setup>): Promise<void> {
     await user.selectOptions(screen.getByLabelText('explorer.dialog.fields.provider'), 'redis')
@@ -1281,7 +1329,9 @@ describe('NewConnectionDialog – Redis connection string tab', () => {
 
     await switchToRedis(user)
 
-    expect(screen.getByRole('tab', { name: 'explorer.dialog.tabs.connectionString' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('tab', { name: 'explorer.dialog.tabs.connectionString' })
+    ).toBeInTheDocument()
   })
 
   it('generates a redis:// connection string from initialValues', async () => {
@@ -1305,7 +1355,9 @@ describe('NewConnectionDialog – Redis connection string tab', () => {
     )
 
     await user.click(screen.getByRole('tab', { name: 'explorer.dialog.tabs.connectionString' }))
-    const textarea = screen.getByLabelText('explorer.dialog.tabs.connectionString') as HTMLTextAreaElement
+    const textarea = screen.getByLabelText(
+      'explorer.dialog.tabs.connectionString'
+    ) as HTMLTextAreaElement
     expect(textarea.value).toBe('redis://alice:secret@cache.local:6379/2')
   })
 
@@ -1340,11 +1392,17 @@ describe('NewConnectionDialog – MongoDB provider', () => {
   const mockOnSave = vi.fn()
   const mockOnCancel = vi.fn()
 
-  beforeEach(() => { vi.clearAllMocks() })
-  afterEach(() => { cleanup() })
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+  afterEach(() => {
+    cleanup()
+  })
 
   async function selectMongoDB(user: ReturnType<typeof userEvent.setup>): Promise<void> {
-    const providerSelect = screen.getByLabelText('explorer.dialog.fields.provider') as HTMLSelectElement
+    const providerSelect = screen.getByLabelText(
+      'explorer.dialog.fields.provider'
+    ) as HTMLSelectElement
     await user.selectOptions(providerSelect, 'mongodb')
   }
 
@@ -1381,7 +1439,9 @@ describe('NewConnectionDialog – MongoDB provider', () => {
     await user.type(screen.getByLabelText('explorer.dialog.fields.host'), 'localhost')
 
     await user.click(screen.getByRole('tab', { name: 'explorer.dialog.tabs.connectionString' }))
-    const textarea = screen.getByLabelText('explorer.dialog.tabs.connectionString') as HTMLTextAreaElement
+    const textarea = screen.getByLabelText(
+      'explorer.dialog.tabs.connectionString'
+    ) as HTMLTextAreaElement
     expect(textarea.value).toContain('mongodb://')
     expect(textarea.value).toContain('localhost')
   })
@@ -1397,7 +1457,9 @@ describe('NewConnectionDialog – MongoDB provider', () => {
     await user.type(textarea, 'mongodb://admin:pass@myserver:27017/mydb')
 
     await user.click(screen.getByRole('tab', { name: 'explorer.dialog.tabs.connectionDetails' }))
-    expect((screen.getByLabelText('explorer.dialog.fields.host') as HTMLInputElement).value).toBe('myserver')
+    expect((screen.getByLabelText('explorer.dialog.fields.host') as HTMLInputElement).value).toBe(
+      'myserver'
+    )
   })
 
   it('shows auth mechanism dropdown for MongoDB', async () => {
@@ -1456,7 +1518,11 @@ describe('NewConnectionDialog – MongoDB provider', () => {
 
     await waitFor(() => {
       expect(mockOnSave).toHaveBeenCalledWith(
-        expect.objectContaining({ provider: 'mongodb', name: 'Atlas Dev', host: 'cluster0.mongodb.net' })
+        expect.objectContaining({
+          provider: 'mongodb',
+          name: 'Atlas Dev',
+          host: 'cluster0.mongodb.net'
+        })
       )
     })
   })
@@ -1480,7 +1546,9 @@ describe('NewConnectionDialog – MongoDB provider', () => {
       />
     )
 
-    expect((screen.getByLabelText('explorer.dialog.fields.host') as HTMLInputElement).value).toBe('cluster0.mongodb.net')
+    expect((screen.getByLabelText('explorer.dialog.fields.host') as HTMLInputElement).value).toBe(
+      'cluster0.mongodb.net'
+    )
   })
 
   it('loads saved mongodbUri into Connection String tab when editing', async () => {
@@ -1505,7 +1573,9 @@ describe('NewConnectionDialog – MongoDB provider', () => {
     )
 
     await user.click(screen.getByRole('tab', { name: 'explorer.dialog.tabs.connectionString' }))
-    const textarea = screen.getByLabelText('explorer.dialog.tabs.connectionString') as HTMLTextAreaElement
+    const textarea = screen.getByLabelText(
+      'explorer.dialog.tabs.connectionString'
+    ) as HTMLTextAreaElement
     expect(textarea.value).toBe('mongodb+srv://user:pass@cluster0.mongodb.net/mydb')
   })
 
@@ -1539,7 +1609,12 @@ describe('NewConnectionDialog – MongoDB provider', () => {
     expect(screen.getByText('explorer.dialog.users.empty')).toBeInTheDocument()
   })
 
-  it('adds, edits and deletes user profiles', async () => {
+  const oneUserValues: ConnectionRecord = {
+    ...sqlServerEditValues,
+    additionalUsers: [{ id: 'eu1', profileName: 'Read-only', username: 'ro', password: 'roPass' }]
+  }
+
+  it('adds a user profile via the Add User modal and lists it in the table', async () => {
     const user = userEvent.setup()
     render(
       <NewConnectionDialog
@@ -1551,33 +1626,141 @@ describe('NewConnectionDialog – MongoDB provider', () => {
     )
 
     await user.click(screen.getByText('explorer.dialog.users.add'))
-    expect(screen.getByLabelText('explorer.dialog.users.username')).toBeInTheDocument()
+    const modal = screen.getByRole('dialog', { name: 'explorer.dialog.users.add' })
+    await user.type(within(modal).getByLabelText('explorer.dialog.users.profileName'), 'Read-only')
+    await user.type(within(modal).getByLabelText('explorer.dialog.users.username'), 'ro')
+    await user.click(within(modal).getByText('explorer.dialog.actions.save'))
 
-    await user.type(screen.getByLabelText('explorer.dialog.users.profileName'), 'Read-only')
-    await user.type(screen.getByLabelText('explorer.dialog.users.username'), 'ro')
+    expect(
+      screen.queryByRole('dialog', { name: 'explorer.dialog.users.add' })
+    ).not.toBeInTheDocument()
+    expect(screen.getByText('Read-only')).toBeInTheDocument()
+    expect(screen.getByText('ro')).toBeInTheDocument()
+  })
 
+  it('falls back to the username in the Profile Name column when no profile name is set', async () => {
+    const user = userEvent.setup()
+    render(
+      <NewConnectionDialog
+        onSave={mockOnSave}
+        onCancel={mockOnCancel}
+        initialValues={sqlServerEditValues}
+        initialTab="users"
+      />
+    )
+
+    await user.click(screen.getByText('explorer.dialog.users.add'))
+    const modal = screen.getByRole('dialog', { name: 'explorer.dialog.users.add' })
+    await user.type(within(modal).getByLabelText('explorer.dialog.users.username'), 'admin')
+    await user.click(within(modal).getByText('explorer.dialog.actions.save'))
+
+    expect(screen.getAllByText('admin')).toHaveLength(2)
+  })
+
+  it('disables the modal Save button until a username is entered', async () => {
+    const user = userEvent.setup()
+    render(
+      <NewConnectionDialog
+        onSave={mockOnSave}
+        onCancel={mockOnCancel}
+        initialValues={sqlServerEditValues}
+        initialTab="users"
+      />
+    )
+
+    await user.click(screen.getByText('explorer.dialog.users.add'))
+    const modal = screen.getByRole('dialog', { name: 'explorer.dialog.users.add' })
+    const saveButton = within(modal).getByText('explorer.dialog.actions.save')
+    expect(saveButton).toBeDisabled()
+
+    await user.type(within(modal).getByLabelText('explorer.dialog.users.username'), 'ro')
+    expect(saveButton).toBeEnabled()
+  })
+
+  it('edits an existing user profile via the row edit icon', async () => {
+    const user = userEvent.setup()
+    render(
+      <NewConnectionDialog
+        onSave={mockOnSave}
+        onCancel={mockOnCancel}
+        initialValues={oneUserValues}
+        initialTab="users"
+      />
+    )
+
+    await user.click(screen.getByLabelText('explorer.dialog.users.edit'))
+    const modal = screen.getByRole('dialog', { name: 'explorer.dialog.users.editTitle' })
+    expect(within(modal).getByLabelText('explorer.dialog.users.username')).toHaveValue('ro')
+    expect(within(modal).getByLabelText('explorer.dialog.users.profileName')).toHaveValue(
+      'Read-only'
+    )
+
+    const usernameInput = within(modal).getByLabelText('explorer.dialog.users.username')
+    await user.clear(usernameInput)
+    await user.type(usernameInput, 'admin')
+    await user.click(within(modal).getByText('explorer.dialog.actions.save'))
+
+    expect(screen.getByText('admin')).toBeInTheDocument()
+    expect(screen.queryByText('ro')).not.toBeInTheDocument()
+  })
+
+  it('discards changes when the modal Cancel button is clicked', async () => {
+    const user = userEvent.setup()
+    render(
+      <NewConnectionDialog
+        onSave={mockOnSave}
+        onCancel={mockOnCancel}
+        initialValues={oneUserValues}
+        initialTab="users"
+      />
+    )
+
+    await user.click(screen.getByLabelText('explorer.dialog.users.edit'))
+    const modal = screen.getByRole('dialog', { name: 'explorer.dialog.users.editTitle' })
+    const usernameInput = within(modal).getByLabelText('explorer.dialog.users.username')
+    await user.clear(usernameInput)
+    await user.type(usernameInput, 'changed')
+    await user.click(within(modal).getByText('explorer.dialog.actions.cancel'))
+
+    expect(screen.getByText('ro')).toBeInTheDocument()
+    expect(screen.queryByText('changed')).not.toBeInTheDocument()
+  })
+
+  it('deletes a user profile via the row delete icon', async () => {
+    const user = userEvent.setup()
+    render(
+      <NewConnectionDialog
+        onSave={mockOnSave}
+        onCancel={mockOnCancel}
+        initialValues={oneUserValues}
+        initialTab="users"
+      />
+    )
+
+    expect(screen.getByText('ro')).toBeInTheDocument()
     await user.click(screen.getByLabelText('explorer.dialog.users.remove'))
-    expect(screen.queryByLabelText('explorer.dialog.users.username')).not.toBeInTheDocument()
+
+    expect(screen.queryByText('ro')).not.toBeInTheDocument()
     expect(screen.getByText('explorer.dialog.users.empty')).toBeInTheDocument()
   })
 
-  it('blocks saving when a user profile has no username', async () => {
+  it('blocks saving the connection when a pre-existing user profile has no username', async () => {
     const user = userEvent.setup()
     render(
       <NewConnectionDialog
         onSave={mockOnSave}
         onCancel={mockOnCancel}
-        initialValues={sqlServerEditValues}
+        initialValues={{
+          ...sqlServerEditValues,
+          additionalUsers: [{ id: 'eu1', profileName: '', username: '' }]
+        }}
         initialTab="users"
       />
     )
 
-    await user.click(screen.getByText('explorer.dialog.users.add'))
     await user.click(screen.getByText('explorer.dialog.actions.update'))
 
-    expect(
-      screen.getByText('explorer.dialog.validation.userUsernameRequired')
-    ).toBeInTheDocument()
+    expect(screen.getByText('explorer.dialog.validation.userUsernameRequired')).toBeInTheDocument()
     expect(mockOnSave).not.toHaveBeenCalled()
   })
 
@@ -1594,9 +1777,11 @@ describe('NewConnectionDialog – MongoDB provider', () => {
     )
 
     await user.click(screen.getByText('explorer.dialog.users.add'))
-    await user.type(screen.getByLabelText('explorer.dialog.users.profileName'), 'Read-only')
-    await user.type(screen.getByLabelText('explorer.dialog.users.username'), 'ro')
-    await user.type(screen.getByLabelText('explorer.dialog.users.password'), 'roPass')
+    const modal = screen.getByRole('dialog', { name: 'explorer.dialog.users.add' })
+    await user.type(within(modal).getByLabelText('explorer.dialog.users.profileName'), 'Read-only')
+    await user.type(within(modal).getByLabelText('explorer.dialog.users.username'), 'ro')
+    await user.type(within(modal).getByLabelText('explorer.dialog.users.password'), 'roPass')
+    await user.click(within(modal).getByText('explorer.dialog.actions.save'))
 
     await user.click(screen.getByText('explorer.dialog.actions.update'))
 
