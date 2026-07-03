@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import type {
   ConnectionRecord,
   ConnectionRuntimeState,
+  ConnectionUserProfile,
   ExplorerNode,
   NodeLoadState,
   ProviderCapabilities
@@ -51,7 +52,12 @@ export interface UseExplorerTreeReturn {
   silentRefreshNodeChildren: (connectionId: string, nodeId: string) => Promise<void>
   connectToDatabase: (id: string, silent?: boolean) => Promise<void>
   connectWithCredentials: (id: string, username: string, password: string) => Promise<void>
+  connectAsProfile: (id: string, profile: ConnectionUserProfile) => Promise<void>
   passwordPromptConnection: ConnectionRecord | null
+  /** The user profile being connected as, when the password prompt was opened via "Connect As…". */
+  passwordPromptProfile: ConnectionUserProfile | null
+  /** Error to show in the password prompt, e.g. when a saved-credential "Connect As…" failed. */
+  passwordPromptError: string | null
   cancelPasswordPrompt: () => void
   disconnectConnection: (connectionId: string) => Promise<void>
   handleConnectAction: (connectionId: string) => void
@@ -79,6 +85,8 @@ export function useExplorerTree(showSystemDatabases: boolean): UseExplorerTreeRe
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [activeConnectionId, setActiveConnectionId] = useState<string | null>(null)
   const [passwordPromptConnection, setPasswordPromptConnection] = useState<ConnectionRecord | null>(null)
+  const [passwordPromptProfile, setPasswordPromptProfile] = useState<ConnectionUserProfile | null>(null)
+  const [passwordPromptError, setPasswordPromptError] = useState<string | null>(null)
 
   // Always-current ref used by event listeners to avoid stale closures
   const nodeStatesRef = useRef(nodeStates)
@@ -367,6 +375,8 @@ export function useExplorerTree(showSystemDatabases: boolean): UseExplorerTreeRe
     if (!silent) {
       const conn = connections.find((c) => c.id === id)
       if (conn && needsPasswordPrompt(conn)) {
+        setPasswordPromptProfile(null)
+        setPasswordPromptError(null)
         setPasswordPromptConnection(conn)
         return
       }
@@ -394,14 +404,43 @@ export function useExplorerTree(showSystemDatabases: boolean): UseExplorerTreeRe
     if (result.status === 'connected') {
       await applyConnectSuccess(id)
       setPasswordPromptConnection(null)
+      setPasswordPromptProfile(null)
+      setPasswordPromptError(null)
       return
     }
     setRuntimeState(id, { status: 'error', errorMessage: result.message })
     throw new Error(result.message)
   }
 
+  // Connect as an additional user profile ("Connect As…"). When the profile has a
+  // saved password we connect directly with those credentials; if that fails we
+  // reopen the Enter Password dialog seeded with the profile and the login error
+  // so the user can retry. Profiles without a saved password prompt immediately.
+  async function connectAsProfile(id: string, profile: ConnectionUserProfile): Promise<void> {
+    const conn = connections.find((c) => c.id === id)
+    if (profile.password) {
+      try {
+        await connectWithCredentials(id, profile.username, profile.password)
+      } catch (err) {
+        if (conn) {
+          setPasswordPromptProfile(profile)
+          setPasswordPromptError(err instanceof Error ? err.message : String(err))
+          setPasswordPromptConnection(conn)
+        }
+      }
+      return
+    }
+    if (conn) {
+      setPasswordPromptProfile(profile)
+      setPasswordPromptError(null)
+      setPasswordPromptConnection(conn)
+    }
+  }
+
   function cancelPasswordPrompt(): void {
     setPasswordPromptConnection(null)
+    setPasswordPromptProfile(null)
+    setPasswordPromptError(null)
   }
 
   function clearConnectionState(connectionId: string): void {
@@ -542,7 +581,10 @@ export function useExplorerTree(showSystemDatabases: boolean): UseExplorerTreeRe
     silentRefreshNodeChildren,
     connectToDatabase,
     connectWithCredentials,
+    connectAsProfile,
     passwordPromptConnection,
+    passwordPromptProfile,
+    passwordPromptError,
     cancelPasswordPrompt,
     disconnectConnection,
     handleConnectAction,

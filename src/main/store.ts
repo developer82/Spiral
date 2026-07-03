@@ -128,6 +128,19 @@ export const DEFAULT_SETTINGS: AppSettings = {
 
 export type ConnectionProvider = 'sqlserver' | 'postgres' | 'mysql' | 'sqlite' | 'redis' | 'mongodb'
 
+/**
+ * An additional user account configured for a connection ("Connect As…").
+ * Only `username` is required; `password` is optional and encrypted at rest
+ * exactly like the main connection password. Mirrors the renderer type in
+ * `src/renderer/src/pages/Explorer/connections.types.ts`.
+ */
+export interface ConnectionUserProfile {
+  id: string
+  profileName?: string
+  username: string
+  password?: string
+}
+
 export type ComparisonScopeKey =
   | 'schema.tablesCoreConstraints'
   | 'schema.programmableObjects'
@@ -179,6 +192,8 @@ export interface ConnectionRecord {
   eagerLoading?: boolean
   backgroundAutoRefresh?: boolean
   erdFiles?: { databaseName: string; filePath: string }[]
+  /** Additional user accounts available via the "Connect As…" context menu. */
+  additionalUsers?: ConnectionUserProfile[]
   createdAt?: string
   lastUsedAt?: string
   // ── Redis-specific fields ─────────────────────────────────────────────────

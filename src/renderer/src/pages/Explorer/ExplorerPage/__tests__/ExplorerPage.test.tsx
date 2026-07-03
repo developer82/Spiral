@@ -663,6 +663,85 @@ describe('ExplorerPage – context menu', () => {
     expect(connectSpy).toHaveBeenCalledWith('conn-1')
   })
 
+  // ── Connect As… (user profiles) ───────────────────────────────────────────
+
+  const CONNECTION_WITH_PROFILES = {
+    ...MOCK_CONNECTION,
+    additionalUsers: [
+      { id: 'p1', profileName: 'Read-only', username: 'ro', password: 'roPass' },
+      { id: 'p2', username: 'nopass' }
+    ]
+  }
+
+  async function openConnectAsSubmenu(user: ReturnType<typeof userEvent.setup>): Promise<void> {
+    await rightClickConnection(user)
+    const parent = screen.getByText('explorer.contextMenu.connectAs').closest('[role="menuitem"]')!
+    await act(async () => {
+      fireEvent.mouseEnter(parent)
+    })
+  }
+
+  it('shows a "Connect As…" entry for a non-sqlite connection', async () => {
+    vi.spyOn(window.api.connections, 'getAll').mockResolvedValue([CONNECTION_WITH_PROFILES])
+    const user = userEvent.setup()
+    render(<ExplorerPage />)
+    await rightClickConnection(user)
+    expect(screen.getByText('explorer.contextMenu.connectAs')).toBeInTheDocument()
+  })
+
+  it('submenu lists each profile (with label fallback) and Manage Users', async () => {
+    vi.spyOn(window.api.connections, 'getAll').mockResolvedValue([CONNECTION_WITH_PROFILES])
+    const user = userEvent.setup()
+    render(<ExplorerPage />)
+    await openConnectAsSubmenu(user)
+
+    await waitFor(() => screen.getByText('Read-only'))
+    expect(screen.getByText('nopass')).toBeInTheDocument()
+    expect(screen.getByText('explorer.contextMenu.manageUsers')).toBeInTheDocument()
+  })
+
+  it('connecting as a profile with a saved password uses those credentials', async () => {
+    vi.spyOn(window.api.connections, 'getAll').mockResolvedValue([CONNECTION_WITH_PROFILES])
+    const connectSpy = vi
+      .spyOn(window.api.database, 'connect')
+      .mockResolvedValue({ status: 'connected' })
+    const user = userEvent.setup()
+    render(<ExplorerPage />)
+    await openConnectAsSubmenu(user)
+    await clickMenuItem('Read-only')
+
+    await waitFor(() => {
+      expect(connectSpy).toHaveBeenCalledWith('conn-1', { username: 'ro', password: 'roPass' })
+    })
+  })
+
+  it('reopens the Enter Password dialog with the login error when a saved-credential profile connect fails', async () => {
+    vi.spyOn(window.api.connections, 'getAll').mockResolvedValue([CONNECTION_WITH_PROFILES])
+    vi.spyOn(window.api.database, 'connect').mockResolvedValue({
+      status: 'error',
+      message: "Login failed for user 'ro'"
+    })
+    const user = userEvent.setup()
+    render(<ExplorerPage />)
+    await openConnectAsSubmenu(user)
+    await clickMenuItem('Read-only')
+
+    await waitFor(() => screen.getByText('explorer.enterPassword.dialogTitle'))
+    expect(screen.getByText("Login failed for user 'ro'")).toBeInTheDocument()
+    expect(screen.getByLabelText('explorer.enterPassword.usernameLabel')).toHaveValue('ro')
+  })
+
+  it('connecting as a profile without a password opens the Enter Password dialog seeded with the profile username', async () => {
+    vi.spyOn(window.api.connections, 'getAll').mockResolvedValue([CONNECTION_WITH_PROFILES])
+    const user = userEvent.setup()
+    render(<ExplorerPage />)
+    await openConnectAsSubmenu(user)
+    await clickMenuItem('nopass')
+
+    await waitFor(() => screen.getByText('explorer.enterPassword.dialogTitle'))
+    expect(screen.getByLabelText('explorer.enterPassword.usernameLabel')).toHaveValue('nopass')
+  })
+
   // ── Disconnect action ─────────────────────────────────────────────────────
 
   it('disconnect action calls the disconnect API and collapses the connection', async () => {

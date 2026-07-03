@@ -880,7 +880,20 @@
       "tabs": {
         "connectionDetails": "Connection Details",
         "connectionString": "Connection String",
-        "options": "Options"
+        "options": "Options",
+        "users": "Users"
+      },
+      "users": {
+        "intro": "Configure additional user accounts for this connection. Use \"Connect As…\" in the connection menu to connect with any of them.",
+        "empty": "No additional users configured yet.",
+        "profileName": "Profile Name",
+        "profileNamePlaceholder": "e.g. Read-only",
+        "username": "Username",
+        "usernamePlaceholder": "Username",
+        "password": "Password",
+        "passwordPlaceholder": "Leave empty to be prompted",
+        "add": "Add User",
+        "remove": "Remove user"
       },
       "connectionStringTab": {
         "parseError": "Could not parse connection string"
@@ -899,7 +912,8 @@
         "x509CertRequired": "Client certificate file is required for X.509 authentication",
         "sshHostRequired": "SSH host is required",
         "sshUsernameRequired": "SSH username is required",
-        "sshPrivateKeyRequired": "Private key file path is required"
+        "sshPrivateKeyRequired": "Private key file path is required",
+        "userUsernameRequired": "Username is required for each user profile"
       },
       "createPrompt": {
         "message": "This file does not exist. Create a new SQLite database at this path?",
@@ -918,6 +932,9 @@
     "contextMenu": {
       "edit": "Edit",
       "connect": "Connect",
+      "connectAs": "Connect As…",
+      "connectAsDefaultUserSuffix": "(Default)",
+      "manageUsers": "Manage Users",
       "disconnect": "Disconnect",
       "duplicate": "Duplicate",
       "delete": "Delete",

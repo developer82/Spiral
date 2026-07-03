@@ -81,24 +81,55 @@ export function loadPersistedKey(encrypted: string): Buffer | null {
   }
 }
 
-export function encryptAllConnections(
-  connections: Array<{ password: string; rememberPassword: boolean }>,
+// Encrypts every additional-user profile password that is set and not already
+// encrypted, preserving all other profile fields (id, username, profileName).
+// Profiles have no per-profile "remember" flag — a stored password is saved.
+export function encryptProfilePasswords<T extends { password?: string }>(
+  users: T[] | undefined,
   key: Buffer
-): Array<{ password: string }> {
+): T[] | undefined {
+  if (!users) return users
+  return users.map((user) =>
+    user.password && !isEncrypted(user.password)
+      ? { ...user, password: encryptPassword(user.password, key) }
+      : user
+  )
+}
+
+// Inverse of encryptProfilePasswords — decrypts any encrypted profile passwords.
+export function decryptProfilePasswords<T extends { password?: string }>(
+  users: T[] | undefined,
+  key: Buffer
+): T[] | undefined {
+  if (!users) return users
+  return users.map((user) =>
+    user.password && isEncrypted(user.password)
+      ? { ...user, password: decryptPassword(user.password, key) }
+      : user
+  )
+}
+
+export function encryptAllConnections<
+  T extends {
+    password: string
+    rememberPassword: boolean
+    additionalUsers?: Array<{ password?: string }>
+  }
+>(connections: T[], key: Buffer): T[] {
   return connections.map((conn) => {
-    if (!conn.rememberPassword || !conn.password || isEncrypted(conn.password)) {
-      return { password: conn.password }
-    }
-    return { password: encryptPassword(conn.password, key) }
+    const password =
+      !conn.rememberPassword || !conn.password || isEncrypted(conn.password)
+        ? conn.password
+        : encryptPassword(conn.password, key)
+    return { ...conn, password, additionalUsers: encryptProfilePasswords(conn.additionalUsers, key) }
   })
 }
 
-export function decryptAllConnections(
-  connections: Array<{ password: string }>,
-  key: Buffer
-): Array<{ password: string }> {
+export function decryptAllConnections<
+  T extends { password: string; additionalUsers?: Array<{ password?: string }> }
+>(connections: T[], key: Buffer): T[] {
   return connections.map((conn) => {
-    if (!isEncrypted(conn.password)) return { password: conn.password }
-    return { password: decryptPassword(conn.password, key) }
+    const password = isEncrypted(conn.password) ? decryptPassword(conn.password, key) : conn.password
+    return { ...conn, password, additionalUsers: decryptProfilePasswords(conn.additionalUsers, key) }
   })
 }

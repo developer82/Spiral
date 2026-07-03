@@ -2,6 +2,7 @@ import { render, screen, waitFor, cleanup } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import NewConnectionDialog from '../NewConnectionDialog'
+import type { ConnectionRecord } from '../../../connections.types'
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key })
@@ -1506,5 +1507,111 @@ describe('NewConnectionDialog – MongoDB provider', () => {
     await user.click(screen.getByRole('tab', { name: 'explorer.dialog.tabs.connectionString' }))
     const textarea = screen.getByLabelText('explorer.dialog.tabs.connectionString') as HTMLTextAreaElement
     expect(textarea.value).toBe('mongodb+srv://user:pass@cluster0.mongodb.net/mydb')
+  })
+
+  // ── Users tab ───────────────────────────────────────────────────────────────
+
+  const sqlServerEditValues: ConnectionRecord = {
+    id: 'u-conn',
+    name: 'My Server',
+    provider: 'sqlserver',
+    host: '127.0.0.1',
+    port: 1433,
+    username: 'sa',
+    password: '',
+    rememberPassword: false,
+    defaultDatabase: 'master'
+  }
+
+  it('opens on the Users tab when initialTab is "users"', () => {
+    render(
+      <NewConnectionDialog
+        onSave={mockOnSave}
+        onCancel={mockOnCancel}
+        initialValues={sqlServerEditValues}
+        initialTab="users"
+      />
+    )
+    expect(screen.getByRole('tab', { name: 'explorer.dialog.tabs.users' })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    )
+    expect(screen.getByText('explorer.dialog.users.empty')).toBeInTheDocument()
+  })
+
+  it('adds, edits and deletes user profiles', async () => {
+    const user = userEvent.setup()
+    render(
+      <NewConnectionDialog
+        onSave={mockOnSave}
+        onCancel={mockOnCancel}
+        initialValues={sqlServerEditValues}
+        initialTab="users"
+      />
+    )
+
+    await user.click(screen.getByText('explorer.dialog.users.add'))
+    expect(screen.getByLabelText('explorer.dialog.users.username')).toBeInTheDocument()
+
+    await user.type(screen.getByLabelText('explorer.dialog.users.profileName'), 'Read-only')
+    await user.type(screen.getByLabelText('explorer.dialog.users.username'), 'ro')
+
+    await user.click(screen.getByLabelText('explorer.dialog.users.remove'))
+    expect(screen.queryByLabelText('explorer.dialog.users.username')).not.toBeInTheDocument()
+    expect(screen.getByText('explorer.dialog.users.empty')).toBeInTheDocument()
+  })
+
+  it('blocks saving when a user profile has no username', async () => {
+    const user = userEvent.setup()
+    render(
+      <NewConnectionDialog
+        onSave={mockOnSave}
+        onCancel={mockOnCancel}
+        initialValues={sqlServerEditValues}
+        initialTab="users"
+      />
+    )
+
+    await user.click(screen.getByText('explorer.dialog.users.add'))
+    await user.click(screen.getByText('explorer.dialog.actions.update'))
+
+    expect(
+      screen.getByText('explorer.dialog.validation.userUsernameRequired')
+    ).toBeInTheDocument()
+    expect(mockOnSave).not.toHaveBeenCalled()
+  })
+
+  it('includes the configured user profiles in the onSave payload', async () => {
+    const user = userEvent.setup()
+    mockOnSave.mockResolvedValue(undefined)
+    render(
+      <NewConnectionDialog
+        onSave={mockOnSave}
+        onCancel={mockOnCancel}
+        initialValues={sqlServerEditValues}
+        initialTab="users"
+      />
+    )
+
+    await user.click(screen.getByText('explorer.dialog.users.add'))
+    await user.type(screen.getByLabelText('explorer.dialog.users.profileName'), 'Read-only')
+    await user.type(screen.getByLabelText('explorer.dialog.users.username'), 'ro')
+    await user.type(screen.getByLabelText('explorer.dialog.users.password'), 'roPass')
+
+    await user.click(screen.getByText('explorer.dialog.actions.update'))
+
+    await waitFor(() => {
+      expect(mockOnSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          additionalUsers: [
+            expect.objectContaining({
+              profileName: 'Read-only',
+              username: 'ro',
+              password: 'roPass'
+            })
+          ]
+        })
+      )
+    })
   })
 })

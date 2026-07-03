@@ -13,9 +13,11 @@ import {
   clearSessionKey,
   decryptAllConnections,
   decryptPassword,
+  decryptProfilePasswords,
   deriveEncryptionKey,
   encryptAllConnections,
   encryptPassword,
+  encryptProfilePasswords,
   generateEncryptionSalt,
   getSessionKey,
   isEncrypted,
@@ -197,6 +199,72 @@ describe('encryptAllConnections / decryptAllConnections', () => {
     const connections = [{ password: 'plaintext' }]
     const result = decryptAllConnections(connections, key)
     expect(result[0].password).toBe('plaintext')
+  })
+
+  it('round-trips additional user profile passwords', () => {
+    const connections = [
+      {
+        password: 'main',
+        rememberPassword: true,
+        additionalUsers: [
+          { id: 'u1', username: 'ro', password: 'roPass' },
+          { id: 'u2', username: 'noPass', password: '' },
+          { id: 'u3', username: 'writer' }
+        ]
+      }
+    ]
+    const encrypted = encryptAllConnections(connections, key)
+    // Profile passwords are encrypted at rest, other fields preserved.
+    expect(isEncrypted(encrypted[0].additionalUsers![0].password!)).toBe(true)
+    expect(encrypted[0].additionalUsers![0].username).toBe('ro')
+    expect(encrypted[0].additionalUsers![1].password).toBe('')
+    expect(encrypted[0].additionalUsers![2].password).toBeUndefined()
+
+    const decrypted = decryptAllConnections(encrypted, key)
+    expect(decrypted[0].additionalUsers![0].password).toBe('roPass')
+    expect(decrypted[0].additionalUsers![0].username).toBe('ro')
+  })
+})
+
+describe('encryptProfilePasswords / decryptProfilePasswords', () => {
+  let key: Buffer
+
+  beforeEach(async () => {
+    key = await deriveEncryptionKey('pw', generateEncryptionSalt())
+  })
+
+  it('returns undefined when given undefined', () => {
+    expect(encryptProfilePasswords(undefined, key)).toBeUndefined()
+    expect(decryptProfilePasswords(undefined, key)).toBeUndefined()
+  })
+
+  it('encrypts only profiles that have a password', () => {
+    const users = [
+      { id: 'u1', username: 'a', password: 'secret' },
+      { id: 'u2', username: 'b', password: '' },
+      { id: 'u3', username: 'c' }
+    ]
+    const result = encryptProfilePasswords(users, key)!
+    expect(isEncrypted(result[0].password!)).toBe(true)
+    expect(result[1].password).toBe('')
+    expect(result[2].password).toBeUndefined()
+  })
+
+  it('does not re-encrypt an already-encrypted profile password', () => {
+    const enc = encryptPassword('secret', key)
+    const result = encryptProfilePasswords([{ id: 'u1', username: 'a', password: enc }], key)!
+    expect(result[0].password).toBe(enc)
+  })
+
+  it('decrypts encrypted profile passwords and preserves other fields', () => {
+    const encrypted = encryptProfilePasswords(
+      [{ id: 'u1', profileName: 'RO', username: 'a', password: 'secret' }],
+      key
+    )!
+    const decrypted = decryptProfilePasswords(encrypted, key)!
+    expect(decrypted[0].password).toBe('secret')
+    expect(decrypted[0].profileName).toBe('RO')
+    expect(decrypted[0].username).toBe('a')
   })
 })
 

@@ -65,6 +65,51 @@ describe('EnterPasswordDialog', () => {
     expect(screen.getByLabelText('explorer.enterPassword.usernameLabel')).toHaveValue('admin')
   })
 
+  it('seeds the username from initialUsername, overriding the connection username', () => {
+    render(
+      <EnterPasswordDialog
+        connection={makeConnection({ username: 'admin' })}
+        initialUsername="readonly"
+        onConnect={mockOnConnect}
+        onCancel={mockOnCancel}
+      />
+    )
+    expect(screen.getByLabelText('explorer.enterPassword.usernameLabel')).toHaveValue('readonly')
+  })
+
+  it('shows an initial server error (e.g. a failed saved-credential connect)', () => {
+    render(
+      <EnterPasswordDialog
+        connection={makeConnection({ username: 'admin' })}
+        initialUsername="ro"
+        initialError="Login failed for user 'ro'"
+        onConnect={mockOnConnect}
+        onCancel={mockOnCancel}
+      />
+    )
+    expect(screen.getByText("Login failed for user 'ro'")).toBeInTheDocument()
+    expect(screen.getByLabelText('explorer.enterPassword.usernameLabel')).toHaveValue('ro')
+  })
+
+  it('passes the seeded profile username through to onConnect', async () => {
+    const user = userEvent.setup()
+    mockOnConnect.mockResolvedValue(undefined)
+    render(
+      <EnterPasswordDialog
+        connection={makeConnection({ username: 'admin' })}
+        initialUsername="readonly"
+        onConnect={mockOnConnect}
+        onCancel={mockOnCancel}
+      />
+    )
+    await user.type(screen.getByLabelText('explorer.enterPassword.passwordLabel'), 'secret')
+    await user.click(screen.getByText('explorer.enterPassword.rememberLabel'))
+    await user.click(screen.getByText('explorer.enterPassword.connectButton'))
+    await waitFor(() => {
+      expect(mockOnConnect).toHaveBeenCalledWith('readonly', 'secret', true)
+    })
+  })
+
   it('autofocuses the password field when a username is already stored', () => {
     render(
       <EnterPasswordDialog

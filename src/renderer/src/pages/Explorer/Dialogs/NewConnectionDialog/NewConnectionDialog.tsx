@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import type { ChangeEvent, InputHTMLAttributes } from 'react'
 import { CheckCircle, FolderOpen, FolderKey, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { ConnectionRecord } from '../../connections.types'
+import type { ConnectionRecord, ConnectionUserProfile } from '../../connections.types'
 import { PROVIDER_LIST, PROVIDER_METADATA } from '../../providerMetadata'
 import SearchableSelect from '../../../../components/SearchableSelect/SearchableSelect'
 import Toggle from '../../../../components/Toggle/Toggle'
@@ -17,6 +17,8 @@ type FormData = Omit<ConnectionRecord, 'id'>
 type FormErrors = Partial<Record<keyof FormData, string>>
 
 type TestStatus = 'idle' | 'testing' | 'success' | 'error'
+
+type ConnectionDialogTab = 'details' | 'connectionString' | 'options' | 'users'
 
 type ConnectionInputProps = InputHTMLAttributes<HTMLInputElement>
 
@@ -81,6 +83,7 @@ const EMPTY_FORM: FormData = {
   autoConnect: false,
   eagerLoading: false,
   backgroundAutoRefresh: false,
+  additionalUsers: [],
   // Redis defaults
   redisMode: 'standalone',
   sentinelMasterName: '',
@@ -156,6 +159,10 @@ function validate(form: FormData, t: (key: string) => string): FormErrors {
     if (!Number.isInteger(form.port) || form.port < 1 || form.port > 65535) {
       errors.port = t('explorer.dialog.validation.portInvalid')
     }
+  }
+  // Additional user profiles: username is the only required field per row.
+  if (form.additionalUsers?.some((u) => !u.username.trim())) {
+    errors.additionalUsers = t('explorer.dialog.validation.userUsernameRequired')
   }
   return errors
 }
@@ -347,12 +354,15 @@ interface NewConnectionDialogProps {
   onSave: (record: FormData) => Promise<void>
   onCancel: () => void
   initialValues?: ConnectionRecord
+  /** Tab to open on initially. Defaults to 'details'. */
+  initialTab?: ConnectionDialogTab
 }
 
 function NewConnectionDialog({
   onSave,
   onCancel,
-  initialValues
+  initialValues,
+  initialTab
 }: NewConnectionDialogProps): React.JSX.Element {
   const { t } = useTranslation()
   const { triggerConfetti } = useConfetti()
@@ -374,6 +384,7 @@ function NewConnectionDialog({
           autoConnect: initialValues.autoConnect ?? false,
           eagerLoading: initialValues.eagerLoading ?? false,
           backgroundAutoRefresh: initialValues.backgroundAutoRefresh ?? false,
+          additionalUsers: initialValues.additionalUsers ?? [],
           // Redis fields
           redisMode: initialValues.redisMode ?? 'standalone',
           sentinelMasterName: initialValues.sentinelMasterName ?? '',
@@ -426,7 +437,7 @@ function NewConnectionDialog({
   const [showCreatePrompt, setShowCreatePrompt] = useState(false)
   const [testStatus, setTestStatus] = useState<TestStatus>('idle')
   const [testMessage, setTestMessage] = useState<string | undefined>(undefined)
-  const [activeTab, setActiveTab] = useState<'details' | 'connectionString' | 'options'>('details')
+  const [activeTab, setActiveTab] = useState<ConnectionDialogTab>(initialTab ?? 'details')
   const [connectionString, setConnectionString] = useState<string>(() => {
     if (!initialValues) return ''
     if (initialValues.provider === 'mongodb' && initialValues.mongodbUri?.trim()) {
@@ -482,6 +493,35 @@ function NewConnectionDialog({
     if (key === 'filePath') setShowCreatePrompt(false)
     setTestStatus('idle')
     setTestMessage(undefined)
+  }
+
+  // ── Additional user profiles ("Users" tab) ─────────────────────────────────
+  function addUser(): void {
+    const newUser: ConnectionUserProfile = {
+      id: crypto.randomUUID(),
+      profileName: '',
+      username: '',
+      password: ''
+    }
+    setForm((prev) => ({ ...prev, additionalUsers: [...(prev.additionalUsers ?? []), newUser] }))
+  }
+
+  function updateUser(id: string, patch: Partial<ConnectionUserProfile>): void {
+    setForm((prev) => ({
+      ...prev,
+      additionalUsers: (prev.additionalUsers ?? []).map((u) =>
+        u.id === id ? { ...u, ...patch } : u
+      )
+    }))
+    if (errors.additionalUsers) setErrors((prev) => ({ ...prev, additionalUsers: undefined }))
+  }
+
+  function removeUser(id: string): void {
+    setForm((prev) => ({
+      ...prev,
+      additionalUsers: (prev.additionalUsers ?? []).filter((u) => u.id !== id)
+    }))
+    if (errors.additionalUsers) setErrors((prev) => ({ ...prev, additionalUsers: undefined }))
   }
 
   function handleConnectionStringChange(value: string): void {
@@ -611,6 +651,15 @@ function NewConnectionDialog({
                 onClick={() => setActiveTab('options')}
               >
                 {t('explorer.dialog.tabs.options')}
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'users'}
+                className={`conn-dialog__tab${activeTab === 'users' ? ' conn-dialog__tab--active' : ''}`}
+                onClick={() => setActiveTab('users')}
+              >
+                {t('explorer.dialog.tabs.users')}
               </button>
             </div>
 
@@ -1895,6 +1944,89 @@ function NewConnectionDialog({
                     />
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Users tab panel */}
+            {activeTab === 'users' && (
+              <div className="conn-dialog__tab-panel conn-dialog__users" role="tabpanel">
+                <p className="conn-dialog__users-intro">
+                  {t('explorer.dialog.users.intro')}
+                </p>
+                {(form.additionalUsers ?? []).length === 0 ? (
+                  <p className="conn-dialog__users-empty">{t('explorer.dialog.users.empty')}</p>
+                ) : (
+                  <div className="conn-dialog__users-list">
+                    {(form.additionalUsers ?? []).map((user) => {
+                      const usernameMissing = !user.username.trim()
+                      return (
+                        <div key={user.id} className="conn-dialog__user-row">
+                          <div className="conn-dialog__user-fields">
+                            <div className="conn-dialog__field">
+                              <label className="conn-dialog__label" htmlFor={`user-profile-${user.id}`}>
+                                {t('explorer.dialog.users.profileName')}
+                              </label>
+                              <ConnectionInput
+                                id={`user-profile-${user.id}`}
+                                className="conn-dialog__input"
+                                type="text"
+                                value={user.profileName ?? ''}
+                                onChange={(e) => updateUser(user.id, { profileName: e.target.value })}
+                                placeholder={t('explorer.dialog.users.profileNamePlaceholder')}
+                              />
+                            </div>
+                            <div className="conn-dialog__field">
+                              <label className="conn-dialog__label" htmlFor={`user-username-${user.id}`}>
+                                {t('explorer.dialog.users.username')}
+                              </label>
+                              <ConnectionInput
+                                id={`user-username-${user.id}`}
+                                className={`conn-dialog__input${usernameMissing && errors.additionalUsers ? ' conn-dialog__input--error' : ''}`}
+                                type="text"
+                                value={user.username}
+                                onChange={(e) => updateUser(user.id, { username: e.target.value })}
+                                placeholder={t('explorer.dialog.users.usernamePlaceholder')}
+                              />
+                            </div>
+                            <div className="conn-dialog__field">
+                              <label className="conn-dialog__label" htmlFor={`user-password-${user.id}`}>
+                                {t('explorer.dialog.users.password')}
+                              </label>
+                              <ConnectionInput
+                                id={`user-password-${user.id}`}
+                                className="conn-dialog__input"
+                                type="password"
+                                value={user.password ?? ''}
+                                onChange={(e) => updateUser(user.id, { password: e.target.value })}
+                                placeholder={t('explorer.dialog.users.passwordPlaceholder')}
+                                autoComplete="off"
+                              />
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            className="conn-dialog__user-remove"
+                            aria-label={t('explorer.dialog.users.remove')}
+                            onClick={() => removeUser(user.id)}
+                          >
+                            <X size={15} aria-hidden="true" />
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+                {errors.additionalUsers && (
+                  <span className="conn-dialog__error">{errors.additionalUsers}</span>
+                )}
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="conn-dialog__users-add"
+                  onClick={addUser}
+                >
+                  {t('explorer.dialog.users.add')}
+                </Button>
               </div>
             )}
           </div>

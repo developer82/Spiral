@@ -785,7 +785,20 @@
       "tabs": {
         "connectionDetails": "פרטי חיבור",
         "connectionString": "מחרוזת חיבור",
-        "options": "אפשרויות"
+        "options": "אפשרויות",
+        "users": "משתמשים"
+      },
+      "users": {
+        "intro": "הגדר חשבונות משתמש נוספים עבור חיבור זה. השתמש ב\"התחבר בתור…\" בתפריט החיבור כדי להתחבר עם אחד מהם.",
+        "empty": "עדיין לא הוגדרו משתמשים נוספים.",
+        "profileName": "שם פרופיל",
+        "profileNamePlaceholder": "לדוגמה: קריאה בלבד",
+        "username": "שם משתמש",
+        "usernamePlaceholder": "שם משתמש",
+        "password": "סיסמה",
+        "passwordPlaceholder": "השאר ריק כדי להישאל",
+        "add": "הוסף משתמש",
+        "remove": "הסר משתמש"
       },
       "connectionStringTab": {
         "parseError": "לא ניתן לנתח את מחרוזת החיבור"
@@ -804,7 +817,8 @@
         "x509CertRequired": "קובץ תעודת לקוח נדרש לאימות X.509",
         "sshHostRequired": "שרת SSH הוא שדה חובה",
         "sshUsernameRequired": "שם משתמש SSH הוא שדה חובה",
-        "sshPrivateKeyRequired": "נתיב קובץ המפתח הפרטי הוא שדה חובה"
+        "sshPrivateKeyRequired": "נתיב קובץ המפתח הפרטי הוא שדה חובה",
+        "userUsernameRequired": "שם משתמש הוא שדה חובה עבור כל פרופיל משתמש"
       },
       "createPrompt": {
         "message": "קובץ זה אינו קיים. ליצור מסד נתונים SQLite חדש בנתיב זה?",
@@ -823,6 +837,9 @@
     "contextMenu": {
       "edit": "עריכה",
       "connect": "התחבר",
+      "connectAs": "התחבר בתור…",
+      "connectAsDefaultUserSuffix": "(ברירת מחדל)",
+      "manageUsers": "נהל משתמשים",
       "disconnect": "התנתק",
       "duplicate": "שכפל",
       "delete": "מחק",

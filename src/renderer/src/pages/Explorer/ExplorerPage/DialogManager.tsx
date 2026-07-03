@@ -60,6 +60,7 @@ interface DialogManagerProps {
   // NewConnectionDialog
   isDialogOpen: boolean
   editingConnection: ConnectionRecord | null
+  dialogInitialTab: 'details' | 'connectionString' | 'options' | 'users'
   onSaveConnection: (record: Omit<ConnectionRecord, 'id'>) => Promise<void>
   onUpdateConnection: (record: Omit<ConnectionRecord, 'id'>) => Promise<void>
   onCloseDialog: () => void
@@ -71,6 +72,8 @@ interface DialogManagerProps {
 
   // EnterPasswordDialog
   passwordPromptConnection: ConnectionRecord | null
+  passwordPromptUsername?: string
+  passwordPromptError?: string
   onPasswordPromptConnect: (username: string, password: string, remember: boolean) => Promise<void>
   onPasswordPromptCancel: () => void
 
@@ -405,6 +408,7 @@ interface DialogManagerProps {
 export default function DialogManager({
   isDialogOpen,
   editingConnection,
+  dialogInitialTab,
   onSaveConnection,
   onUpdateConnection,
   onCloseDialog,
@@ -412,6 +416,8 @@ export default function DialogManager({
   onDuplicateConnectionSubmit,
   onCloseDuplicateConnection,
   passwordPromptConnection,
+  passwordPromptUsername,
+  passwordPromptError,
   onPasswordPromptConnect,
   onPasswordPromptCancel,
   unsavedCloseDialog,
@@ -543,6 +549,7 @@ export default function DialogManager({
           onSave={editingConnection ? onUpdateConnection : onSaveConnection}
           onCancel={onCloseDialog}
           initialValues={editingConnection ?? undefined}
+          initialTab={dialogInitialTab}
         />
       )}
 
@@ -557,6 +564,8 @@ export default function DialogManager({
       {passwordPromptConnection && (
         <EnterPasswordDialog
           connection={passwordPromptConnection}
+          initialUsername={passwordPromptUsername}
+          initialError={passwordPromptError}
           onConnect={onPasswordPromptConnect}
           onCancel={onPasswordPromptCancel}
         />

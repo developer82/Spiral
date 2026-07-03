@@ -436,6 +436,77 @@
 
 /* ── Responsive: single column on narrow viewports ── */
 
+/* ── Users tab ── */
+
+.conn-dialog__users {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.conn-dialog__users-intro {
+  font-size: var(--font-xs);
+  color: var(--color-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.conn-dialog__users-empty {
+  font-size: var(--font-sm);
+  color: var(--color-muted);
+  text-align: center;
+  padding: 1.25rem 0;
+  margin: 0;
+}
+
+.conn-dialog__users-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.conn-dialog__user-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: var(--color-surface-2, var(--color-surface));
+}
+
+.conn-dialog__user-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.conn-dialog__user-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-top: 1.5rem;
+  border: none;
+  border-radius: 0.375rem;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.conn-dialog__user-remove:hover {
+  background: var(--color-danger-soft, rgba(220, 38, 38, 0.12));
+  color: var(--color-danger, #dc2626);
+}
+
+.conn-dialog__users-add {
+  align-self: flex-start;
+}
+
 @media (max-width: 34.375rem) {
   .conn-dialog__form-grid {
     grid-template-columns: 1fr;
@@ -443,5 +514,13 @@
 
   .conn-dialog__field--span {
     grid-column: 1;
+  }
+
+  .conn-dialog__user-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .conn-dialog__user-remove {
+    margin-top: 0;
   }
 }

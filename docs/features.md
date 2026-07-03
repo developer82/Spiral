@@ -979,15 +979,19 @@ Right-clicking any saved connection row in the Explorer panel opens a custom HTM
 
 | Connection state | Menu items shown |
 |---|---|
-| `disconnected` / `error` | Edit, Connect, Duplicate, Delete |
-| `connecting` | Edit, Duplicate, Delete |
-| `connected` | Edit, Disconnect, Duplicate, Delete |
+| `disconnected` / `error` | Edit, Connect, Connect As…, Duplicate, Delete |
+| `connecting` | Edit, Connect As…, Duplicate, Delete |
+| `connected` | Edit, Disconnect, Connect As…, Duplicate, Delete |
+
+(`Connect As…` is shown for all non-SQLite providers regardless of state; SQLite has no authentication so it is omitted.)
 
 **Edit** — opens the connection dialog pre-filled with the saved connection details. The dialog title changes to *Edit Connection* and the save button changes to *Update*. If the connection is currently active (`connected` or `connecting`), the user is asked to confirm disconnecting before the dialog opens. If declined, no action is taken. After saving, the connection remains disconnected; reconnecting requires an explicit click.
 
 **Connect** — connects to the database via the saved credentials and expands the connection row to show the Databases folder. Equivalent to the existing expand-to-connect flow.
 
 **Disconnect** — calls the backend disconnect API, collapses the connection row, clears all cached tree node state for that connection, and resets the runtime status to `disconnected`. The connection record is not deleted; it can be reconnected at any time.
+
+**Connect As…** — a submenu for connecting with an *additional user profile* configured on the connection (see [Additional User Profiles](#additional-user-profiles)). When the connection has a main *Username*, that user is listed first, labeled `«username» (Default)`; selecting it connects (or reopens the Enter Password dialog, as below) using the connection's own main credentials. It's followed by one entry per additional profile, labeled by the profile's *Profile Name* (falling back to its *Username* when no name is set). Selecting an entry connects using its credentials via the same credential-override path as the Enter Password flow (the credentials are used for that connect only and never overwrite the main connection user, except for the default-user entry which *is* the main user). If the chosen entry has no saved password, the **Enter Password** dialog opens pre-filled with its username; ticking **Remember password** persists the password onto that profile (encrypted) — or, for the default-user entry, onto the main connection user. If an entry *with* a saved password fails to authenticate, the same dialog is reopened seeded with its username and the returned login error (shown in an `ErrorBox`), letting the user correct the password and retry. Below the list, a divider (shown only when the default user and/or at least one profile exists) precedes a **Manage Users** item that opens the connection dialog focused on the **Users** tab.
 
 **Duplicate** — opens a small dialog (`DuplicateConnectionDialog`) with a single *New Name* field pre-filled with *"«name» - Copy"*. Choosing **Duplicate** creates a brand-new saved connection that carries over every setting of the source connection (host, port, credentials, and all provider-specific options), assigned a fresh `id` by the backend, and appends it to the tree. Identity/transient fields (`id`, `createdAt`, `lastUsedAt`) and the source's saved ERD file references (`erdFiles`) are *not* copied — the copy starts clean. The name field is required; **Cancel** closes the dialog without creating anything.
 
@@ -998,6 +1002,19 @@ Right-clicking any saved connection row in the Explorer panel opens a custom HTM
 If confirmed, any live session is disconnected first, then the connection record is removed from the store and from the Explorer tree. Declining the prompt leaves everything unchanged.
 
 The menu is rendered via the shared `Menu` component. Labels match the active application language via the i18n system.
+
+#### Additional User Profiles
+
+Beyond its main/default `username` and `password`, each connection can store any number of **additional user profiles** for connecting to the same database under different accounts (e.g. a read-only user vs. an admin). These are configured in the **Users** tab of the Add/Edit Connection dialog and consumed by the [Connect As…](#connection-context-menu) submenu.
+
+Each profile has:
+- **Profile Name** *(optional)* — a friendly label shown in the Connect As… list; when empty the profile's username is shown instead.
+- **Username** *(required — the only required field)*.
+- **Password** *(optional)* — leave empty to be prompted on connect.
+
+In the **Users** tab you can **Add User**, edit any field inline, and remove a profile with its delete (✕) button. Saving the connection persists the profiles onto the connection record (`additionalUsers` on `ConnectionRecord`, keyed by a generated `id`). Attempting to save while any profile row has an empty username shows a validation error and blocks the save. Profile passwords are stored **encrypted at rest** using the same AES-256-GCM scheme as the main connection password (encrypted on write in `connections:create`/`connections:update`, decrypted for the renderer in `connections:get-all`, and re-encrypted/decrypted alongside the main password when the master password is set, changed, or removed).
+
+The pure helper `buildConnectAsItems` (in `ExplorerPage/connectAsMenu.ts`) builds the submenu structure and is unit-tested independently of rendering.
 
 #### Tables Context Menu
 

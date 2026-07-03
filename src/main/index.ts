@@ -22,9 +22,11 @@ import {
   clearSessionKey,
   decryptAllConnections,
   decryptPassword,
+  decryptProfilePasswords,
   deriveEncryptionKey,
   encryptAllConnections,
   encryptPassword,
+  encryptProfilePasswords,
   generateEncryptionSalt,
   getSessionKey,
   isEncrypted,
@@ -449,14 +451,21 @@ app.whenReady().then(async () => {
     if (changed) connectionsStore.set('connections', cleaned)
     const key = getSessionKey()
     if (!key) {
+      // Without the session key we cannot decrypt — blank out any encrypted
+      // passwords (main and per-profile) so the renderer never sees ciphertext.
       return cleaned.map((conn) => ({
         ...conn,
-        password: isEncrypted(conn.password) ? '' : conn.password
+        password: isEncrypted(conn.password) ? '' : conn.password,
+        additionalUsers: conn.additionalUsers?.map((u) => ({
+          ...u,
+          password: u.password && isEncrypted(u.password) ? '' : u.password
+        }))
       }))
     }
     return cleaned.map((conn) => ({
       ...conn,
-      password: isEncrypted(conn.password) ? decryptPassword(conn.password, key) : conn.password
+      password: isEncrypted(conn.password) ? decryptPassword(conn.password, key) : conn.password,
+      additionalUsers: decryptProfilePasswords(conn.additionalUsers, key)
     }))
   })
 
@@ -474,11 +483,19 @@ app.whenReady().then(async () => {
         ...record,
         id: randomUUID(),
         password: storedPassword,
+        additionalUsers: key
+          ? encryptProfilePasswords(record.additionalUsers, key)
+          : record.additionalUsers,
         createdAt: new Date().toISOString()
       }
       const existing = connectionsStore.get('connections')
       connectionsStore.set('connections', [...existing, newRecord])
-      return { ...newRecord, password: record.rememberPassword ? record.password : '' }
+      // Return plaintext to the renderer so it retains usable credentials.
+      return {
+        ...newRecord,
+        password: record.rememberPassword ? record.password : '',
+        additionalUsers: record.additionalUsers
+      }
     }
   )
 
@@ -494,14 +511,22 @@ app.whenReady().then(async () => {
           : ''
       const updated: ConnectionRecord = {
         ...record,
-        password: storedPassword
+        password: storedPassword,
+        additionalUsers: key
+          ? encryptProfilePasswords(record.additionalUsers, key)
+          : record.additionalUsers
       }
       const existing = connectionsStore.get('connections')
       connectionsStore.set(
         'connections',
         existing.map((c) => (c.id === record.id ? updated : c))
       )
-      return { ...updated, password: record.rememberPassword ? record.password : '' }
+      // Return plaintext to the renderer so it retains usable credentials.
+      return {
+        ...updated,
+        password: record.rememberPassword ? record.password : '',
+        additionalUsers: record.additionalUsers
+      }
     }
   )
 
@@ -2641,8 +2666,7 @@ app.whenReady().then(async () => {
     profileStore.set('connectionKeyEncrypted', persistedKey)
     setSessionKey(key)
     const connections = connectionsStore.get('connections')
-    const encrypted = encryptAllConnections(connections, key)
-    connectionsStore.set('connections', connections.map((c, i) => ({ ...c, password: encrypted[i].password })))
+    connectionsStore.set('connections', encryptAllConnections(connections, key))
     return { status: 'ok' as const }
   })
 
@@ -2658,8 +2682,9 @@ app.whenReady().then(async () => {
       ? (getSessionKey() ?? (await deriveEncryptionKey(currentPlaintext, currentSalt)))
       : null
     const connections = connectionsStore.get('connections')
-    const decryptedPasswords = currentKey ? decryptAllConnections(connections, currentKey) : connections.map((c) => ({ password: c.password }))
-    const connectionsWithPlaintext = connections.map((c, i) => ({ ...c, password: decryptedPasswords[i].password }))
+    const connectionsWithPlaintext = currentKey
+      ? decryptAllConnections(connections, currentKey)
+      : connections
     const newMeta = await hashPassword(newPlaintext)
     profileStore.set('passwordMeta', newMeta)
     const newSalt = generateEncryptionSalt()
@@ -2668,8 +2693,7 @@ app.whenReady().then(async () => {
     const persistedKey = persistSessionKey(newKey)
     profileStore.set('connectionKeyEncrypted', persistedKey)
     setSessionKey(newKey)
-    const reEncrypted = encryptAllConnections(connectionsWithPlaintext, newKey)
-    connectionsStore.set('connections', connections.map((c, i) => ({ ...c, password: reEncrypted[i].password })))
+    connectionsStore.set('connections', encryptAllConnections(connectionsWithPlaintext, newKey))
     return { status: 'ok' as const }
   })
 
@@ -2683,8 +2707,7 @@ app.whenReady().then(async () => {
       : null
     if (currentKey) {
       const connections = connectionsStore.get('connections')
-      const decrypted = decryptAllConnections(connections, currentKey)
-      connectionsStore.set('connections', connections.map((c, i) => ({ ...c, password: decrypted[i].password })))
+      connectionsStore.set('connections', decryptAllConnections(connections, currentKey))
     }
     profileStore.set('passwordMeta', null)
     profileStore.set('connectionEncryptionSalt', null)

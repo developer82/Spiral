@@ -10,19 +10,26 @@ interface EnterPasswordDialogProps {
   connection: ConnectionRecord
   onConnect: (username: string, password: string, remember: boolean) => Promise<void>
   onCancel: () => void
+  /** Seeds the username field. Falls back to the connection's main username. */
+  initialUsername?: string
+  /** Pre-populates the server-error box, e.g. when a saved-credential connect failed. */
+  initialError?: string
 }
 
 function EnterPasswordDialog({
   connection,
   onConnect,
-  onCancel
+  onCancel,
+  initialUsername,
+  initialError
 }: EnterPasswordDialogProps): React.JSX.Element {
   const { t } = useTranslation()
-  const [username, setUsername] = useState(connection.username ?? '')
+  const seededUsername = initialUsername ?? connection.username ?? ''
+  const [username, setUsername] = useState(seededUsername)
   const [password, setPassword] = useState('')
   const [remember, setRemember] = useState(false)
   const [validationError, setValidationError] = useState<string | null>(null)
-  const [serverError, setServerError] = useState<string | null>(null)
+  const [serverError, setServerError] = useState<string | null>(initialError ?? null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   async function handleSubmit(e: React.FormEvent): Promise<void> {
@@ -96,7 +103,7 @@ function EnterPasswordDialog({
             value={username}
             onChange={handleUsernameChange}
             placeholder={t('explorer.enterPassword.usernamePlaceholder')}
-            autoFocus={!connection.username}
+            autoFocus={!seededUsername}
             disabled={isSubmitting}
           />
         </div>
@@ -111,7 +118,7 @@ function EnterPasswordDialog({
             value={password}
             onChange={handlePasswordChange}
             placeholder={t('explorer.enterPassword.passwordPlaceholder')}
-            autoFocus={!!connection.username}
+            autoFocus={!!seededUsername}
             disabled={isSubmitting}
           />
           {validationError && <span className="conn-dialog__error">{validationError}</span>}

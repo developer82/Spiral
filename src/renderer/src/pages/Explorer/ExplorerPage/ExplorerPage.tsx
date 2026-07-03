@@ -44,15 +44,17 @@ import {
   TerminalSquare,
   Bot,
   UserPlus,
+  Users,
   ShieldPlus,
   DatabaseBackup,
   Upload
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { ConnectionRecord, ExplorerNode, ConnectionProvider } from '../connections.types'
+import type { ConnectionRecord, ConnectionUserProfile, ExplorerNode, ConnectionProvider } from '../connections.types'
 import { PROVIDER_METADATA, PROVIDER_LIST } from '../providerMetadata'
 import type { MenuItem } from '../../../components/Menu/Menu'
 import Menu from '../../../components/Menu/Menu'
+import { buildConnectAsItems } from './connectAsMenu'
 import QueryEditor from '../MonacoEditor/QueryEditor'
 import { useSettings } from '../../Settings/useSettings'
 import VirtualResultsTable from '../VirtualResultsTable/VirtualResultsTable'
@@ -230,6 +232,9 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
   // ── Dialog states (not managed by any hook) ───────────────────────────────
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingConnection, setEditingConnection] = useState<ConnectionRecord | null>(null)
+  const [dialogInitialTab, setDialogInitialTab] = useState<
+    'details' | 'connectionString' | 'options' | 'users'
+  >('details')
   const [duplicateConnectionDialog, setDuplicateConnectionDialog] = useState<ConnectionRecord | null>(null)
   const [createDbDialog, setCreateDbDialog] = useState<{ connectionId: string } | null>(null)
   const [createCollectionDialog, setCreateCollectionDialog] = useState<{
@@ -591,6 +596,7 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
   function closeDialog(): void {
     setIsDialogOpen(false)
     setEditingConnection(null)
+    setDialogInitialTab('details')
   }
 
   // Connect using credentials entered in the Enter Password dialog. Rethrows on
@@ -602,14 +608,21 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
   ): Promise<void> {
     const conn = tree.passwordPromptConnection
     if (!conn) return
+    const profile = tree.passwordPromptProfile
     await tree.connectWithCredentials(conn.id, username, password)
     if (remember) {
-      const updated = await window.api.connections.update({
-        ...conn,
-        username,
-        password,
-        rememberPassword: true
-      })
+      // When connecting as an additional user profile, remember the password on
+      // that profile; otherwise (no profile, or the synthesized "default user"
+      // entry for the connection's own username) fall back to the main connection user.
+      const record = profile && profile.id !== 'default'
+        ? {
+            ...conn,
+            additionalUsers: (conn.additionalUsers ?? []).map((u) =>
+              u.id === profile.id ? { ...u, username, password } : u
+            )
+          }
+        : { ...conn, username, password, rememberPassword: true }
+      const updated = await window.api.connections.update(record)
       tree.setConnections((prev) => prev.map((c) => (c.id === updated.id ? updated : c)))
     }
   }
@@ -2086,6 +2099,19 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
     })
   }
 
+  // Connect using an additional user profile ("Connect As…"). Profiles with a
+  // saved password connect directly; otherwise the Enter Password dialog opens
+  // seeded with the profile's username (handled inside connectAsProfile).
+  function handleConnectAsProfile(conn: ConnectionRecord, profile: ConnectionUserProfile): void {
+    void tree.connectAsProfile(conn.id, profile).catch(() => {})
+  }
+
+  // Open the edit dialog for a connection focused on the "Users" tab.
+  function handleManageUsers(conn: ConnectionRecord): void {
+    setDialogInitialTab('users')
+    void tree.handleEditAction(conn.id, t, requestConfirmDefault, setIsDialogOpen, setEditingConnection)
+  }
+
   function handleConnectionContextMenu(
     e: React.MouseEvent,
     conn: ConnectionRecord
@@ -2097,7 +2123,10 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
         id: 'edit',
         label: t('explorer.contextMenu.edit'),
         icon: <Pencil size={13} />,
-        onClick: () => { void tree.handleEditAction(conn.id, t, requestConfirmDefault, setIsDialogOpen, setEditingConnection) }
+        onClick: () => {
+          setDialogInitialTab('details')
+          void tree.handleEditAction(conn.id, t, requestConfirmDefault, setIsDialogOpen, setEditingConnection)
+        }
       }
     ]
     if (state.status === 'connected') {
@@ -2129,6 +2158,17 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
             tree.handleConnectAction(conn.id)
           }
         }
+      })
+    }
+    if (conn.provider !== 'sqlite') {
+      items.push({
+        id: 'connect-as',
+        label: t('explorer.contextMenu.connectAs'),
+        icon: <Users size={13} />,
+        items: buildConnectAsItems(conn, t, {
+          onConnectProfile: (profile) => handleConnectAsProfile(conn, profile),
+          onManageUsers: () => handleManageUsers(conn)
+        })
       })
     }
     items.push({ id: 'sep', separator: true })
@@ -2982,7 +3022,7 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
       <aside ref={layout.panelRef} className="explorer__panel">
         <div className="explorer__resize-handle" onMouseDown={layout.onResizeStart} />
         <div className="explorer__panel-header">
-          <Button variant="primary" size="sm" className="explorer__new-btn" analyticsId="new_connection" onClick={() => setIsDialogOpen(true)}>
+          <Button variant="primary" size="sm" className="explorer__new-btn" analyticsId="new_connection" onClick={() => { setDialogInitialTab('details'); setIsDialogOpen(true) }}>
             <Plus size={13} />
             {t('explorer.newConnection')}
           </Button>
@@ -3987,6 +4027,7 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
         // NewConnectionDialog
         isDialogOpen={isDialogOpen}
         editingConnection={editingConnection}
+        dialogInitialTab={dialogInitialTab}
         onSaveConnection={handleSaveConnection}
         onUpdateConnection={handleUpdateConnection}
         onCloseDialog={closeDialog}
@@ -3996,6 +4037,8 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
         onCloseDuplicateConnection={() => setDuplicateConnectionDialog(null)}
         // EnterPasswordDialog
         passwordPromptConnection={tree.passwordPromptConnection}
+        passwordPromptUsername={tree.passwordPromptProfile?.username}
+        passwordPromptError={tree.passwordPromptError ?? undefined}
         onPasswordPromptConnect={handlePasswordPromptConnect}
         onPasswordPromptCancel={tree.cancelPasswordPrompt}
         // UnsavedChangesDialog

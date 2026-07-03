@@ -1,5 +1,19 @@
 ﻿export type ConnectionProvider = 'sqlserver' | 'postgres' | 'mysql' | 'sqlite' | 'redis' | 'mongodb'
 
+/**
+ * An additional user account configured for a connection, used by the
+ * "Connect As…" flow. Only `username` is required; `password` is optional and
+ * (when present) encrypted at rest exactly like the main connection password.
+ */
+export interface ConnectionUserProfile {
+  /** Stable id, generated on add — used as a React key and to match on "remember". */
+  id: string
+  /** Optional display name; falls back to `username` in the UI. */
+  profileName?: string
+  username: string
+  password?: string
+}
+
 export interface ConnectionRecord {
   id: string
   name: string
@@ -18,6 +32,8 @@ export interface ConnectionRecord {
   eagerLoading?: boolean
   backgroundAutoRefresh?: boolean
   erdFiles?: { databaseName: string; filePath: string }[]
+  /** Additional user accounts available via the "Connect As…" context menu. */
+  additionalUsers?: ConnectionUserProfile[]
   createdAt?: string
   lastUsedAt?: string
   // ── Redis-specific fields ─────────────────────────────────────────────────
