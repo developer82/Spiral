@@ -24,6 +24,10 @@ A small update adding finer control over the Explorer connection list.
 
 - **PostgreSQL SSL / TLS** — the connection dialog now has an **SSL Mode** dropdown for Postgres connections (`disable`, `allow`, `prefer`, `require`, `verify-ca`, `verify-full`), matching the standard PostgreSQL `sslmode` parameter. For the verify modes you can point at a **CA certificate** file (with a Browse… picker), and any encrypted mode accepts an optional **Server Name (SNI)**. New connections default to `prefer`, so encryption is used automatically when the server supports it. This fixes the `no pg_hba.conf entry for host … no encryption` error when connecting to managed Postgres services such as Aiven, Heroku, Supabase, Neon, and Amazon RDS that require SSL.
 
+## 📊 ERD Diagram
+
+- **Relationship cardinality on connection lines** — each connection in an ERD now shows its relationship type next to the foreign-key column name, using `∞` for a "many" end: `∞:1` (one-to-many), `1:1` (one-to-one, when the FK is also the primary key), `0..∞:1` (optional/nullable FK), and `∞:∞` (many-to-many, detected from junction tables whose primary key is two FK columns). Cardinality is derived from the existing schema — no extra database query.
+
 ## 🧭 Navigation
 
 - **Profile in the title bar** — when the side navigation bar is hidden, the user profile button now moves up to the title bar instead of disappearing. On Windows and Linux it sits just left of the window control buttons; on macOS it sits just left of the Spiral logo. Click it to jump straight to **User Profile** settings.

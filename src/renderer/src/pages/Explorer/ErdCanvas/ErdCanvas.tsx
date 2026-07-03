@@ -45,6 +45,7 @@ import ErdArrowNode, { type ErdArrowNodeData, ARROW_NODE_PADDING } from '../ErdA
 import type { ErdSchema, ErdTable, ErdCanvasSerializedState } from '../erd.types'
 import type { ErdExportOptions } from '../Dialogs/ErdExportDialog/ErdExportDialog'
 import AddTablesDialog from '../Dialogs/AddTablesDialog/AddTablesDialog'
+import { deriveCardinality } from './deriveCardinality'
 import './ErdCanvas.css'
 
 export type ErdBackground = 'none' | 'dots' | 'grid'
@@ -62,6 +63,11 @@ const NODE_PADDING = 20
 
 const EDGE_PRESET_COLORS = ['#8892aa', '#a1faff', '#d575ff', '#bcff5f', '#ff6b6b', '#ffb347', '#ffffff'] as const
 
+/** Compose an edge label from the FK column name and its cardinality symbol. */
+function edgeLabel(fromColumn: string, cardinality: string | undefined): string {
+  return cardinality ? `${fromColumn} · ${cardinality}` : fromColumn
+}
+
 function estimateTableHeight(colCount: number): number {
   return HEADER_HEIGHT + Math.min(colCount, 20) * COL_ROW_HEIGHT + NODE_PADDING
 }
@@ -71,6 +77,7 @@ function buildInitialLayout(
   edgeType: 'default' | 'smoothstep'
 ): { nodes: Node[]; edges: Edge[] } {
   // Deduplicate edges — one edge per FK constraint
+  const cardinality = deriveCardinality(schema)
   const edgeMap = new Map<string, Edge>()
   for (const rel of schema.relationships) {
     if (!edgeMap.has(rel.constraintName)) {
@@ -82,7 +89,7 @@ function buildInitialLayout(
         markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--color-muted)' },
         style: { stroke: 'var(--color-muted)', strokeWidth: 1.5 },
         animated: false,
-        label: rel.fromColumn,
+        label: edgeLabel(rel.fromColumn, cardinality.get(rel.constraintName)),
         labelStyle: { fontSize: 9, fill: 'var(--color-text)' },
         labelBgStyle: { fill: 'var(--color-bg)', rx: 3, ry: 3 },
         labelBgPadding: [4, 2] as [number, number]
@@ -321,6 +328,7 @@ function ErdCanvasInner({ schema, databaseName, background, onBackgroundChange, 
 
       // Build edges for relationships where at least one end is a newly added table
       // and the other end is either also new or already present
+      const cardinality = schema ? deriveCardinality(schema) : new Map<string, string>()
       const addedEdgeMap = new Map<string, Edge>()
       for (const rel of schema?.relationships ?? []) {
         if (existingEdgeConstraints.has(rel.constraintName)) continue
@@ -341,7 +349,7 @@ function ErdCanvasInner({ schema, databaseName, background, onBackgroundChange, 
             markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--color-muted)' },
             style: { stroke: 'var(--color-muted)', strokeWidth: 1.5 },
             animated: false,
-            label: rel.fromColumn,
+            label: edgeLabel(rel.fromColumn, cardinality.get(rel.constraintName)),
             labelStyle: { fontSize: 9, fill: 'var(--color-text)' },
             labelBgStyle: { fill: 'var(--color-bg)', rx: 3, ry: 3 },
             labelBgPadding: [4, 2] as [number, number]

@@ -345,6 +345,19 @@ The editor area's tab strip holds all open tabs (query, ERD, dashboard, shell, a
 
 **Drag-and-drop reordering** — tabs can be reordered by dragging. Press and drag any tab onto another tab to drop it at that tab's position; the remaining tabs shift to make room. While dragging, the dragged tab dims and the tab currently under the cursor shows a primary-colored drop indicator on its left edge. Reordering is purely visual — it does not change which tab is active, open, or dirty. Cancelling a drag (releasing outside the strip) leaves the order unchanged.
 
+#### ERD Diagram — Relationship Cardinality
+
+Each connection line on an ERD diagram is labelled with both the foreign-key column name and its relationship cardinality, rendered as `<column> · <symbol>` (e.g. `user_id · ∞:1`). The infinity glyph `∞` denotes a "many" end. The symbol is read along the edge direction (`child/FK` → `parent/PK`):
+
+| Relationship | Symbol | When |
+|---|---|---|
+| one-to-many (many-to-one) | `∞:1` | Ordinary FK column |
+| one-to-one | `1:1` | FK column is also the primary key of its table |
+| optional one-to-many | `0..∞:1` | FK column is nullable (optional participation) |
+| many-to-many | `∞:∞` | Both FK edges of a detected junction table |
+
+Cardinality is derived entirely in the renderer (`ErdCanvas/deriveCardinality.ts`) from the schema metadata already present on `ErdSchema` — the FK column's `isPrimaryKey`/`isNullable` flags, plus junction-table detection (a table whose primary key is exactly two columns that are each both PK and FK). No additional database round-trip is required. Manually drawn edges carry no relationship metadata and remain unlabelled.
+
 #### Table Sub-Categories (SQL Server)
 
 Expanding a table node reveals the following provider-specific sub-folders:
