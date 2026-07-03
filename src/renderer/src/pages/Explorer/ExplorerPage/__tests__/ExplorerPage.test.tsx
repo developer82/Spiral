@@ -228,6 +228,31 @@ describe('ExplorerPage', () => {
     })
   })
 
+  it('shows the connected username in parentheses next to the connection name', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(window.api.connections, 'getAll').mockResolvedValue([
+      { ...MOCK_CONNECTION, rememberPassword: true }
+    ])
+
+    render(<ExplorerPage />)
+    await waitFor(() => screen.getByText('My SQL Server'))
+
+    await user.click(screen.getByText('My SQL Server'))
+
+    await waitFor(() => {
+      expect(screen.getByText('(sa)')).toBeInTheDocument()
+    })
+  })
+
+  it('does not show a username label while disconnected', async () => {
+    vi.spyOn(window.api.connections, 'getAll').mockResolvedValue([MOCK_CONNECTION])
+
+    render(<ExplorerPage />)
+    await waitFor(() => screen.getByText('My SQL Server'))
+
+    expect(screen.queryByText('(sa)')).not.toBeInTheDocument()
+  })
+
   it('shows error row when connection fails', async () => {
     const user = userEvent.setup()
     vi.spyOn(window.api.connections, 'getAll').mockResolvedValue([MOCK_CONNECTION])
@@ -712,6 +737,19 @@ describe('ExplorerPage – context menu', () => {
 
     await waitFor(() => {
       expect(connectSpy).toHaveBeenCalledWith('conn-1', { username: 'ro', password: 'roPass' })
+    })
+  })
+
+  it('shows the profile name in parentheses after connecting as that profile', async () => {
+    vi.spyOn(window.api.connections, 'getAll').mockResolvedValue([CONNECTION_WITH_PROFILES])
+    vi.spyOn(window.api.database, 'connect').mockResolvedValue({ status: 'connected' })
+    const user = userEvent.setup()
+    render(<ExplorerPage />)
+    await openConnectAsSubmenu(user)
+    await clickMenuItem('Read-only')
+
+    await waitFor(() => {
+      expect(screen.getByText('(Read-only)')).toBeInTheDocument()
     })
   })
 

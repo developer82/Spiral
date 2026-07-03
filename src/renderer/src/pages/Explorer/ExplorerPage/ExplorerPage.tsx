@@ -3186,6 +3186,11 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
               const isExpanded = tree.expandedConns.has(conn.id)
               const state = tree.getRuntimeState(conn.id)
               const iconColor = conn.color || PROVIDER_METADATA[conn.provider].color
+              const activeUserLabel =
+                state.status === 'connected' && state.activeUsername
+                  ? conn.additionalUsers?.find((u) => u.username === state.activeUsername)?.profileName ??
+                    state.activeUsername
+                  : undefined
 
               return (
                 <div key={conn.id} className="conn">
@@ -3204,7 +3209,10 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
                       style={{ color: iconColor }}
                       strokeWidth={1.5}
                     />
-                    <span className="conn__name">{conn.name}</span>
+                    <span className="conn__name">
+                      {conn.name}
+                      {activeUserLabel && <span className="conn__active-user"> ({activeUserLabel})</span>}
+                    </span>
                     {tree.eagerLoadStates.get(conn.id) === 'loading' && (
                       <span className="conn__eager-spinner" aria-label={t('explorer.eagerLoading')} />
                     )}

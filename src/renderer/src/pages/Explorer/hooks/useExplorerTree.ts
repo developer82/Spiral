@@ -350,8 +350,8 @@ export function useExplorerTree(showSystemDatabases: boolean): UseExplorerTreeRe
   }
 
   // Shared post-connect success handling: mark connected, track, fetch capabilities.
-  async function applyConnectSuccess(id: string): Promise<void> {
-    setRuntimeState(id, { status: 'connected' })
+  async function applyConnectSuccess(id: string, activeUsername: string): Promise<void> {
+    setRuntimeState(id, { status: 'connected', activeUsername })
     const provider = connections.find((c) => c.id === id)?.provider
     if (provider) trackEvent('connection_opened', { provider })
     try {
@@ -385,7 +385,8 @@ export function useExplorerTree(showSystemDatabases: boolean): UseExplorerTreeRe
     try {
       const result = await window.api.database.connect(id)
       if (result.status === 'connected') {
-        await applyConnectSuccess(id)
+        const conn = connections.find((c) => c.id === id)
+        await applyConnectSuccess(id, conn?.username ?? '')
       } else {
         setRuntimeState(id, silent ? { status: 'disconnected' } : { status: 'error', errorMessage: result.message })
       }
@@ -402,7 +403,7 @@ export function useExplorerTree(showSystemDatabases: boolean): UseExplorerTreeRe
     setRuntimeState(id, { status: 'connecting' })
     const result = await window.api.database.connect(id, { username, password })
     if (result.status === 'connected') {
-      await applyConnectSuccess(id)
+      await applyConnectSuccess(id, username)
       setPasswordPromptConnection(null)
       setPasswordPromptProfile(null)
       setPasswordPromptError(null)

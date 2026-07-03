@@ -1085,6 +1085,8 @@ Saved connections appear in the Explorer tree immediately after saving and persi
 | `connected` | Green dot | Databases folder |
 | `error` | Red dot | Error message (click to retry) |
 
+**Connected-as label** — while `connected`, the connection row shows the active username in parentheses next to the connection name (e.g. `My SQL Server (sa)`). If the connection was opened via [Connect As…](#connection-context-menu) with a profile that has a *Profile Name*, that name is shown instead of the raw username. The label is derived from `ConnectionRuntimeState.activeUsername`, which is set on every successful connect (default credentials or a profile) and cleared whenever the row leaves the `connected` state.
+
 **Expand-to-connect** — the first time a connection node is expanded the app calls `database:connect` via IPC. The main process uses the saved credentials to open a connection pool and caches the session by connection id. On success a single *Databases* folder appears; subsequent connection expand/collapse operations do not re-connect.
 
 **Lazy loading** — each folder node (Databases, a database, Tables, Views, etc.) loads its children the first time it is expanded. A spinner is shown during loading. Results are cached for the session so repeated expand/collapse does not re-fetch.

@@ -109,6 +109,11 @@
   font-weight: 500;
 }
 
+.conn__active-user {
+  font-weight: 400;
+  color: var(--color-muted);
+}
+
 .conn__status {
   width: 0.4125rem;
   height: 0.4125rem;

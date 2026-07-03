@@ -136,6 +136,8 @@ export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'er
 export interface ConnectionRuntimeState {
   status: ConnectionStatus
   errorMessage?: string
+  /** Username currently connected with (default user or a "Connect As…" profile). */
+  activeUsername?: string
 }
 
 export type NodeLoadStatus = 'loading' | 'loaded' | 'error'
