@@ -275,6 +275,11 @@ if (typeof window !== 'undefined') {
         openSqliteDialog: () => Promise.resolve({ status: 'cancelled' }),
         checkFileExists: () => Promise.resolve(false)
       },
+      autosave: {
+        getRecovered: () => Promise.resolve([]),
+        write: () => Promise.resolve(),
+        clear: () => Promise.resolve()
+      },
       menu: {
         executeRole: () => {},
         onNativeAction: () => () => {}

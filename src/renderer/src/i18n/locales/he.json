@@ -1297,6 +1297,13 @@
       "discardButton": "אל תשמור",
       "cancelButton": "ביטול"
     },
+    "restoreRecovered": {
+      "dialogTitle": "שחזור מסמכים שלא נשמרו",
+      "message": "Spiral נסגרה באופן בלתי צפוי. בחר את המסמכים עם השינויים שלא נשמרו שברצונך לשחזר:",
+      "restoreButton": "שחזר ({{count}})",
+      "discardButton": "מחק",
+      "unsavedHint": "לא נשמר"
+    },
     "createTable": {
       "refreshContextMenuLabel": "רענן",
       "contextMenuLabel": "צור טבלה",

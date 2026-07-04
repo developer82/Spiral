@@ -6,6 +6,7 @@ import type React from 'react'
 import { Trash2 } from 'lucide-react'
 import type { ConnectionRecord } from '../connections.types'
 import type { Tab } from '../explorer.types'
+import type { DraftDocument } from '../../../../../preload/index.d'
 import type { TrackedEventType } from '../../Profiler/profiler.types'
 
 import NewConnectionDialog from '../Dialogs/NewConnectionDialog/NewConnectionDialog'
@@ -48,6 +49,7 @@ import ManageMySqlDatabaseUsersDialog from '../Dialogs/ManageMySqlDatabaseUsersD
 import ManageRedisAclUsersDialog from '../Dialogs/ManageRedisAclUsersDialog/ManageRedisAclUsersDialog'
 import ManageMongoUsersDialog from '../Dialogs/ManageMongoUsersDialog/ManageMongoUsersDialog'
 import UnsavedChangesDialog from '../Dialogs/UnsavedChangesDialog/UnsavedChangesDialog'
+import RestoreRecoveredDocumentsDialog from '../Dialogs/RestoreRecoveredDocumentsDialog/RestoreRecoveredDocumentsDialog'
 import ConfirmDeleteDialog from '../Dialogs/ConfirmDeleteDialog/ConfirmDeleteDialog'
 import ConfirmDialog from '../../../components/ConfirmDialog/ConfirmDialog'
 import RecordDialog from '../Dialogs/RecordDialog/RecordDialog'
@@ -83,6 +85,11 @@ interface DialogManagerProps {
   onSaveAndClose: (tabId: string) => Promise<void>
   onDiscardAndClose: (tabId: string) => void
   onCancelClose: () => void
+
+  // RestoreRecoveredDocumentsDialog
+  recoveredDrafts: DraftDocument[] | null
+  onRestoreRecovered: (selected: DraftDocument[]) => void
+  onDiscardRecovered: () => void
 
   // ConfirmDeleteDialog
   deleteConfirmState: {
@@ -425,6 +432,9 @@ export default function DialogManager({
   onSaveAndClose,
   onDiscardAndClose,
   onCancelClose,
+  recoveredDrafts,
+  onRestoreRecovered,
+  onDiscardRecovered,
   deleteConfirmState,
   isDeleting,
   onConfirmDelete,
@@ -583,6 +593,14 @@ export default function DialogManager({
           />
         )
       })()}
+
+      {recoveredDrafts && recoveredDrafts.length > 0 && (
+        <RestoreRecoveredDocumentsDialog
+          drafts={recoveredDrafts}
+          onRestore={onRestoreRecovered}
+          onDiscard={onDiscardRecovered}
+        />
+      )}
 
       {deleteConfirmState && (
         <ConfirmDeleteDialog

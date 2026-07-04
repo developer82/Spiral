@@ -1,0 +1,52 @@
+.restore-recovered__message {
+  margin: 0 0 0.75rem;
+  color: var(--color-on-surface);
+  font-size: var(--font-sm);
+  line-height: 1.5;
+}
+
+.restore-recovered__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.restore-recovered__item {
+  border-radius: 6px;
+}
+
+.restore-recovered__label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: var(--font-sm);
+  color: var(--color-on-surface);
+}
+
+.restore-recovered__label:hover {
+  background: var(--color-surface-hover, rgba(127, 127, 127, 0.1));
+}
+
+.restore-recovered__checkbox {
+  flex: none;
+  cursor: pointer;
+}
+
+.restore-recovered__name {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.restore-recovered__hint {
+  flex: none;
+  font-size: var(--font-xs);
+  color: var(--color-muted);
+}

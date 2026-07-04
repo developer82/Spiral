@@ -43,6 +43,13 @@ import {
   isUpdating
 } from './updater'
 import { trackAppOpen, trackEvent, trackPageView } from './analytics/analytics'
+import {
+  readAndConsumeAutosave,
+  writeAutosave,
+  clearAutosave,
+  clearAutosaveSync,
+  type DraftDocument
+} from './autosave'
 import { databaseManager } from './database/DatabaseManager'
 import { executeComparison } from './comparisons/executeComparison'
 import { buildSyncScript, buildRevertScript } from './comparisons/buildSyncScript'
@@ -89,7 +96,14 @@ function buildMacMenu(): void {
         { role: 'hideOthers' },
         { role: 'unhide' },
         { type: 'separator' },
-        { role: 'quit' }
+        {
+          label: 'Quit Spiral',
+          accelerator: 'CmdOrCtrl+Q',
+          click: () => {
+            markUserInitiatedQuit()
+            app.quit()
+          }
+        }
       ]
     },
     {
@@ -376,7 +390,33 @@ function createWindow(): void {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+/**
+ * Drafts recovered from a previous unclean shutdown, read once at startup.
+ * Exposed to the renderer via the `autosave:get-recovered` IPC channel.
+ */
+let recoveredDrafts: DraftDocument[] = []
+
+/**
+ * True once the user has deliberately quit Spiral through one of the app's own
+ * affordances (the Quit menu item / Cmd+Q, the titlebar close/quit buttons, or
+ * closing the last window on Windows/Linux). Only a deliberate quit clears the
+ * autosave manifest; any other path into `before-quit` — a macOS "Force Quit",
+ * a dock Quit, or an OS shutdown — leaves the manifest so the documents can be
+ * recovered on the next launch. A genuine crash never reaches `before-quit` at
+ * all, so its manifest is likewise preserved.
+ */
+let userInitiatedQuit = false
+
+/** Marks the current quit as a deliberate, user-initiated shutdown. */
+function markUserInitiatedQuit(): void {
+  userInitiatedQuit = true
+}
+
 app.whenReady().then(async () => {
+  // Read (and delete) any autosave manifest left behind by an unclean shutdown
+  // before anything else can overwrite it.
+  recoveredDrafts = await readAndConsumeAutosave()
+
   // Load persisted connection encryption key from OS-native secure storage
   const connectionKeyEncrypted = profileStore.get('connectionKeyEncrypted')
   if (connectionKeyEncrypted) {
@@ -2336,6 +2376,19 @@ app.whenReady().then(async () => {
     }
   })
 
+  ipcMain.handle('autosave:get-recovered', () => recoveredDrafts)
+
+  ipcMain.handle(
+    'autosave:write',
+    async (_event: Electron.IpcMainInvokeEvent, drafts: DraftDocument[]) => {
+      await writeAutosave(drafts)
+    }
+  )
+
+  ipcMain.handle('autosave:clear', async () => {
+    await clearAutosave()
+  })
+
   interface EnvironmentExportOptions {
     connections: boolean
     comparisons: boolean
@@ -2518,10 +2571,12 @@ app.whenReady().then(async () => {
   })
 
   ipcMain.on('app:quit', () => {
+    markUserInitiatedQuit()
     app.quit()
   })
 
   ipcMain.on('app:restart', () => {
+    markUserInitiatedQuit()
     app.relaunch()
     app.quit()
   })
@@ -2869,16 +2924,34 @@ app.whenReady().then(async () => {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
+    // Closing the last window on Windows/Linux is a deliberate quit.
+    markUserInitiatedQuit()
     app.quit()
   }
 })
 
 app.on('before-quit', (event) => {
-  // Allow quit-and-install to proceed immediately without the async cleanup
-  // path, otherwise the installer never gets to run.
-  if (isUpdating()) return
+  // Quit-and-install is a deliberate shutdown; drop the manifest and let the
+  // installer run without the async cleanup path.
+  if (isUpdating()) {
+    markUserInitiatedQuit()
+    clearAutosaveSync()
+    return
+  }
   event.preventDefault()
-  Promise.all([databaseManager.closeAll(), aiService?.dispose()]).finally(() => app.exit(0))
+  Promise.all([databaseManager.closeAll(), aiService?.dispose()]).finally(() => {
+    // Only a deliberate, user-initiated quit clears the autosave manifest. Any
+    // other route into before-quit (macOS Force Quit / dock Quit / OS shutdown)
+    // preserves it so the unsaved documents are offered for recovery next
+    // launch; a genuine crash never reaches this handler and preserves it too.
+    //
+    // Cleared synchronously right before exit: while the async cleanup above ran
+    // the (still-alive) renderer could have re-snapshotted its dirty tabs, so we
+    // remove the manifest as the very last step, leaving no window for it to be
+    // recreated after clearing.
+    if (userInitiatedQuit) clearAutosaveSync()
+    app.exit(0)
+  })
 })
 
 // In this file you can include the rest of your app's specific main process

@@ -1792,6 +1792,23 @@ interface FileAPI {
   checkFileExists: (filePath: string) => Promise<boolean>
 }
 
+export interface DraftDocument {
+  draftId: string
+  title: string
+  filePath?: string
+  content: string
+  connectionId?: string
+  databaseName?: string
+  mongoCollection?: string
+  savedAt: string
+}
+
+interface AutosaveAPI {
+  getRecovered: () => Promise<DraftDocument[]>
+  write: (drafts: DraftDocument[]) => Promise<void>
+  clear: () => Promise<void>
+}
+
 interface MenuAPI {
   executeRole: (role: string) => void
   updateState: (state: { hasOpenDocuments?: boolean; canSaveActive?: boolean; isDocumentFocused?: boolean }) => void
@@ -2047,6 +2064,7 @@ interface AppAPI {
   comparisons: ComparisonsAPI
   database: DatabaseAPI
   file: FileAPI
+  autosave: AutosaveAPI
   menu: MenuAPI
   profiler: ProfilerAPI
   app: AppQuitAPI

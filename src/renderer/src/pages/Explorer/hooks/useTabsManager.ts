@@ -4,6 +4,7 @@
  */
 import { useState, useRef, useEffect, useCallback, createRef } from 'react'
 import type { Tab, QueryTab, ErdTab, DashboardTab, MongoShellTab, RedisShellTab, RedisDbExplorerTab } from '../explorer.types'
+import type { DraftDocument } from '../../../../../preload/index.d'
 import type { ErdFileContent, ErdCanvasSerializedState } from '../erd.types'
 import type { Node, Edge } from '@xyflow/react'
 import type { QueryEditorHandle } from '../MonacoEditor/QueryEditor'
@@ -40,6 +41,7 @@ export interface UseTabsManagerReturn {
   closeAllTabs: () => void
   closeTab: (e: React.MouseEvent, tabId: string) => void
   handleTabContentChange: (tabId: string, content: string) => void
+  restoreDrafts: (drafts: DraftDocument[]) => void
   setTabs: React.Dispatch<React.SetStateAction<Tab[]>>
   unsavedCloseDialog: { tabId: string; pendingTabIds?: string[] } | null
   setUnsavedCloseDialog: React.Dispatch<React.SetStateAction<{ tabId: string; pendingTabIds?: string[] } | null>>
@@ -305,6 +307,31 @@ export function useTabsManager({
     setTabs((prev) =>
       prev.map((t) => (t.id === tabId && t.kind === 'query' ? { ...t, content, isDirty: true } : t))
     )
+  }
+
+  /**
+   * Reopens recovered documents as dirty query tabs. File-backed drafts keep
+   * their original `filePath`/`title`, so a subsequent save overwrites the
+   * original file. The last restored tab becomes active.
+   */
+  function restoreDrafts(drafts: DraftDocument[]): void {
+    if (drafts.length === 0) return
+    const newTabs: QueryTab[] = drafts.map((d) => {
+      tabCounter += 1
+      return {
+        id: `tab-${tabCounter}`,
+        kind: 'query',
+        title: d.title,
+        filePath: d.filePath,
+        content: d.content,
+        isDirty: true,
+        connectionId: d.connectionId,
+        databaseName: d.databaseName,
+        mongoCollection: d.mongoCollection
+      }
+    })
+    setTabs((prev) => [...prev, ...newTabs])
+    setActiveTabId(newTabs[newTabs.length - 1].id)
   }
 
   async function handleSave(): Promise<void> {
@@ -778,6 +805,7 @@ export function useTabsManager({
     closeAllTabs,
     closeTab,
     handleTabContentChange,
+    restoreDrafts,
     setTabs,
     unsavedCloseDialog,
     setUnsavedCloseDialog,

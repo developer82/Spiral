@@ -1392,6 +1392,13 @@
       "discardButton": "Don't Save",
       "cancelButton": "Cancel"
     },
+    "restoreRecovered": {
+      "dialogTitle": "Recover Unsaved Documents",
+      "message": "Spiral closed unexpectedly. Select the documents with unsaved changes you want to restore:",
+      "restoreButton": "Restore ({{count}})",
+      "discardButton": "Discard",
+      "unsavedHint": "unsaved"
+    },
     "createTable": {
       "refreshContextMenuLabel": "Refresh",
       "contextMenuLabel": "Create Table",

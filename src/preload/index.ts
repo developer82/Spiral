@@ -14,6 +14,7 @@ import type {
   MongoBackupOptions,
   MongoRestoreOptions
 } from '../main/database/types'
+import type { DraftDocument } from '../main/autosave'
 
 // Custom APIs for renderer
 const api = {
@@ -517,6 +518,11 @@ const api = {
     openFileDialog: () => ipcRenderer.invoke('file:open-file-dialog'),
     checkFileExists: (filePath: string): Promise<boolean> =>
       ipcRenderer.invoke('file:check-exists', filePath)
+  },
+  autosave: {
+    getRecovered: () => ipcRenderer.invoke('autosave:get-recovered'),
+    write: (drafts: DraftDocument[]) => ipcRenderer.invoke('autosave:write', drafts),
+    clear: () => ipcRenderer.invoke('autosave:clear')
   },
   menu: {
     executeRole: (role: string) => ipcRenderer.send('menu:execute-role', role),

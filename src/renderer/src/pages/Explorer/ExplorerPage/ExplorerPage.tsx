@@ -62,6 +62,7 @@ import JsonViewer from '../../../components/JsonViewer/JsonViewer'
 import './ExplorerPage.css'
 import ErdCanvas from '../ErdCanvas/ErdCanvas'
 import type { ErdCanvasSerializedState } from '../erd.types'
+import type { DraftDocument } from '../../../../../preload/index.d'
 import RedisDashboardTab from '../RedisDashboardTab/RedisDashboardTab'
 import MongoShellTab from '../MongoShellTab/MongoShellTab'
 import RedisShellTab from '../RedisShellTab/RedisShellTab'
@@ -96,6 +97,7 @@ import { useExplorerTree } from '../hooks/useExplorerTree'
 import { useConnectionList } from '../hooks/useConnectionList'
 import type { ConnectionSortField, SortDirection } from '../../Settings/useSettings'
 import { useTabsManager } from '../hooks/useTabsManager'
+import { useAutosave } from '../hooks/useAutosave'
 import { useQueryRunner } from '../hooks/useQueryRunner'
 import { useInteractiveResults } from '../hooks/useInteractiveResults'
 import DialogManager from './DialogManager'
@@ -491,6 +493,28 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
     connections: tree.connections,
     setConnections: tree.setConnections
   })
+
+  // Continuously autosave dirty query tabs for crash recovery.
+  useAutosave({ tabs: tabsMgr.tabs })
+
+  // Documents recovered from a previous unclean shutdown, offered for restore.
+  const [recoveredDrafts, setRecoveredDrafts] = useState<DraftDocument[] | null>(null)
+  const recoveryCheckedRef = useRef(false)
+  useEffect(() => {
+    // Run once (guarded against React StrictMode double-invoke). The main process
+    // already deleted the manifest when it read it, so this only ever surfaces
+    // drafts left behind by a crash.
+    if (recoveryCheckedRef.current) return
+    recoveryCheckedRef.current = true
+    void window.api.autosave.getRecovered().then((drafts) => {
+      if (drafts.length > 0) setRecoveredDrafts(drafts)
+    })
+  }, [])
+
+  function handleRestoreRecovered(selected: DraftDocument[]): void {
+    tabsMgr.restoreDrafts(selected)
+    setRecoveredDrafts(null)
+  }
 
   function getTabConnectionId(tab: QueryTab): string | null {
     return tab.connectionId ?? (tab.id === tabsMgr.activeTabId ? tree.activeConnectionId : null)
@@ -4055,6 +4079,10 @@ function ExplorerPage({ isActive = false }: { isActive?: boolean }): React.JSX.E
         onSaveAndClose={tabsMgr.handleSaveAndClose}
         onDiscardAndClose={(tabId) => tabsMgr.handleDiscardAndClose(tabId)}
         onCancelClose={() => tabsMgr.handleCancelClose()}
+        // RestoreRecoveredDocumentsDialog
+        recoveredDrafts={recoveredDrafts}
+        onRestoreRecovered={handleRestoreRecovered}
+        onDiscardRecovered={() => setRecoveredDrafts(null)}
         // ConfirmDeleteDialog
         deleteConfirmState={interactiveResults.deleteConfirmState}
         isDeleting={interactiveResults.isDeleting}
