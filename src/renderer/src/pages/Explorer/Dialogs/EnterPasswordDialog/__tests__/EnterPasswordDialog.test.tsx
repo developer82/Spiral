@@ -132,13 +132,14 @@ describe('EnterPasswordDialog', () => {
     expect(screen.getByLabelText('explorer.enterPassword.usernameLabel')).toHaveFocus()
   })
 
-  // ── Validation ────────────────────────────────────────────────────────────
+  // ── Optional fields ───────────────────────────────────────────────────────
 
-  it('shows a required-password error when submitting with an empty password', async () => {
+  it('submits with an empty password (anonymous login) without a validation error', async () => {
     const user = userEvent.setup()
+    mockOnConnect.mockResolvedValue(undefined)
     render(
       <EnterPasswordDialog
-        connection={makeConnection()}
+        connection={makeConnection({ username: 'sa' })}
         onConnect={mockOnConnect}
         onCancel={mockOnCancel}
       />
@@ -146,31 +147,30 @@ describe('EnterPasswordDialog', () => {
 
     await user.click(screen.getByText('explorer.enterPassword.connectButton'))
 
-    expect(
-      screen.getByText('explorer.enterPassword.validation.passwordRequired')
-    ).toBeInTheDocument()
-    expect(mockOnConnect).not.toHaveBeenCalled()
-  })
-
-  it('clears the validation error when the user types a password', async () => {
-    const user = userEvent.setup()
-    render(
-      <EnterPasswordDialog
-        connection={makeConnection()}
-        onConnect={mockOnConnect}
-        onCancel={mockOnCancel}
-      />
-    )
-
-    await user.click(screen.getByText('explorer.enterPassword.connectButton'))
-    expect(
-      screen.getByText('explorer.enterPassword.validation.passwordRequired')
-    ).toBeInTheDocument()
-
-    await user.type(screen.getByLabelText('explorer.enterPassword.passwordLabel'), 's')
+    await waitFor(() => {
+      expect(mockOnConnect).toHaveBeenCalledWith('sa', '', false)
+    })
     expect(
       screen.queryByText('explorer.enterPassword.validation.passwordRequired')
     ).not.toBeInTheDocument()
+  })
+
+  it('submits with both username and password empty (fully anonymous login)', async () => {
+    const user = userEvent.setup()
+    mockOnConnect.mockResolvedValue(undefined)
+    render(
+      <EnterPasswordDialog
+        connection={makeConnection({ username: '' })}
+        onConnect={mockOnConnect}
+        onCancel={mockOnCancel}
+      />
+    )
+
+    await user.click(screen.getByText('explorer.enterPassword.connectButton'))
+
+    await waitFor(() => {
+      expect(mockOnConnect).toHaveBeenCalledWith('', '', false)
+    })
   })
 
   // ── Successful submit ─────────────────────────────────────────────────────

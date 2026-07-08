@@ -110,6 +110,16 @@
       ],
       "gatekeeperAssess": false
     },
+    "mas": {
+      "entitlements": "build/entitlements.mas.plist",
+      "entitlementsInherit": "build/entitlements.mas.inherit.plist",
+      "provisioningProfile": "build/Spiral_Mac_App_Store_Provisioning_Profile.provisionprofile"
+    },
+    "masDev": {
+      "entitlements": "build/entitlements.mas.plist",
+      "entitlementsInherit": "build/entitlements.mas.inherit.plist",
+      "provisioningProfile": "build/Spiral_MacOS_Development_Provisioning_Profile.provisionprofile"
+    },
     "dmg": {
       "contents": [
         {

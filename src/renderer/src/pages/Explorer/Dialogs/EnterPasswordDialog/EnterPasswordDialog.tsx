@@ -28,17 +28,12 @@ function EnterPasswordDialog({
   const [username, setUsername] = useState(seededUsername)
   const [password, setPassword] = useState('')
   const [remember, setRemember] = useState(false)
-  const [validationError, setValidationError] = useState<string | null>(null)
   const [serverError, setServerError] = useState<string | null>(initialError ?? null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   async function handleSubmit(e: React.FormEvent): Promise<void> {
     e.preventDefault()
-    if (!password) {
-      setValidationError(t('explorer.enterPassword.validation.passwordRequired'))
-      return
-    }
-    setValidationError(null)
+    // All fields are optional — an empty username/password attempts an anonymous login.
     setServerError(null)
     setIsSubmitting(true)
     try {
@@ -57,7 +52,6 @@ function EnterPasswordDialog({
 
   function handlePasswordChange(e: React.ChangeEvent<HTMLInputElement>): void {
     setPassword(e.target.value)
-    if (validationError) setValidationError(null)
     if (serverError) setServerError(null)
   }
 
@@ -113,7 +107,7 @@ function EnterPasswordDialog({
           </label>
           <input
             id="enter-password-password"
-            className={`conn-dialog__input${validationError ? ' conn-dialog__input--error' : ''}`}
+            className="conn-dialog__input"
             type="password"
             value={password}
             onChange={handlePasswordChange}
@@ -121,7 +115,6 @@ function EnterPasswordDialog({
             autoFocus={!!seededUsername}
             disabled={isSubmitting}
           />
-          {validationError && <span className="conn-dialog__error">{validationError}</span>}
         </div>
         <div className="conn-dialog__field">
           <label className="conn-dialog__checkbox-row">

@@ -4,3 +4,8 @@ out
 .DS_Store
 .eslintcache
 *.log*
+build/entitlements.mas.plist
+build/entitlements.mas.inherit.plist
+build/Spiral_Mac_App_Store_Provisioning_Profile.provisionprofile
+.gitignore
+build/Spiral_MacOS_Development_Provisioning_Profile.provisionprofile
