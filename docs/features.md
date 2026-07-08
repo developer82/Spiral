@@ -206,9 +206,12 @@ The **Window** menu provides window-level actions:
 
 The **Help** menu includes a **Take Screenshot** action:
 
-- **Take Screenshot** — Resizes the application window to a fixed **1280x768**, captures the rendered app UI (via `webContents.capturePage()`), and opens a save dialog so the user can choose the file location and name. The image is written as a PNG, defaulting to `Spiral-Screenshot-<timestamp>.png`. If the window is maximized it is un-maximized first so the resize takes effect; the window is left at 1280x768 after capture. Cancelling the save dialog writes no file.
+- **Take Screenshot** — Opens a **Take Screenshot** dialog that shows a live preview of the current window and lets the user pick the output size before saving:
+  - **Preview** — When the action is triggered, the current window is captured (via `webContents.capturePage()`) and shown as a static preview inside the dialog.
+  - **Size selection** — The user chooses the saved image size from **Current** (the window's exact size), **common sizes** (1920×1080, 1280×720, 1280×768, 1024×768, 800×600), **screen aspect ratios** (16:9, 4:3, 3:2, 1:1, 16:10 — height derived from the current window width), or a **Custom** width × height (100–8000 px).
+  - **Capture** — Renders the screenshot at the chosen size and opens a save dialog. The image is written as a PNG, defaulting to `Spiral-Screenshot-<timestamp>.png`. When the chosen size differs from the current window, the window is briefly resized so the UI reflows at that resolution, then **restored to its original size and position** (and re-maximized if it was maximized). When the size matches the current window, no resize happens. **Cancel** and cancelling the save dialog write no file.
 
-  The shared capture logic lives in `captureAndSaveScreenshot()` in `src/main/index.ts`. On Windows and Linux the renderer Help dropdown invokes it through the `window:take-screenshot` IPC (`window.api.window.takeScreenshot()`); on macOS the native Help menu calls the same function directly.
+  The main-process capture logic lives in `captureCurrentWindow()` (preview) and `captureAndSaveScreenshotAtSize()` (resize/restore + save) in `src/main/index.ts`, exposed via the `window:screenshot-preview` and `window:screenshot-save` IPC channels (`window.api.window.captureScreenshotPreview()` / `saveScreenshot(width, height)`). The dialog UI is `src/renderer/src/components/TakeScreenshotDialog/`, opened from the Help menu in `TopBar`. On macOS the native Help menu triggers the same dialog through the existing `menu:native-action` → `help:take-screenshot` event.
 
 ---
 

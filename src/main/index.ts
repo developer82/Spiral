@@ -240,7 +240,7 @@ function buildMacMenu(): void {
         {
           id: 'mac-help-take-screenshot',
           label: 'Take Screenshot',
-          click: () => captureAndSaveScreenshot(BrowserWindow.getAllWindows()[0] ?? null)
+          click: () => send('help:take-screenshot')
         },
         { type: 'separator' },
         {
@@ -281,18 +281,55 @@ function updateMacMenuState(): void {
 }
 
 /**
- * Resize the window to a fixed 1280x768, capture the rendered app UI, and
- * save it to a user-chosen PNG file. Shared by the renderer Help menu (via the
- * `window:take-screenshot` IPC) and the macOS native Help menu.
+ * Capture the rendered app UI at its current size, returning a PNG data URL
+ * alongside the current content dimensions. Used to populate the preview in the
+ * renderer's Take Screenshot dialog before the user picks an output size.
  */
-async function captureAndSaveScreenshot(win: BrowserWindow | null): Promise<void> {
-  if (!win) return
-  // Maximized windows ignore size changes, so leave that state first.
-  if (win.isMaximized()) win.unmaximize()
-  win.setContentSize(1280, 768)
-  // Wait briefly so the resize re-renders before we capture.
-  await new Promise((resolve) => setTimeout(resolve, 150))
+async function captureCurrentWindow(
+  win: BrowserWindow | null
+): Promise<{ dataUrl: string; width: number; height: number } | null> {
+  if (!win) return null
   const image = await win.webContents.capturePage()
+  const { width, height } = win.getContentBounds()
+  return { dataUrl: image.toDataURL(), width, height }
+}
+
+/**
+ * Capture the rendered app UI at the requested size and save it to a
+ * user-chosen PNG file. When the target differs from the current content size
+ * the window is briefly resized so the UI reflows at that resolution, then
+ * restored to its original bounds (and re-maximized if it was maximized).
+ * Shared by the renderer Help menu (via the `window:screenshot-save` IPC) and,
+ * indirectly, the macOS native Help menu.
+ */
+async function captureAndSaveScreenshotAtSize(
+  win: BrowserWindow | null,
+  targetWidth: number,
+  targetHeight: number
+): Promise<void> {
+  if (!win) return
+  // Remember the current window state so we can restore it after resizing.
+  const bounds = win.getBounds()
+  const wasMaximized = win.isMaximized()
+  const { width: curWidth, height: curHeight } = win.getContentBounds()
+  const needsResize = targetWidth !== curWidth || targetHeight !== curHeight
+
+  if (needsResize) {
+    // Maximized windows ignore size changes, so leave that state first.
+    if (wasMaximized) win.unmaximize()
+    win.setContentSize(targetWidth, targetHeight)
+    // Wait briefly so the resize re-renders before we capture.
+    await new Promise((resolve) => setTimeout(resolve, 150))
+  }
+  const image = await win.webContents.capturePage()
+
+  // Snap the window back to its original size/position while the native save
+  // dialog is up, so the resize is barely noticeable.
+  if (needsResize) {
+    win.setBounds(bounds)
+    if (wasMaximized) win.maximize()
+  }
+
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
   const result = await dialog.showSaveDialog(win, {
     defaultPath: `Spiral-Screenshot-${timestamp}.png`,
@@ -2612,9 +2649,23 @@ app.whenReady().then(async () => {
     win?.close()
   })
 
-  ipcMain.handle('window:take-screenshot', async (event: Electron.IpcMainInvokeEvent) => {
-    await captureAndSaveScreenshot(BrowserWindow.fromWebContents(event.sender))
+  ipcMain.handle('window:screenshot-preview', async (event: Electron.IpcMainInvokeEvent) => {
+    return captureCurrentWindow(BrowserWindow.fromWebContents(event.sender))
   })
+
+  ipcMain.handle(
+    'window:screenshot-save',
+    async (
+      event: Electron.IpcMainInvokeEvent,
+      { width, height }: { width: number; height: number }
+    ) => {
+      await captureAndSaveScreenshotAtSize(
+        BrowserWindow.fromWebContents(event.sender),
+        width,
+        height
+      )
+    }
+  )
 
   nativeTheme.themeSource = (store.get('nativeThemeSource') ?? 'dark') as 'dark' | 'light' | 'system'
 

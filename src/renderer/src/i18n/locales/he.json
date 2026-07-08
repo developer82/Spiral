@@ -2156,5 +2156,17 @@
       "haveYouTriedThis": "ניסית את זה?",
       "includedInThisApplication": "כלול באפליקציה זו"
     }
+  },
+  "takeScreenshotDialog": {
+    "title": "צילום מסך",
+    "preview": "תצוגה מקדימה של צילום המסך",
+    "size": "גודל",
+    "current": "נוכחי",
+    "aspectRatio": "יחס גובה-רוחב",
+    "custom": "מותאם אישית",
+    "width": "רוחב",
+    "height": "גובה",
+    "cancel": "ביטול",
+    "capture": "צלם"
   }
 }

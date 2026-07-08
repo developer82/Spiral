@@ -30,6 +30,9 @@ import DownloadProgressDialog from '../DownloadProgressDialog/DownloadProgressDi
 import ReleaseNotesDialog from '../ReleaseNotesDialog/ReleaseNotesDialog'
 import ExportEnvironmentDialog from '../ExportEnvironmentDialog/ExportEnvironmentDialog'
 import ImportEnvironmentDialog from '../ImportEnvironmentDialog/ImportEnvironmentDialog'
+import TakeScreenshotDialog, {
+  type ScreenshotPreview
+} from '../TakeScreenshotDialog/TakeScreenshotDialog'
 import { useMenuStateContext } from '../../contexts/MenuStateContext'
 import { useSettingsContext } from '../../contexts/SettingsContext'
 import { useUpdateContext } from '../../contexts/UpdateContext'
@@ -164,6 +167,7 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
   const [showReleaseNotes, setShowReleaseNotes] = useState(false)
   const [showExportDialog, setShowExportDialog] = useState(false)
   const [showImportDialog, setShowImportDialog] = useState(false)
+  const [screenshotPreview, setScreenshotPreview] = useState<ScreenshotPreview | null>(null)
   const { hasOpenDocuments, canSaveActive, isDocumentFocused } = useMenuStateContext()
   const { settings, resetSettings } = useSettingsContext()
   const { status, downloadPercent, previousVersion, installUpdate } = useUpdateContext()
@@ -179,6 +183,13 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
   const [isMaximized, setIsMaximized] = useState(false)
   const [isInstalling, setIsInstalling] = useState(false)
 
+  // Capture the current window and open the Take Screenshot dialog with it as
+  // a preview. The size picker in the dialog decides the saved file's size.
+  const openScreenshotDialog = useCallback(async () => {
+    const preview = await window.api.window.captureScreenshotPreview()
+    if (preview) setScreenshotPreview(preview)
+  }, [])
+
   useEffect(() => {
     if (platform !== 'darwin') return
     return window.api.menu.onNativeAction((action) => {
@@ -188,11 +199,13 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
         setShowAboutDialog(true)
       } else if (action === 'help:show-tip') {
         previewTip()
+      } else if (action === 'help:take-screenshot') {
+        void openScreenshotDialog()
       } else {
         dispatchMenuAction(action)
       }
     })
-  }, [platform, previewTip])
+  }, [platform, previewTip, openScreenshotDialog])
 
   useEffect(() => {
     function onMenuAction(e: Event): void {
@@ -534,7 +547,7 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
       id: 'take-screenshot',
       label: t('menu.help.takeScreenshot'),
       icon: <Camera size={13} />,
-      onClick: () => void window.api.window.takeScreenshot()
+      onClick: () => void openScreenshotDialog()
     },
     { id: 'help-sep1', separator: true },
     {
@@ -729,6 +742,16 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
           onSettingsImported={resetSettings}
         />
       )}
+
+      <TakeScreenshotDialog
+        open={!!screenshotPreview}
+        preview={screenshotPreview}
+        onCancel={() => setScreenshotPreview(null)}
+        onConfirm={(width, height) => {
+          setScreenshotPreview(null)
+          void window.api.window.saveScreenshot(width, height)
+        }}
+      />
     </header>
   )
 }

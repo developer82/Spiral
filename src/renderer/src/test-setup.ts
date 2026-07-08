@@ -292,7 +292,9 @@ if (typeof window !== 'undefined') {
         minimize: () => {},
         maximizeRestore: () => {},
         close: () => {},
-        takeScreenshot: () => Promise.resolve(),
+        captureScreenshotPreview: () =>
+          Promise.resolve({ dataUrl: 'data:image/png;base64,AAAA', width: 1500, height: 950 }),
+        saveScreenshot: () => Promise.resolve(),
         isMaximized: () => Promise.resolve(false),
         onMaximize: () => () => {},
         onUnmaximize: () => () => {}

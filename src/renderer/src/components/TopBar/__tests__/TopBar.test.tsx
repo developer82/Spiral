@@ -758,17 +758,21 @@ describe('TopBar — Window menu', () => {
     expect(screen.getByText('menu.help.takeScreenshot')).toBeInTheDocument()
   })
 
-  it('calls window.api.window.takeScreenshot when Take Screenshot is clicked', async () => {
+  it('opens the Take Screenshot dialog with a preview when clicked', async () => {
     const user = userEvent.setup()
-    const takeScreenshot = vi
-      .spyOn(window.api.window, 'takeScreenshot')
-      .mockResolvedValue(undefined)
+    const captureScreenshotPreview = vi
+      .spyOn(window.api.window, 'captureScreenshotPreview')
+      .mockResolvedValue({ dataUrl: 'data:image/png;base64,AAAA', width: 1500, height: 950 })
     renderTopBar()
 
     await user.click(screen.getByText('nav.topBar.help'))
     await user.click(screen.getByText('menu.help.takeScreenshot'))
 
-    await waitFor(() => expect(takeScreenshot).toHaveBeenCalledOnce())
+    await waitFor(() => expect(captureScreenshotPreview).toHaveBeenCalledOnce())
+    // The dialog opens showing the captured preview.
+    await waitFor(() =>
+      expect(screen.getByText('takeScreenshotDialog.title')).toBeInTheDocument()
+    )
   })
 
   it('opens the Window menu with Alt+W', async () => {

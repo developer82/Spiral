@@ -1852,7 +1852,12 @@ interface WindowAPI {
   minimize: () => void
   maximizeRestore: () => void
   close: () => void
-  takeScreenshot: () => Promise<void>
+  captureScreenshotPreview: () => Promise<{
+    dataUrl: string
+    width: number
+    height: number
+  } | null>
+  saveScreenshot: (width: number, height: number) => Promise<void>
   isMaximized: () => Promise<boolean>
   onMaximize: (cb: () => void) => () => void
   onUnmaximize: (cb: () => void) => () => void

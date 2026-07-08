@@ -2337,5 +2337,17 @@
       "haveYouTriedThis": "Have you tried this?",
       "includedInThisApplication": "Included in this application"
     }
+  },
+  "takeScreenshotDialog": {
+    "title": "Take Screenshot",
+    "preview": "Screenshot preview",
+    "size": "Size",
+    "current": "Current",
+    "aspectRatio": "Aspect ratio",
+    "custom": "Custom",
+    "width": "Width",
+    "height": "Height",
+    "cancel": "Cancel",
+    "capture": "Capture"
   }
 }
