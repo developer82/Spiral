@@ -238,6 +238,11 @@ function buildMacMenu(): void {
         },
         { type: 'separator' },
         {
+          id: 'mac-help-resize-window',
+          label: 'Resize Window',
+          click: () => send('help:resize-window')
+        },
+        {
           id: 'mac-help-take-screenshot',
           label: 'Take Screenshot',
           click: () => send('help:take-screenshot')
@@ -2664,6 +2669,28 @@ app.whenReady().then(async () => {
         width,
         height
       )
+    }
+  )
+
+  ipcMain.handle('window:get-content-size', (event: Electron.IpcMainInvokeEvent) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win) return null
+    const { width, height } = win.getContentBounds()
+    return { width, height }
+  })
+
+  ipcMain.handle(
+    'window:resize',
+    (
+      event: Electron.IpcMainInvokeEvent,
+      { width, height }: { width: number; height: number }
+    ) => {
+      const win = BrowserWindow.fromWebContents(event.sender)
+      if (!win) return
+      // Maximized windows ignore size changes, so leave that state first.
+      if (win.isMaximized()) win.unmaximize()
+      win.setContentSize(width, height)
+      win.center()
     }
   )
 

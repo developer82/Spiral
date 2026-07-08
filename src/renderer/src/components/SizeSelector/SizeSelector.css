@@ -1,0 +1,77 @@
+/* Sections */
+
+.size-selector__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.size-selector__section-label {
+  font-size: var(--font-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  user-select: none;
+}
+
+.size-selector__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Segmented option buttons */
+
+.size-selector__option {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.4rem 0.75rem;
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.275rem;
+  background: transparent;
+  color: var(--color-muted);
+  font-size: var(--font-sm);
+  font-family: 'Inter', system-ui, sans-serif;
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease;
+}
+
+.size-selector__option:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-on-surface);
+}
+
+.size-selector__option--active {
+  background: rgba(161, 250, 255, 0.1);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.size-selector__option-dims {
+  font-size: var(--font-xs);
+  font-family: 'JetBrains Mono', monospace;
+  opacity: 0.75;
+}
+
+/* Custom width x height inputs */
+
+.size-selector__custom-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.size-selector__custom-field {
+  width: 7rem;
+}
+
+.size-selector__custom-sep {
+  color: var(--color-muted);
+  font-size: var(--font-sm);
+}

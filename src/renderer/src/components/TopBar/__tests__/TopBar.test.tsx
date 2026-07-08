@@ -758,6 +758,31 @@ describe('TopBar — Window menu', () => {
     expect(screen.getByText('menu.help.takeScreenshot')).toBeInTheDocument()
   })
 
+  it('renders Resize Window in the Help menu', async () => {
+    const user = userEvent.setup()
+    renderTopBar()
+
+    await user.click(screen.getByText('nav.topBar.help'))
+
+    expect(screen.getByText('menu.help.resizeWindow')).toBeInTheDocument()
+  })
+
+  it('opens the Resize Window dialog with the current size when clicked', async () => {
+    const user = userEvent.setup()
+    const getContentSize = vi
+      .spyOn(window.api.window, 'getContentSize')
+      .mockResolvedValue({ width: 1500, height: 950 })
+    renderTopBar()
+
+    await user.click(screen.getByText('nav.topBar.help'))
+    await user.click(screen.getByText('menu.help.resizeWindow'))
+
+    await waitFor(() => expect(getContentSize).toHaveBeenCalledOnce())
+    await waitFor(() =>
+      expect(screen.getByText('resizeWindowDialog.title')).toBeInTheDocument()
+    )
+  })
+
   it('opens the Take Screenshot dialog with a preview when clicked', async () => {
     const user = userEvent.setup()
     const captureScreenshotPreview = vi

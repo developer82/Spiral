@@ -614,6 +614,13 @@ const api = {
       } | null>,
     saveScreenshot: (width: number, height: number) =>
       ipcRenderer.invoke('window:screenshot-save', { width, height }) as Promise<void>,
+    getContentSize: () =>
+      ipcRenderer.invoke('window:get-content-size') as Promise<{
+        width: number
+        height: number
+      } | null>,
+    resizeWindow: (width: number, height: number) =>
+      ipcRenderer.invoke('window:resize', { width, height }) as Promise<void>,
     isMaximized: () => ipcRenderer.invoke('window:is-maximized') as Promise<boolean>,
     onMaximize: (cb: () => void) => {
       const handler = () => cb()

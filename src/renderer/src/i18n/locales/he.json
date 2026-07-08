@@ -1865,6 +1865,7 @@
         "about": "אודות",
         "checkForUpdates": "בדוק עדכונים...",
         "documentation": "תיעוד",
+        "resizeWindow": "שנה גודל חלון",
         "takeScreenshot": "צלם מסך",
         "showTip": "הצג טיפ",
         "developerTools": "הצג כלי מפתח"
@@ -2160,13 +2161,20 @@
   "takeScreenshotDialog": {
     "title": "צילום מסך",
     "preview": "תצוגה מקדימה של צילום המסך",
+    "cancel": "ביטול",
+    "capture": "צלם"
+  },
+  "resizeWindowDialog": {
+    "title": "שנה גודל חלון",
+    "cancel": "ביטול",
+    "resize": "שנה גודל"
+  },
+  "sizeSelector": {
     "size": "גודל",
     "current": "נוכחי",
     "aspectRatio": "יחס גובה-רוחב",
     "custom": "מותאם אישית",
     "width": "רוחב",
-    "height": "גובה",
-    "cancel": "ביטול",
-    "capture": "צלם"
+    "height": "גובה"
   }
 }

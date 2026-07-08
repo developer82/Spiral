@@ -16,6 +16,7 @@ import {
   LogOut,
   Save,
   SaveAll,
+  Scaling,
   Scissors,
   Settings as SettingsIcon,
   Trash2,
@@ -33,6 +34,7 @@ import ImportEnvironmentDialog from '../ImportEnvironmentDialog/ImportEnvironmen
 import TakeScreenshotDialog, {
   type ScreenshotPreview
 } from '../TakeScreenshotDialog/TakeScreenshotDialog'
+import ResizeWindowDialog from '../ResizeWindowDialog/ResizeWindowDialog'
 import { useMenuStateContext } from '../../contexts/MenuStateContext'
 import { useSettingsContext } from '../../contexts/SettingsContext'
 import { useUpdateContext } from '../../contexts/UpdateContext'
@@ -168,6 +170,9 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
   const [showExportDialog, setShowExportDialog] = useState(false)
   const [showImportDialog, setShowImportDialog] = useState(false)
   const [screenshotPreview, setScreenshotPreview] = useState<ScreenshotPreview | null>(null)
+  const [resizeWindowSize, setResizeWindowSize] = useState<{ width: number; height: number } | null>(
+    null
+  )
   const { hasOpenDocuments, canSaveActive, isDocumentFocused } = useMenuStateContext()
   const { settings, resetSettings } = useSettingsContext()
   const { status, downloadPercent, previousVersion, installUpdate } = useUpdateContext()
@@ -190,6 +195,13 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
     if (preview) setScreenshotPreview(preview)
   }, [])
 
+  // Read the current window content size and open the Resize Window dialog with
+  // it as the "Current" baseline. The size picker decides the new window size.
+  const openResizeDialog = useCallback(async () => {
+    const size = await window.api.window.getContentSize()
+    if (size) setResizeWindowSize(size)
+  }, [])
+
   useEffect(() => {
     if (platform !== 'darwin') return
     return window.api.menu.onNativeAction((action) => {
@@ -201,11 +213,13 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
         previewTip()
       } else if (action === 'help:take-screenshot') {
         void openScreenshotDialog()
+      } else if (action === 'help:resize-window') {
+        void openResizeDialog()
       } else {
         dispatchMenuAction(action)
       }
     })
-  }, [platform, previewTip, openScreenshotDialog])
+  }, [platform, previewTip, openScreenshotDialog, openResizeDialog])
 
   useEffect(() => {
     function onMenuAction(e: Event): void {
@@ -544,6 +558,12 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
     },
     { id: 'help-sep-screenshot', separator: true },
     {
+      id: 'resize-window',
+      label: t('menu.help.resizeWindow'),
+      icon: <Scaling size={13} />,
+      onClick: () => void openResizeDialog()
+    },
+    {
       id: 'take-screenshot',
       label: t('menu.help.takeScreenshot'),
       icon: <Camera size={13} />,
@@ -750,6 +770,17 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
         onConfirm={(width, height) => {
           setScreenshotPreview(null)
           void window.api.window.saveScreenshot(width, height)
+        }}
+      />
+
+      <ResizeWindowDialog
+        open={!!resizeWindowSize}
+        currentWidth={resizeWindowSize?.width ?? 0}
+        currentHeight={resizeWindowSize?.height ?? 0}
+        onCancel={() => setResizeWindowSize(null)}
+        onResize={(width, height) => {
+          setResizeWindowSize(null)
+          void window.api.window.resizeWindow(width, height)
         }}
       />
     </header>

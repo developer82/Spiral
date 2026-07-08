@@ -2046,6 +2046,7 @@
       "about": "About",
       "checkForUpdates": "Check for Updates...",
       "documentation": "Documentation",
+      "resizeWindow": "Resize Window",
       "takeScreenshot": "Take Screenshot",
       "showTip": "Show Tip",
       "developerTools": "Show Developer Tools"
@@ -2341,13 +2342,20 @@
   "takeScreenshotDialog": {
     "title": "Take Screenshot",
     "preview": "Screenshot preview",
+    "cancel": "Cancel",
+    "capture": "Capture"
+  },
+  "resizeWindowDialog": {
+    "title": "Resize Window",
+    "cancel": "Cancel",
+    "resize": "Resize"
+  },
+  "sizeSelector": {
     "size": "Size",
     "current": "Current",
     "aspectRatio": "Aspect ratio",
     "custom": "Custom",
     "width": "Width",
-    "height": "Height",
-    "cancel": "Cancel",
-    "capture": "Capture"
+    "height": "Height"
   }
 }

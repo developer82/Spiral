@@ -204,14 +204,22 @@ The **Window** menu provides window-level actions:
 
 #### Help Menu
 
-The **Help** menu includes a **Take Screenshot** action:
+The **Help** menu includes **Resize Window** and **Take Screenshot** actions:
 
 - **Take Screenshot** — Opens a **Take Screenshot** dialog that shows a live preview of the current window and lets the user pick the output size before saving:
   - **Preview** — When the action is triggered, the current window is captured (via `webContents.capturePage()`) and shown as a static preview inside the dialog.
-  - **Size selection** — The user chooses the saved image size from **Current** (the window's exact size), **common sizes** (1920×1080, 1280×720, 1280×768, 1024×768, 800×600), **screen aspect ratios** (16:9, 4:3, 3:2, 1:1, 16:10 — height derived from the current window width), or a **Custom** width × height (100–8000 px).
+  - **Size selection** — The user chooses the saved image size with the shared **Size selector** (see below).
   - **Capture** — Renders the screenshot at the chosen size and opens a save dialog. The image is written as a PNG, defaulting to `Spiral-Screenshot-<timestamp>.png`. When the chosen size differs from the current window, the window is briefly resized so the UI reflows at that resolution, then **restored to its original size and position** (and re-maximized if it was maximized). When the size matches the current window, no resize happens. **Cancel** and cancelling the save dialog write no file.
 
   The main-process capture logic lives in `captureCurrentWindow()` (preview) and `captureAndSaveScreenshotAtSize()` (resize/restore + save) in `src/main/index.ts`, exposed via the `window:screenshot-preview` and `window:screenshot-save` IPC channels (`window.api.window.captureScreenshotPreview()` / `saveScreenshot(width, height)`). The dialog UI is `src/renderer/src/components/TakeScreenshotDialog/`, opened from the Help menu in `TopBar`. On macOS the native Help menu triggers the same dialog through the existing `menu:native-action` → `help:take-screenshot` event.
+
+- **Resize Window** — Opens a **Resize Window** dialog that uses the same size selector to resize the actual app window (no preview image, no file saved):
+  - **Size selection** — The shared size selector, seeded with the current window content size as **Current**.
+  - **Resize** — Applies the chosen size to the window via `setContentSize()` and **re-centers** the window on its display; if the window was maximized it is un-maximized first. The dialog then closes. **Cancel** makes no change.
+
+  The main-process handlers are the `window:get-content-size` (read current content size) and `window:resize` (un-maximize + `setContentSize` + `center`) IPC channels in `src/main/index.ts`, exposed via `window.api.window.getContentSize()` / `resizeWindow(width, height)`. The dialog UI is `src/renderer/src/components/ResizeWindowDialog/`, opened from the Help menu in `TopBar`. On macOS the native Help menu triggers it through the `menu:native-action` → `help:resize-window` event.
+
+- **Size selector** — `src/renderer/src/components/SizeSelector/` is the reusable size-picker component shared by the Take Screenshot and Resize Window dialogs. It offers **Current** (a caller-supplied base size), **common sizes** (1920×1080, 1280×720, 1280×768, 1024×768, 800×600), **screen aspect ratios** (16:9, 4:3, 3:2, 1:1, 16:10 — height derived from the base width), or a **Custom** width × height (100–8000 px). It reports the resolved dimensions (or `null` when a custom entry is incomplete/out of range) to its parent via an `onChange` callback.
 
 ---
 

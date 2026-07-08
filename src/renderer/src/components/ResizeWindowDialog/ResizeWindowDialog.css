@@ -1,0 +1,8 @@
+/* Footer output dimensions label */
+
+.resize-window-dialog__output {
+  font-size: var(--font-xs);
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--color-muted);
+  opacity: 0.8;
+}

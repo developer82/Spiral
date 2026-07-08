@@ -1,6 +1,6 @@
 # Spiral v1.0.3 🌀
 
-This release adds anonymous-login support for credential-free connections and a redesigned Take Screenshot experience.
+This release adds anonymous-login support for credential-free connections, a redesigned Take Screenshot experience, and a new Resize Window tool.
 
 ---
 
@@ -13,6 +13,12 @@ This release adds anonymous-login support for credential-free connections and a 
 ## 📸 Screenshots
 
 - **Take Screenshot dialog** — **Help → Take Screenshot** now opens a dialog with a live preview of the current window and a size picker instead of silently resizing and saving. Choose **Current** size, a **common size** (1920×1080, 1280×720, 1280×768, 1024×768, 800×600), a **screen aspect ratio** (16:9, 4:3, 3:2, 1:1, 16:10), or a **Custom** width × height, then **Capture** to save a PNG. When a chosen size requires resizing the window, it is captured at that size and then **restored to its original size and position** (re-maximizing if it was maximized) — no more window left resized after a screenshot.
+
+---
+
+## 🪟 Window
+
+- **Resize Window** — the new **Help → Resize Window** action opens a dialog that reuses the same size picker as Take Screenshot to resize the app window itself. Pick **Current**, a **common size**, a **screen aspect ratio**, or a **Custom** width × height, then **Resize** — the window is set to that size and **re-centered** on your display. Handy for producing consistent window sizes for demos or documentation.
 
 ---
 

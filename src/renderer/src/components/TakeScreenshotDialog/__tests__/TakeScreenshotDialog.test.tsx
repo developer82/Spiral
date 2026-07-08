@@ -84,11 +84,11 @@ describe('TakeScreenshotDialog', () => {
 
   it('captures at custom width and height', () => {
     const { onConfirm } = renderDialog()
-    fireEvent.click(screen.getByRole('button', { name: 'takeScreenshotDialog.custom' }))
-    fireEvent.change(screen.getByLabelText('takeScreenshotDialog.width'), {
+    fireEvent.click(screen.getByRole('button', { name: 'sizeSelector.custom' }))
+    fireEvent.change(screen.getByLabelText('sizeSelector.width'), {
       target: { value: '640' }
     })
-    fireEvent.change(screen.getByLabelText('takeScreenshotDialog.height'), {
+    fireEvent.change(screen.getByLabelText('sizeSelector.height'), {
       target: { value: '480' }
     })
     fireEvent.click(captureBtn())
@@ -97,7 +97,7 @@ describe('TakeScreenshotDialog', () => {
 
   it('disables Capture while custom size is empty', () => {
     const { onConfirm } = renderDialog()
-    fireEvent.click(screen.getByRole('button', { name: 'takeScreenshotDialog.custom' }))
+    fireEvent.click(screen.getByRole('button', { name: 'sizeSelector.custom' }))
     expect(captureBtn()).toBeDisabled()
     fireEvent.click(captureBtn())
     expect(onConfirm).not.toHaveBeenCalled()
@@ -105,11 +105,11 @@ describe('TakeScreenshotDialog', () => {
 
   it('disables Capture for an out-of-range custom size', () => {
     renderDialog()
-    fireEvent.click(screen.getByRole('button', { name: 'takeScreenshotDialog.custom' }))
-    fireEvent.change(screen.getByLabelText('takeScreenshotDialog.width'), {
+    fireEvent.click(screen.getByRole('button', { name: 'sizeSelector.custom' }))
+    fireEvent.change(screen.getByLabelText('sizeSelector.width'), {
       target: { value: '50' } // below the 100px minimum
     })
-    fireEvent.change(screen.getByLabelText('takeScreenshotDialog.height'), {
+    fireEvent.change(screen.getByLabelText('sizeSelector.height'), {
       target: { value: '480' }
     })
     expect(captureBtn()).toBeDisabled()
