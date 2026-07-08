@@ -16,6 +16,8 @@ This release adds multi-user connection support, autosave crash recovery, and ri
 
 - **Connected-as label in the Explorer tree** — a connected connection row now shows the active username in parentheses next to its name (e.g. `My SQL Server (sa)`). Connecting via **Connect As…** with a profile that has a **Profile Name** shows that name instead of the raw username, so you can tell at a glance which account each open connection is using.
 
+- **Anonymous Login** — the Add/Edit Connection dialog now has an **Anonymous Login** checkbox under the **Username** field (same style as **Remember Password**). When ticked, the **Username** and **Password** fields are disabled and their values are **not persisted** even if they were entered first. Connecting to an anonymous-login connection from the Explorer sidebar connects straight away with no credentials and never shows the **Enter Password** prompt. Available for SQL Server, PostgreSQL, MySQL, MongoDB, and Redis connections.
+
 ## 📊 ERD Diagram
 
 - **Relationship cardinality on connection lines** — each connection in an ERD now shows its relationship type next to the foreign-key column name, using `∞` for a "many" end: `∞:1` (one-to-many), `1:1` (one-to-one, when the FK is also the primary key), `0..∞:1` (optional/nullable FK), and `∞:∞` (many-to-many, detected from junction tables whose primary key is two FK columns). Cardinality is derived from the existing schema — no extra database query.

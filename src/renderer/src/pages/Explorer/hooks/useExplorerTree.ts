@@ -22,10 +22,11 @@ import { trackEvent } from '../../../analytics/track'
 /**
  * A connection needs an interactive password prompt when its password was not
  * saved (rememberPassword === false). SQLite is file-based with no auth, so it
- * never prompts.
+ * never prompts. Anonymous-login connections deliberately connect without any
+ * credentials, so they never prompt either.
  */
 export function needsPasswordPrompt(conn: ConnectionRecord): boolean {
-  return !conn.rememberPassword && conn.provider !== 'sqlite'
+  return !conn.rememberPassword && !conn.anonymousLogin && conn.provider !== 'sqlite'
 }
 
 export interface UseExplorerTreeReturn {

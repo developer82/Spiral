@@ -151,6 +151,48 @@ describe('NewConnectionDialog', () => {
     })
   })
 
+  it('disables the username and password fields when Anonymous Login is checked', async () => {
+    const user = userEvent.setup()
+    render(<NewConnectionDialog onSave={mockOnSave} onCancel={mockOnCancel} />)
+
+    const username = screen.getByLabelText('explorer.dialog.fields.username')
+    const password = screen.getByLabelText('explorer.dialog.fields.password')
+    expect(username).not.toBeDisabled()
+    expect(password).not.toBeDisabled()
+
+    await user.click(screen.getByLabelText('explorer.dialog.fields.anonymousLogin'))
+
+    expect(username).toBeDisabled()
+    expect(password).toBeDisabled()
+    expect(screen.getByLabelText('explorer.dialog.fields.rememberPassword')).toBeDisabled()
+  })
+
+  it('does not persist username or password when Anonymous Login is checked', async () => {
+    const user = userEvent.setup()
+    mockOnSave.mockResolvedValue(undefined)
+    render(<NewConnectionDialog onSave={mockOnSave} onCancel={mockOnCancel} />)
+
+    await user.type(screen.getByLabelText('explorer.dialog.fields.name'), 'Anon Server')
+    await user.type(screen.getByLabelText('explorer.dialog.fields.host'), '127.0.0.1')
+    await user.type(screen.getByLabelText('explorer.dialog.fields.username'), 'sa')
+    await user.type(screen.getByLabelText('explorer.dialog.fields.password'), 'secret')
+    // Tick anonymous login after entering credentials — they must be dropped on save.
+    await user.click(screen.getByLabelText('explorer.dialog.fields.anonymousLogin'))
+
+    await user.click(screen.getByText('explorer.dialog.actions.save'))
+
+    await waitFor(() => {
+      expect(mockOnSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          anonymousLogin: true,
+          username: '',
+          password: '',
+          rememberPassword: false
+        })
+      )
+    })
+  })
+
   it('provider dropdown defaults to sqlserver', () => {
     render(<NewConnectionDialog onSave={mockOnSave} onCancel={mockOnCancel} />)
 

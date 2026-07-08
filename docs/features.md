@@ -943,6 +943,8 @@ The **Connection Details** tab has two columns:
 
 A **Remember Password** checkbox sits directly below the Password field. When unchecked the password is not persisted to disk; when checked it is stored alongside the other connection fields.
 
+An **Anonymous Login** checkbox sits directly below the Username field (same style as *Remember Password*). When checked, the **Username** and **Password** fields (and the *Remember Password* checkbox) are disabled, and the username/password are **not persisted** even if values were entered before ticking it. A connection saved as anonymous connects with no credentials and skips the [Enter Password](#enter-password-prompt-unsaved-password) prompt entirely when connected from the Explorer sidebar. Anonymous Login is offered for SQL Server, PostgreSQL, MySQL, MongoDB, and Redis (it is not shown for SQLite, which has no authentication).
+
 The **Options** tab exposes additional settings per connection:
 
 - **Icon Color** — a native OS color picker that overrides the provider's default icon color for this connection's tree-view entry. Leaving the color empty (or clicking *Reset to default*) falls back to the provider's default color defined in `PROVIDER_METADATA`.

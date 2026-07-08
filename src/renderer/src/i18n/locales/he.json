@@ -717,6 +717,7 @@
         "username": "שם משתמש",
         "password": "סיסמה",
         "rememberPassword": "זכור סיסמה",
+        "anonymousLogin": "התחברות אנונימית",
         "defaultDatabase": "מסד נתונים ברירת מחדל",
         "color": "צבע אייקון",
         "colorResetDefault": "איפוס לברירת מחדל",

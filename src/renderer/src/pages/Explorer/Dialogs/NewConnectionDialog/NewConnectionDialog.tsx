@@ -77,6 +77,7 @@ const EMPTY_FORM: FormData = {
   username: '',
   password: '',
   rememberPassword: false,
+  anonymousLogin: false,
   defaultDatabase: '',
   filePath: '',
   color: '',
@@ -116,6 +117,16 @@ const EMPTY_FORM: FormData = {
   tlsAllowInvalidCertificates: false,
   // PostgreSQL defaults
   postgresSslMode: 'prefer'
+}
+
+/**
+ * When anonymous login is enabled, credentials must never be persisted or sent —
+ * strip username/password and force rememberPassword off, regardless of any
+ * values that were typed before the checkbox was ticked.
+ */
+function normalizeCredentials(form: FormData): FormData {
+  if (!form.anonymousLogin) return form
+  return { ...form, username: '', password: '', rememberPassword: false }
 }
 
 function validate(form: FormData, t: (key: string) => string): FormErrors {
@@ -378,6 +389,7 @@ function NewConnectionDialog({
           username: initialValues.username,
           password: initialValues.password,
           rememberPassword: initialValues.rememberPassword,
+          anonymousLogin: initialValues.anonymousLogin ?? false,
           defaultDatabase: initialValues.defaultDatabase,
           filePath: initialValues.filePath ?? '',
           color: initialValues.color ?? '',
@@ -570,7 +582,7 @@ function NewConnectionDialog({
     setTestStatus('testing')
     setTestMessage(undefined)
     try {
-      const result = await window.api.database.testConnection(form)
+      const result = await window.api.database.testConnection(normalizeCredentials(form))
       if (result.status === 'connected') {
         setTestStatus('success')
         setTestMessage(t('explorer.dialog.testResult.success'))
@@ -598,7 +610,7 @@ function NewConnectionDialog({
     }
     setIsSaving(true)
     try {
-      await onSave(form)
+      await onSave(normalizeCredentials(form))
     } finally {
       setIsSaving(false)
     }
@@ -822,7 +834,19 @@ function NewConnectionDialog({
                             value={form.username}
                             onChange={(e) => setField('username', e.target.value)}
                             placeholder="default"
+                            disabled={form.anonymousLogin}
                           />
+                          <label className="conn-dialog__checkbox-row">
+                            <input
+                              type="checkbox"
+                              className="conn-dialog__checkbox"
+                              checked={form.anonymousLogin ?? false}
+                              onChange={(e) => setField('anonymousLogin', e.target.checked)}
+                            />
+                            <span className="conn-dialog__checkbox-label">
+                              {t('explorer.dialog.fields.anonymousLogin')}
+                            </span>
+                          </label>
                         </div>
                         <div className="conn-dialog__field">
                           <label className="conn-dialog__label" htmlFor="conn-password">
@@ -835,6 +859,7 @@ function NewConnectionDialog({
                             value={form.password}
                             onChange={(e) => setField('password', e.target.value)}
                             placeholder="••••••••"
+                            disabled={form.anonymousLogin}
                           />
                           <label className="conn-dialog__checkbox-row">
                             <input
@@ -842,6 +867,7 @@ function NewConnectionDialog({
                               className="conn-dialog__checkbox"
                               checked={form.rememberPassword}
                               onChange={(e) => setField('rememberPassword', e.target.checked)}
+                              disabled={form.anonymousLogin}
                             />
                             <span className="conn-dialog__checkbox-label">
                               {t('explorer.dialog.fields.rememberPassword')}
@@ -1258,7 +1284,19 @@ function NewConnectionDialog({
                                 value={form.username}
                                 onChange={(e) => setField('username', e.target.value)}
                                 placeholder="admin"
+                                disabled={form.anonymousLogin}
                               />
+                              <label className="conn-dialog__checkbox-row">
+                                <input
+                                  type="checkbox"
+                                  className="conn-dialog__checkbox"
+                                  checked={form.anonymousLogin ?? false}
+                                  onChange={(e) => setField('anonymousLogin', e.target.checked)}
+                                />
+                                <span className="conn-dialog__checkbox-label">
+                                  {t('explorer.dialog.fields.anonymousLogin')}
+                                </span>
+                              </label>
                             </div>
                             <div className="conn-dialog__field">
                               <label className="conn-dialog__label" htmlFor="conn-password">
@@ -1271,6 +1309,7 @@ function NewConnectionDialog({
                                 value={form.password}
                                 onChange={(e) => setField('password', e.target.value)}
                                 placeholder="••••••••"
+                                disabled={form.anonymousLogin}
                               />
                               <label className="conn-dialog__checkbox-row">
                                 <input
@@ -1278,6 +1317,7 @@ function NewConnectionDialog({
                                   className="conn-dialog__checkbox"
                                   checked={form.rememberPassword}
                                   onChange={(e) => setField('rememberPassword', e.target.checked)}
+                                  disabled={form.anonymousLogin}
                                 />
                                 <span className="conn-dialog__checkbox-label">
                                   {t('explorer.dialog.fields.rememberPassword')}
@@ -1695,10 +1735,22 @@ function NewConnectionDialog({
                             value={form.username}
                             onChange={(e) => setField('username', e.target.value)}
                             placeholder="sa"
+                            disabled={form.anonymousLogin}
                           />
                           {errors.username && (
                             <span className="conn-dialog__error">{errors.username}</span>
                           )}
+                          <label className="conn-dialog__checkbox-row">
+                            <input
+                              type="checkbox"
+                              className="conn-dialog__checkbox"
+                              checked={form.anonymousLogin ?? false}
+                              onChange={(e) => setField('anonymousLogin', e.target.checked)}
+                            />
+                            <span className="conn-dialog__checkbox-label">
+                              {t('explorer.dialog.fields.anonymousLogin')}
+                            </span>
+                          </label>
                         </div>
 
                         {/* Password + Remember Password */}
@@ -1713,6 +1765,7 @@ function NewConnectionDialog({
                             value={form.password}
                             onChange={(e) => setField('password', e.target.value)}
                             placeholder="••••••••"
+                            disabled={form.anonymousLogin}
                           />
                           <label className="conn-dialog__checkbox-row">
                             <input
@@ -1720,6 +1773,7 @@ function NewConnectionDialog({
                               className="conn-dialog__checkbox"
                               checked={form.rememberPassword}
                               onChange={(e) => setField('rememberPassword', e.target.checked)}
+                              disabled={form.anonymousLogin}
                             />
                             <span className="conn-dialog__checkbox-label">
                               {t('explorer.dialog.fields.rememberPassword')}

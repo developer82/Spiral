@@ -183,6 +183,8 @@ export interface ConnectionRecord {
   username: string
   password: string
   rememberPassword: boolean
+  /** When true, connect anonymously — no username/password persisted or sent. */
+  anonymousLogin?: boolean
   defaultDatabase: string
   /** Path to the SQLite database file (used when provider === 'sqlite'). */
   filePath?: string

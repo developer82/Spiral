@@ -796,6 +796,7 @@
         "username": "Username",
         "password": "Password",
         "rememberPassword": "Remember Password",
+        "anonymousLogin": "Anonymous Login",
         "defaultDatabase": "Default Database",
         "color": "Icon Color",
         "colorResetDefault": "Reset to default",

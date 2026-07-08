@@ -23,6 +23,12 @@ export interface ConnectionRecord {
   username: string
   password: string
   rememberPassword: boolean
+  /**
+   * When true, connect without a username or password (anonymous). The username
+   * and password fields are disabled in the dialog and are not persisted even if
+   * values were previously entered.
+   */
+  anonymousLogin?: boolean
   defaultDatabase: string
   /** Path to the SQLite database file (used when provider === 'sqlite'). */
   filePath?: string

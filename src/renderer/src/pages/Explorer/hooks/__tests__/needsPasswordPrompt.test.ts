@@ -38,4 +38,10 @@ describe('needsPasswordPrompt', () => {
       needsPasswordPrompt(makeConnection({ provider: 'sqlite', rememberPassword: false }))
     ).toBe(false)
   })
+
+  it('returns false for an anonymous-login connection even without a saved password', () => {
+    expect(
+      needsPasswordPrompt(makeConnection({ anonymousLogin: true, rememberPassword: false }))
+    ).toBe(false)
+  })
 })
