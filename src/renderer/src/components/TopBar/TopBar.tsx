@@ -91,6 +91,18 @@ function CloseIcon(): React.JSX.Element {
   )
 }
 
+/**
+ * Resolve after the browser has committed and painted a frame. Waiting two
+ * animation frames guarantees a full render+paint cycle has elapsed, so a DOM
+ * change (e.g. unmounting the screenshot dialog) is actually reflected on screen
+ * before we capture the window.
+ */
+function waitForNextPaint(): Promise<void> {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+  })
+}
+
 interface WindowControlsProps {
   isMaximized: boolean
   /** When the profile button sits immediately to the left, drop the auto left margin. */
@@ -204,6 +216,10 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
   // Capture at the chosen size, overlay traffic lights when needed, then save.
   const saveScreenshot = useCallback(
     async (width: number, height: number) => {
+      // The dialog is dismissed just before this runs; wait for the window to
+      // repaint without it so the capture doesn't include the dialog itself
+      // (the resize path already reflows, but a same-size capture would not).
+      await waitForNextPaint()
       const captured = await window.api.window.captureScreenshotAtSize(width, height)
       if (!captured) return
       const dataUrl = showTrafficLights
