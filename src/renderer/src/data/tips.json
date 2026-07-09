@@ -94,5 +94,10 @@
     "text": "Turn off Show Toolbar Text Buttons in Settings → Appearance to display icons only in the Explorer toolbar. This frees up horizontal space, giving your query tabs more room.",
     "category": "appearance",
     "screen": { "page": "settings", "section": "appearance" }
+  },
+  {
+    "id": "tip-screenshot-shortcut",
+    "text": "Press Ctrl+Shift+T (or Cmd+Shift+T on Mac) to instantly capture a screenshot of the window at its current size and jump straight to the save dialog — no need to open the Take Screenshot dialog first.",
+    "category": "productivity"
   }
 ]
