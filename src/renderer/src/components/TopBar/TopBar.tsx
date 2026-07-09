@@ -230,12 +230,36 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
     [showTrafficLights]
   )
 
+  // Instant screenshot (Cmd/Ctrl+Shift+T): skip the dialog and capture the
+  // window at its current size, going straight to the save dialog.
+  const captureScreenshotAtCurrentSize = useCallback(async () => {
+    const size = await window.api.window.getContentSize()
+    if (!size) return
+    await saveScreenshot(size.width, size.height)
+  }, [saveScreenshot])
+
   // Read the current window content size and open the Resize Window dialog with
   // it as the "Current" baseline. The size picker decides the new window size.
   const openResizeDialog = useCallback(async () => {
     const size = await window.api.window.getContentSize()
     if (size) setResizeWindowSize(size)
   }, [])
+
+  // Global screenshot shortcut: Cmd+Shift+T on macOS, Ctrl+Shift+T elsewhere.
+  // Handled in the renderer on every platform (no native accelerator claims it)
+  // so it takes an instant screenshot rather than opening the dialog.
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent): void {
+      const primary = platform === 'darwin' ? e.metaKey : e.ctrlKey
+      const conflicting = platform === 'darwin' ? e.ctrlKey : e.metaKey
+      if (primary && e.shiftKey && !conflicting && !e.altKey && e.code === 'KeyT') {
+        e.preventDefault()
+        void captureScreenshotAtCurrentSize()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [platform, captureScreenshotAtCurrentSize])
 
   useEffect(() => {
     if (platform !== 'darwin') return

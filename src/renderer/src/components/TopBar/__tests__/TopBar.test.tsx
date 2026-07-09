@@ -958,4 +958,34 @@ describe('TopBar — profile button', () => {
     const brand = container.querySelector('.topbar__brand')
     expect(brand?.querySelector('.topbar__profile')).toBeInTheDocument()
   })
+
+  it('Ctrl+Shift+T captures at the current window size and saves without the dialog', async () => {
+    const captureAtSize = vi.spyOn(window.api.window, 'captureScreenshotAtSize')
+    const write = vi.spyOn(window.api.window, 'writeScreenshot')
+    renderTopBar()
+
+    act(() => {
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { code: 'KeyT', ctrlKey: true, shiftKey: true })
+      )
+    })
+
+    // getContentSize mock resolves to 1500 × 950 in test-setup.
+    await waitFor(() => expect(captureAtSize).toHaveBeenCalledWith(1500, 950))
+    await waitFor(() => expect(write).toHaveBeenCalledOnce())
+    // No preview dialog is opened for the instant shortcut.
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('ignores Ctrl+T without Shift', async () => {
+    const captureAtSize = vi.spyOn(window.api.window, 'captureScreenshotAtSize')
+    renderTopBar()
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyT', ctrlKey: true }))
+    })
+
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(captureAtSize).not.toHaveBeenCalled()
+  })
 })

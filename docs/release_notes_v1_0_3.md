@@ -14,6 +14,7 @@ This release adds anonymous-login support for credential-free connections, a red
 
 - **Take Screenshot dialog** — **Help → Take Screenshot** now opens a dialog with a live preview of the current window and a size picker instead of silently resizing and saving. Choose **Current** size, a **common size** (1920×1080, 1280×720, 1280×768, 1024×768, 800×600), a **screen aspect ratio** (16:9, 4:3, 3:2, 1:1, 16:10), or a **Custom** width × height, then **Capture** to save a PNG. When a chosen size requires resizing the window, it is captured at that size and then **restored to its original size and position** (re-maximizing if it was maximized) — no more window left resized after a screenshot.
 - **macOS traffic lights in screenshots** — On macOS the window close / minimize / zoom "traffic light" buttons are drawn by the system and aren't captured, so screenshots used to come out missing them. Spiral now paints matching artificial traffic lights onto both the preview and the saved image, so macOS screenshots look like the real window (crisp on Retina displays).
+- **Instant screenshot shortcut** — Press **Cmd+Shift+T** (macOS) or **Ctrl+Shift+T** (Windows/Linux) to grab a screenshot of the window at its current size and jump straight to the save dialog — no Take Screenshot dialog, no size picker.
 
 ---
 
