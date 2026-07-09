@@ -1,4 +1,14 @@
-import { app, shell, BrowserWindow, ipcMain, nativeTheme, dialog, Menu, powerMonitor } from 'electron'
+import {
+  app,
+  shell,
+  BrowserWindow,
+  ipcMain,
+  nativeTheme,
+  dialog,
+  Menu,
+  powerMonitor,
+  nativeImage
+} from 'electron'
 import { join, extname, basename } from 'path'
 import { readFile, writeFile, copyFile, unlink, mkdir } from 'fs/promises'
 import { existsSync } from 'fs'
@@ -300,19 +310,22 @@ async function captureCurrentWindow(
 }
 
 /**
- * Capture the rendered app UI at the requested size and save it to a
- * user-chosen PNG file. When the target differs from the current content size
- * the window is briefly resized so the UI reflows at that resolution, then
- * restored to its original bounds (and re-maximized if it was maximized).
- * Shared by the renderer Help menu (via the `window:screenshot-save` IPC) and,
- * indirectly, the macOS native Help menu.
+ * Capture the rendered app UI at the requested size and return it as a PNG data
+ * URL. When the target differs from the current content size the window is
+ * briefly resized so the UI reflows at that resolution, then restored to its
+ * original bounds (and re-maximized if it was maximized).
+ *
+ * The captured image only contains the web layer; on macOS the native window
+ * "traffic light" buttons live in a separate layer and are not included, so the
+ * renderer composites artificial ones on before saving. See the renderer's
+ * `trafficLights` helper.
  */
-async function captureAndSaveScreenshotAtSize(
+async function captureScreenshotAtSize(
   win: BrowserWindow | null,
   targetWidth: number,
   targetHeight: number
-): Promise<void> {
-  if (!win) return
+): Promise<{ dataUrl: string } | null> {
+  if (!win) return null
   // Remember the current window state so we can restore it after resizing.
   const bounds = win.getBounds()
   const wasMaximized = win.isMaximized()
@@ -328,12 +341,26 @@ async function captureAndSaveScreenshotAtSize(
   }
   const image = await win.webContents.capturePage()
 
-  // Snap the window back to its original size/position while the native save
-  // dialog is up, so the resize is barely noticeable.
+  // Snap the window back to its original size/position, so the resize is barely
+  // noticeable.
   if (needsResize) {
     win.setBounds(bounds)
     if (wasMaximized) win.maximize()
   }
+
+  return { dataUrl: image.toDataURL() }
+}
+
+/**
+ * Prompt for a destination and write a PNG (provided as a data URL) to disk.
+ * Used to save a screenshot after the renderer has composited any overlays
+ * (e.g. macOS traffic lights) onto the captured image. Returns whether a file
+ * was written.
+ */
+async function saveScreenshotToFile(win: BrowserWindow | null, dataUrl: string): Promise<boolean> {
+  if (!win) return false
+  const image = nativeImage.createFromDataURL(dataUrl)
+  if (image.isEmpty()) return false
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
   const result = await dialog.showSaveDialog(win, {
@@ -343,8 +370,9 @@ async function captureAndSaveScreenshotAtSize(
       { name: 'All Files', extensions: ['*'] }
     ]
   })
-  if (result.canceled || !result.filePath) return
+  if (result.canceled || !result.filePath) return false
   await writeFile(result.filePath, image.toPNG())
+  return true
 }
 
 /** Send a lock request to all renderer windows. */
@@ -2659,16 +2687,19 @@ app.whenReady().then(async () => {
   })
 
   ipcMain.handle(
-    'window:screenshot-save',
+    'window:screenshot-capture',
     async (
       event: Electron.IpcMainInvokeEvent,
       { width, height }: { width: number; height: number }
     ) => {
-      await captureAndSaveScreenshotAtSize(
-        BrowserWindow.fromWebContents(event.sender),
-        width,
-        height
-      )
+      return captureScreenshotAtSize(BrowserWindow.fromWebContents(event.sender), width, height)
+    }
+  )
+
+  ipcMain.handle(
+    'window:screenshot-write',
+    async (event: Electron.IpcMainInvokeEvent, { dataUrl }: { dataUrl: string }) => {
+      return saveScreenshotToFile(BrowserWindow.fromWebContents(event.sender), dataUrl)
     }
   )
 

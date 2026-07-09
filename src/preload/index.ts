@@ -612,8 +612,12 @@ const api = {
         width: number
         height: number
       } | null>,
-    saveScreenshot: (width: number, height: number) =>
-      ipcRenderer.invoke('window:screenshot-save', { width, height }) as Promise<void>,
+    captureScreenshotAtSize: (width: number, height: number) =>
+      ipcRenderer.invoke('window:screenshot-capture', { width, height }) as Promise<{
+        dataUrl: string
+      } | null>,
+    writeScreenshot: (dataUrl: string) =>
+      ipcRenderer.invoke('window:screenshot-write', { dataUrl }) as Promise<boolean>,
     getContentSize: () =>
       ipcRenderer.invoke('window:get-content-size') as Promise<{
         width: number

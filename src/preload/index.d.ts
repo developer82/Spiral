@@ -1857,7 +1857,11 @@ interface WindowAPI {
     width: number
     height: number
   } | null>
-  saveScreenshot: (width: number, height: number) => Promise<void>
+  captureScreenshotAtSize: (
+    width: number,
+    height: number
+  ) => Promise<{ dataUrl: string } | null>
+  writeScreenshot: (dataUrl: string) => Promise<boolean>
   getContentSize: () => Promise<{ width: number; height: number } | null>
   resizeWindow: (width: number, height: number) => Promise<void>
   isMaximized: () => Promise<boolean>

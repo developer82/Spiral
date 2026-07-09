@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen, fireEvent, cleanup } from '@testing-library/react'
+import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, afterEach, type Mock } from 'vitest'
 import TakeScreenshotDialog, {
   type ScreenshotPreview
@@ -8,6 +8,13 @@ import TakeScreenshotDialog, {
 // Mirror the app-wide i18n mock: t(key) returns the key string.
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key })
+}))
+
+// Stub the canvas compositing so tests don't depend on a real 2D context;
+// it just tags the URL so we can assert whether compositing ran.
+vi.mock('../trafficLights', () => ({
+  composeScreenshotWithTrafficLights: (dataUrl: string) =>
+    Promise.resolve(`${dataUrl}#with-traffic-lights`)
 }))
 
 // Deliberately not equal to any preset so preview dims never collide in queries.
@@ -113,6 +120,21 @@ describe('TakeScreenshotDialog', () => {
       target: { value: '480' }
     })
     expect(captureBtn()).toBeDisabled()
+  })
+
+  it('shows the raw preview when traffic lights are not requested', () => {
+    renderDialog()
+    const img = screen.getByRole('img') as HTMLImageElement
+    expect(img.src).toContain('data:image/png;base64,AAAA')
+    expect(img.src).not.toContain('with-traffic-lights')
+  })
+
+  it('composites traffic lights onto the preview when requested', async () => {
+    renderDialog({ showTrafficLights: true })
+    await waitFor(() => {
+      const img = screen.getByRole('img') as HTMLImageElement
+      expect(img.src).toContain('with-traffic-lights')
+    })
   })
 
   it('cancel triggers onCancel without capturing', () => {

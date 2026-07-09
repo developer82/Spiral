@@ -294,7 +294,9 @@ if (typeof window !== 'undefined') {
         close: () => {},
         captureScreenshotPreview: () =>
           Promise.resolve({ dataUrl: 'data:image/png;base64,AAAA', width: 1500, height: 950 }),
-        saveScreenshot: () => Promise.resolve(),
+        captureScreenshotAtSize: () =>
+          Promise.resolve({ dataUrl: 'data:image/png;base64,AAAA' }),
+        writeScreenshot: () => Promise.resolve(true),
         getContentSize: () => Promise.resolve({ width: 1500, height: 950 }),
         resizeWindow: () => Promise.resolve(),
         isMaximized: () => Promise.resolve(false),

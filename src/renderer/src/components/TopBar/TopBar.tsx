@@ -34,6 +34,7 @@ import ImportEnvironmentDialog from '../ImportEnvironmentDialog/ImportEnvironmen
 import TakeScreenshotDialog, {
   type ScreenshotPreview
 } from '../TakeScreenshotDialog/TakeScreenshotDialog'
+import { composeScreenshotWithTrafficLights } from '../TakeScreenshotDialog/trafficLights'
 import ResizeWindowDialog from '../ResizeWindowDialog/ResizeWindowDialog'
 import { useMenuStateContext } from '../../contexts/MenuStateContext'
 import { useSettingsContext } from '../../contexts/SettingsContext'
@@ -188,12 +189,30 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
   const [isMaximized, setIsMaximized] = useState(false)
   const [isInstalling, setIsInstalling] = useState(false)
 
+  // On macOS with a hidden (custom) title bar the window "traffic light"
+  // buttons are a native layer that `capturePage` doesn't include, so we paint
+  // artificial ones onto the screenshot to match the real window.
+  const showTrafficLights = platform === 'darwin' && customTitlebar
+
   // Capture the current window and open the Take Screenshot dialog with it as
   // a preview. The size picker in the dialog decides the saved file's size.
   const openScreenshotDialog = useCallback(async () => {
     const preview = await window.api.window.captureScreenshotPreview()
     if (preview) setScreenshotPreview(preview)
   }, [])
+
+  // Capture at the chosen size, overlay traffic lights when needed, then save.
+  const saveScreenshot = useCallback(
+    async (width: number, height: number) => {
+      const captured = await window.api.window.captureScreenshotAtSize(width, height)
+      if (!captured) return
+      const dataUrl = showTrafficLights
+        ? await composeScreenshotWithTrafficLights(captured.dataUrl, width)
+        : captured.dataUrl
+      await window.api.window.writeScreenshot(dataUrl)
+    },
+    [showTrafficLights]
+  )
 
   // Read the current window content size and open the Resize Window dialog with
   // it as the "Current" baseline. The size picker decides the new window size.
@@ -766,10 +785,11 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
       <TakeScreenshotDialog
         open={!!screenshotPreview}
         preview={screenshotPreview}
+        showTrafficLights={showTrafficLights}
         onCancel={() => setScreenshotPreview(null)}
         onConfirm={(width, height) => {
           setScreenshotPreview(null)
-          void window.api.window.saveScreenshot(width, height)
+          void saveScreenshot(width, height)
         }}
       />
 
