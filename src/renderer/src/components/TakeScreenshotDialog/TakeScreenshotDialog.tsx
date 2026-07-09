@@ -35,6 +35,8 @@ export default function TakeScreenshotDialog({
 }: TakeScreenshotDialogProps): React.JSX.Element | null {
   const { t } = useTranslation()
   const [dimensions, setDimensions] = useState<Dimensions | null>(null)
+  // Mirror the platform-specific accelerator handled in TopBar.
+  const screenshotShortcut = window.api.platform === 'darwin' ? 'Cmd+Shift+T' : 'Ctrl+Shift+T'
   // The preview image to display: either the raw capture or, on macOS, the
   // capture with artificial traffic lights composited on top.
   const [displayUrl, setDisplayUrl] = useState<string | null>(null)
@@ -98,6 +100,10 @@ export default function TakeScreenshotDialog({
             className="take-screenshot-dialog__preview-img"
           />
         </div>
+
+        <p className="take-screenshot-dialog__shortcut-hint">
+          {t('takeScreenshotDialog.shortcutHint', { shortcut: screenshotShortcut })}
+        </p>
 
         <SizeSelector
           currentWidth={preview.width}

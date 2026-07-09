@@ -122,6 +122,11 @@ describe('TakeScreenshotDialog', () => {
     expect(captureBtn()).toBeDisabled()
   })
 
+  it('shows the keyboard-shortcut hint under the preview', () => {
+    renderDialog()
+    expect(screen.getByText('takeScreenshotDialog.shortcutHint')).toBeInTheDocument()
+  })
+
   it('shows the raw preview when traffic lights are not requested', () => {
     renderDialog()
     const img = screen.getByRole('img') as HTMLImageElement

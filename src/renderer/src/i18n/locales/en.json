@@ -2342,6 +2342,7 @@
   "takeScreenshotDialog": {
     "title": "Take Screenshot",
     "preview": "Screenshot preview",
+    "shortcutHint": "Tip: press {{shortcut}} to capture instantly, without opening this dialog.",
     "cancel": "Cancel",
     "capture": "Capture"
   },

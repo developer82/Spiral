@@ -2161,6 +2161,7 @@
   "takeScreenshotDialog": {
     "title": "צילום מסך",
     "preview": "תצוגה מקדימה של צילום המסך",
+    "shortcutHint": "טיפ: הקש {{shortcut}} לצילום מיידי, בלי לפתוח את החלון הזה.",
     "cancel": "ביטול",
     "capture": "צלם"
   },

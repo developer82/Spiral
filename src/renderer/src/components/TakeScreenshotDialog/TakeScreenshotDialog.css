@@ -18,6 +18,15 @@
   border-radius: 0.25rem;
 }
 
+/* Shortcut hint under the preview */
+
+.take-screenshot-dialog__shortcut-hint {
+  margin: 0.5rem 0 0;
+  font-size: var(--font-xs);
+  color: var(--color-muted);
+  text-align: center;
+}
+
 /* Footer output dimensions label */
 
 .take-screenshot-dialog__output {
