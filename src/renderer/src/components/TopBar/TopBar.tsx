@@ -183,6 +183,7 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
   const [showExportDialog, setShowExportDialog] = useState(false)
   const [showImportDialog, setShowImportDialog] = useState(false)
   const [screenshotPreview, setScreenshotPreview] = useState<ScreenshotPreview | null>(null)
+  const [hasPassword, setHasPassword] = useState(false)
   const [resizeWindowSize, setResizeWindowSize] = useState<{ width: number; height: number } | null>(
     null
   )
@@ -306,6 +307,17 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
   }, [customTitlebar])
 
   const closeMenu = useCallback(() => setMenuState(null), [])
+
+  // Keep the "password is set" flag current so the Lock Screen menu item is
+  // enabled/disabled correctly. Refresh on mount and whenever a menu opens,
+  // since the password can be set or removed from Settings at any time.
+  const menuOpen = menuState !== null
+  useEffect(() => {
+    window.api.auth
+      .getState()
+      .then((state) => setHasPassword(state.hasPassword))
+      .catch(() => {})
+  }, [menuOpen])
 
   const openMenuByKey = useCallback((key: MenuKey): void => {
     const btn = buttonRefs.current.get(key)
@@ -587,6 +599,15 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
       id: 'toggle-side-nav',
       label: settings.showSideNavigationBar ? t('menu.view.hideSideNav') : t('menu.view.showSideNav'),
       onClick: () => dispatchMenuAction('view:toggle-side-nav')
+    },
+    { id: 'view-sep-lock', separator: true },
+    {
+      id: 'view-lock-screen',
+      label: t('menu.window.lockScreen'),
+      icon: <Lock size={13} />,
+      shortcut: platform === 'darwin' ? 'Cmd+Shift+L' : 'Ctrl+Shift+L',
+      disabled: !hasPassword,
+      onClick: () => void window.api.auth.lockNow()
     }
   ]
 
@@ -603,7 +624,8 @@ function TopBar({ isLocked = false }: { isLocked?: boolean }): React.JSX.Element
       id: 'lock-screen',
       label: t('menu.window.lockScreen'),
       icon: <Lock size={13} />,
-      shortcut: 'Ctrl+Shift+L',
+      shortcut: platform === 'darwin' ? 'Cmd+Shift+L' : 'Ctrl+Shift+L',
+      disabled: !hasPassword,
       onClick: () => void window.api.auth.lockNow()
     }
   ]

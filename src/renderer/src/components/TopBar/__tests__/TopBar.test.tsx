@@ -211,6 +211,50 @@ describe('TopBar', () => {
     expect(screen.getByText('menu.view.hideSideNav')).toBeInTheDocument()
   })
 
+  it('shows a disabled Lock Screen item in the View menu when no password is set', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(window.api.auth, 'getState').mockResolvedValue({
+      hasPassword: false,
+      lockOnStartup: false,
+      lockOnInactivity: false,
+      lockOnMinimize: false,
+      inactivityTimeoutMinutes: 5,
+      lockout: { isLockedOut: false, lockedUntilMs: null }
+    })
+
+    renderTopBar()
+    await user.click(screen.getByText('nav.topBar.view'))
+
+    await waitFor(() => {
+      const disabled = Array.from(document.querySelectorAll('.menu__item--disabled')).map(
+        (el) => el.textContent
+      )
+      expect(disabled.some((l) => l?.includes('menu.window.lockScreen'))).toBe(true)
+    })
+  })
+
+  it('enables the View menu Lock Screen item and locks when a password is set', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(window.api.auth, 'getState').mockResolvedValue({
+      hasPassword: true,
+      lockOnStartup: false,
+      lockOnInactivity: false,
+      lockOnMinimize: false,
+      inactivityTimeoutMinutes: 5,
+      lockout: { isLockedOut: false, lockedUntilMs: null }
+    })
+    const lockNow = vi.spyOn(window.api.auth, 'lockNow').mockResolvedValue(undefined)
+
+    renderTopBar()
+    await user.click(screen.getByText('nav.topBar.view'))
+
+    const lockItem = await screen.findByText('menu.window.lockScreen')
+    await waitFor(() => expect(lockItem.closest('.menu__item--disabled')).toBeNull())
+
+    await user.click(lockItem)
+    await waitFor(() => expect(lockNow).toHaveBeenCalledTimes(1))
+  })
+
   it('shows the show-side-nav label when the navigation bar is hidden', async () => {
     const user = userEvent.setup()
     vi.mocked(useSettingsContext).mockReturnValue({

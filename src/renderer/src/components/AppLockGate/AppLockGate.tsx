@@ -58,10 +58,12 @@ export default function AppLockGate({ children, titleBar }: AppLockGateProps): R
     })
   }, [])
 
-  // Ctrl+Shift+L global shortcut → lock
+  // Global lock shortcut: Cmd+Shift+L on macOS, Ctrl+Shift+L elsewhere.
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent): void {
-      if (e.ctrlKey && e.shiftKey && e.key === 'L' && !e.altKey && !e.metaKey) {
+      const primary = window.api.platform === 'darwin' ? e.metaKey : e.ctrlKey
+      const conflicting = window.api.platform === 'darwin' ? e.ctrlKey : e.metaKey
+      if (primary && e.shiftKey && !conflicting && !e.altKey && e.code === 'KeyL') {
         void window.api.auth.lockNow()
       }
     }

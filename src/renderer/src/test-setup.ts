@@ -361,6 +361,7 @@ if (typeof window !== 'undefined') {
         changePassword: () => Promise.resolve({ status: 'ok' as const }),
         removePassword: () => Promise.resolve({ status: 'ok' as const }),
         verify: () => Promise.resolve({ valid: true }),
+        lockNow: () => Promise.resolve(),
         onLock: () => () => {}
       },
       ai: {

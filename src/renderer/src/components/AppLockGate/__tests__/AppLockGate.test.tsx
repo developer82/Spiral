@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { render, screen, waitFor, cleanup } from '@testing-library/react'
+import { render, screen, waitFor, cleanup, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import AppLockGate from '../AppLockGate'
 
@@ -265,5 +265,93 @@ describe('AppLockGate', () => {
     lockCb!()
 
     await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument())
+  })
+
+  describe('global lock shortcut', () => {
+    const originalPlatform = window.api.platform
+
+    afterEach(() => {
+      ;(window.api as { platform: NodeJS.Platform }).platform = originalPlatform
+    })
+
+    function setPlatform(platform: string): void {
+      ;(window.api as { platform: string }).platform = platform
+    }
+
+    it('locks on Ctrl+Shift+L on non-macOS platforms', async () => {
+      setPlatform('win32')
+      const lockNow = vi.spyOn(window.api.auth, 'lockNow').mockResolvedValue(undefined)
+      vi.spyOn(window.api.auth, 'getState').mockResolvedValue({
+        hasPassword: true,
+        lockOnStartup: false,
+        lockOnInactivity: false,
+        lockOnMinimize: false,
+        inactivityTimeoutMinutes: 5,
+        lockout: { isLockedOut: false, lockedUntilMs: null }
+      })
+
+      renderGate()
+      await waitFor(() => expect(screen.getByText('App Content')).toBeInTheDocument())
+
+      fireEvent.keyDown(window, { code: 'KeyL', ctrlKey: true, shiftKey: true })
+      expect(lockNow).toHaveBeenCalledTimes(1)
+    })
+
+    it('locks on Cmd+Shift+L on macOS', async () => {
+      setPlatform('darwin')
+      const lockNow = vi.spyOn(window.api.auth, 'lockNow').mockResolvedValue(undefined)
+      vi.spyOn(window.api.auth, 'getState').mockResolvedValue({
+        hasPassword: true,
+        lockOnStartup: false,
+        lockOnInactivity: false,
+        lockOnMinimize: false,
+        inactivityTimeoutMinutes: 5,
+        lockout: { isLockedOut: false, lockedUntilMs: null }
+      })
+
+      renderGate()
+      await waitFor(() => expect(screen.getByText('App Content')).toBeInTheDocument())
+
+      fireEvent.keyDown(window, { code: 'KeyL', metaKey: true, shiftKey: true })
+      expect(lockNow).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not lock on Ctrl+Shift+L on macOS (wrong modifier)', async () => {
+      setPlatform('darwin')
+      const lockNow = vi.spyOn(window.api.auth, 'lockNow').mockResolvedValue(undefined)
+      vi.spyOn(window.api.auth, 'getState').mockResolvedValue({
+        hasPassword: true,
+        lockOnStartup: false,
+        lockOnInactivity: false,
+        lockOnMinimize: false,
+        inactivityTimeoutMinutes: 5,
+        lockout: { isLockedOut: false, lockedUntilMs: null }
+      })
+
+      renderGate()
+      await waitFor(() => expect(screen.getByText('App Content')).toBeInTheDocument())
+
+      fireEvent.keyDown(window, { code: 'KeyL', ctrlKey: true, shiftKey: true })
+      expect(lockNow).not.toHaveBeenCalled()
+    })
+
+    it('does not lock when Shift is missing', async () => {
+      setPlatform('win32')
+      const lockNow = vi.spyOn(window.api.auth, 'lockNow').mockResolvedValue(undefined)
+      vi.spyOn(window.api.auth, 'getState').mockResolvedValue({
+        hasPassword: true,
+        lockOnStartup: false,
+        lockOnInactivity: false,
+        lockOnMinimize: false,
+        inactivityTimeoutMinutes: 5,
+        lockout: { isLockedOut: false, lockedUntilMs: null }
+      })
+
+      renderGate()
+      await waitFor(() => expect(screen.getByText('App Content')).toBeInTheDocument())
+
+      fireEvent.keyDown(window, { code: 'KeyL', ctrlKey: true })
+      expect(lockNow).not.toHaveBeenCalled()
+    })
   })
 })

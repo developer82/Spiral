@@ -189,6 +189,12 @@ When the side navigation bar is hidden, the **User Profile** button moves into t
 
 The button is not shown while the lock screen is active, and it disappears again as soon as the side navigation bar is restored.
 
+#### View Menu
+
+The **View** menu lists the app pages (Explorer, Profiler, Compare, Settings, Profile), a separator, and the **Hide/Show Side Navigation Bar** toggle. A final section holds:
+
+- **Lock Screen** — Locks the application immediately (same action as the **Cmd+Shift+L** / **Ctrl+Shift+L** shortcut). The item is **disabled and grayed out when no password is set**, since the app can only be locked once a password exists. The enabled/disabled state is refreshed from the main process each time a menu opens, so setting or removing a password in Settings is reflected without a restart.
+
 #### Window Menu
 
 The **Window** menu provides window-level actions:
@@ -1458,6 +1464,8 @@ When the application is locked (by startup policy, inactivity timeout, or a syst
 - A password input field.
 - An **Unlock** button (disabled until the password field is non-empty).
 - An error message if the entered password is incorrect.
+
+The screen can also be locked on demand with the **Cmd+Shift+L** (macOS) / **Ctrl+Shift+L** (Windows/Linux) keyboard shortcut, or from the **Lock Screen** item in the View menu and Window menu (both disabled until a password is set).
 
 The lock screen is managed by the `AppLockGate` component which wraps the entire app. It listens for `auth:lock` IPC events from the main process (triggered on OS suspend or screen lock) when inactivity locking is enabled.
 
