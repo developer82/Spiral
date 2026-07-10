@@ -6,6 +6,10 @@
 
 <p align="center"><em><sub>A modern multi-database client for SQL, Redis, and MongoDB — built with Electron, React, and TypeScript.</sub></em></p>
 
+<p align="center">
+  <img src="screenshots/banner.png" alt="Spiral banner" width="100%" />
+</p>
+
 ## About
 
 Spiral is a cross-platform desktop client for managing and querying multiple database engines from one app. It pairs a lazy-loaded schema explorer with full CRUD tooling for tables, views, stored procedures, users, and more — plus dedicated dialogs for backup/restore, schema comparison, and an embedded AI assistant for writing SQL.
